@@ -8,6 +8,7 @@
         <button @click="handleSubmit">登录</button>
       </div>
     </div>
+    <button @click="handleLogout">退出登录</button>
     <ul class="items" v-if="!showLogin">
       <li class="item" v-for="(url, index) in items" :key="index">
         <img :src="url" alt="">
@@ -19,6 +20,15 @@
 </template>
 
 <script>
+  import {
+    nanoid
+  } from 'nanoid'
+
+
+  const getFileExtension = (fileName) => {
+    return fileName.split('.').pop();
+  }
+
   export default {
     data() {
       return {
@@ -31,6 +41,11 @@
       this.loadData();
     },
     methods: {
+      handleLogout() {
+        localStorage.removeItem('username')
+        this.showLogin = true;
+        this.loadData()
+      },
       handleRemove(url) {
         const username = localStorage.getItem('username');
         const db = uniCloud.database().collection("user")
@@ -43,11 +58,16 @@
 
             return images.filter(_url => _url !== url)
           }).then(images => {
-            return db.where({
+            db.where({
               username
             }).update({
               images
             })
+            return url;
+          })
+          .then((url) => {
+            const action = uniCloud.importObject('action')
+            return action.delete(url)
           })
           .then(() => {
             this.loadData()
@@ -66,7 +86,7 @@
           this.items = data?.images ?? [];
         });
       },
-      saveImage(username, url) {
+      saveImage(username, fileIDs) {
         const db = uniCloud.database().collection("user")
 
         db.where({
@@ -79,7 +99,7 @@
             return db.where({
               username
             }).update({
-              images: [...images, url],
+              images: [...fileIDs, ...images, ],
             })
           }).then(() => {
             return this.loadData();
@@ -90,25 +110,36 @@
       },
       handleUpload() {
         uni.chooseImage({
-          count: 1,
-          success: (res) => {
+          count: 10,
+          success: async (res) => {
+            const maxSize = 100 * 1024;
+
             if (res.tempFilePaths.length === 0) {
               return;
             }
-            const file = res.tempFiles[0];
-            const maxSize = 100 * 1024;
-            if (file.size > maxSize) {
+
+            const fileList = res.tempFiles.map((file, index) => ({
+              file,
+              tempFilePath: res.tempFilePaths[index]
+            }))
+
+            // 需要检查每张图片的尺寸
+            const isOverSize = !!fileList.find(item => item.file.size > maxSize)
+            if (isOverSize) {
               alert('狗东西，这么大文件你要死啊？不能大于100kb');
               return;
             }
 
             wx.showLoading();
-            const localFilePath = res.tempFilePaths[0];
-            const cloudPath = `/images/${file.name}`;
 
-            uniCloud.uploadFile({
-                filePath: localFilePath,
-                cloudPath: cloudPath,
+            const promises = fileList.map(item => {
+              const filePath = item.tempFilePath;
+              const fileExtension = getFileExtension(item.file.name);
+              const fileName = nanoid();
+              const cloudPath = `/images/${fileName}.${fileExtension}`;
+              return uniCloud.uploadFile({
+                filePath,
+                cloudPath,
                 cloudPathAsRealPath: true,
                 onUploadProgress: function(progressEvent) {
                   const percentCompleted = Math.round(
@@ -116,19 +147,17 @@
                   );
                 }
               })
-              .then(res => {
-                const {
-                  fileID
-                } = res;
-                const username = localStorage.getItem('username');
+            })
 
-                this.saveImage(username, fileID);
-              }).catch(res => {
-                if (res.message.includes('policy_does_not_allow_file_overwrite')) {
-                  alert('文件重名');
-                }
-                wx.hideLoading()
-              })
+            Promise.all(promises).then(reses => {
+              const {
+                fileID
+              } = res;
+              const username = localStorage.getItem('username');
+              const fileIDs = reses.map(item => item.fileID);
+
+              this.saveImage(username, fileIDs);
+            }).finally(wx.hideLoading)
           }
         });
       },
