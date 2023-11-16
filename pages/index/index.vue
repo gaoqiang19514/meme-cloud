@@ -2,13 +2,13 @@
   <view class="content">
     <div v-if="showLogin">
       <div class="input-box">
-        <input class="uni-input" :value="username" placeholder="账号" />
+        <input class="uni-input" v-model="username" placeholder="账号" />
       </div>
       <div class="input-box">
-        <button @click="handleSubmit">登录</button>
+        <button @click="handleSubmit">登录（未注册自动注册）</button>
       </div>
     </div>
-    <button @click="handleLogout">退出登录</button>
+    <button v-if="!showLogin" @click="handleLogout">退出登录</button>
     <ul class="items" v-if="!showLogin">
       <li class="item" v-for="(url, index) in items" :key="index">
         <img :src="url" alt="">
@@ -93,8 +93,7 @@
             username
           }).get().then(res => {
             const [data] = res.result.data;
-
-            return data.images
+            return data?.images ?? []
           }).then(images => {
             return db.where({
               username
@@ -161,23 +160,37 @@
           }
         });
       },
-      isExist(username) {},
+      async isExist(username) {
+        const db = uniCloud.database().collection("user")
+        const res = await db.where({
+          username
+        }).get()
+
+        return res.result.data.length > 0;
+      },
       login(username) {
         localStorage.setItem('username', username)
         this.showLogin = false;
 
         this.loadData();
       },
-      register(username) {
-
+      async register(username) {
+        // 创建用户
+        const db = uniCloud.database().collection("user")
+        await db.add({
+          username
+        })
+        // 自动登录
         this.login(username)
       },
-      handleSubmit() {
+      async handleSubmit() {
         const {
           username
         } = this;
 
-        if (this.isExist(username)) {
+        const value = await this.isExist(username)
+        // 查询当前用户是否存在,如果不存在,则创建新用户
+        if (value) {
           this.login(username);
         } else {
           this.register(username);
