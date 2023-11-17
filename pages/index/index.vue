@@ -29,10 +29,25 @@
     return fileName.split('.').pop();
   }
 
+
+
+  const accountStorage = {
+    get: () => {
+      return localStorage.getItem('username');
+    },
+    set: (value) => {
+      localStorage.setItem('username', value);
+    },
+    remove: () => {
+      localStorage.removeItem('username')
+    }
+  }
+
   export default {
     data() {
       return {
-        showLogin: !localStorage.getItem('username'),
+        db: uniCloud.database().collection("user"),
+        showLogin: !accountStorage.get(),
         username: 'tomcat',
         items: [],
       }
@@ -42,13 +57,16 @@
     },
     methods: {
       handleLogout() {
-        localStorage.removeItem('username')
+        accountStorage.remove()
         this.showLogin = true;
         this.loadData()
       },
       handleRemove(url) {
-        const username = localStorage.getItem('username');
-        const db = uniCloud.database().collection("user")
+        const {
+          db
+        } = this;
+        const username = accountStorage.get();
+
         wx.showLoading();
         db.where({
             username
@@ -77,8 +95,11 @@
           })
       },
       loadData() {
-        const username = localStorage.getItem('username');
-        const db = uniCloud.database().collection("user")
+        const {
+          db
+        } = this;
+        const username = accountStorage.get();
+
         db.where({
           username
         }).get().then(res => {
@@ -87,7 +108,9 @@
         });
       },
       saveImage(username, fileIDs) {
-        const db = uniCloud.database().collection("user")
+        const {
+          db
+        } = this;
 
         db.where({
             username
@@ -152,7 +175,7 @@
               const {
                 fileID
               } = res;
-              const username = localStorage.getItem('username');
+              const username = accountStorage.get();
               const fileIDs = reses.map(item => item.fileID);
 
               this.saveImage(username, fileIDs);
@@ -161,7 +184,10 @@
         });
       },
       async isExist(username) {
-        const db = uniCloud.database().collection("user")
+        const {
+          db
+        } = this;
+
         const res = await db.where({
           username
         }).get()
@@ -169,14 +195,17 @@
         return res.result.data.length > 0;
       },
       login(username) {
-        localStorage.setItem('username', username)
+        accountStorage.set(username)
         this.showLogin = false;
 
         this.loadData();
       },
       async register(username) {
-        // 创建用户
-        const db = uniCloud.database().collection("user")
+        const {
+          db
+        } = this;
+
+        // 创建用户        
         await db.add({
           username
         })
