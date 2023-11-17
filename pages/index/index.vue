@@ -132,6 +132,9 @@
           count: 10,
           success: async (res) => {
             const maxSize = 100 * 1024;
+            
+            const username = accountStorage.get();
+            
 
             if (res.tempFilePaths.length === 0) {
               return;
@@ -144,7 +147,7 @@
 
             // 需要检查每张图片的尺寸
             const isOverSize = !!fileList.find(item => item.file.size > maxSize)
-            if (isOverSize) {
+            if (username !== 'tomcat' && isOverSize) {
               alert('狗东西，这么大文件你要死啊？不能大于100kb');
               return;
             }
