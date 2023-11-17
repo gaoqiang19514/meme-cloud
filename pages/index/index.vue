@@ -24,12 +24,9 @@
     nanoid
   } from 'nanoid'
 
-
   const getFileExtension = (fileName) => {
     return fileName.split('.').pop();
   }
-
-
 
   const accountStorage = {
     get: () => {
@@ -48,7 +45,7 @@
       return {
         db: uniCloud.database().collection("user"),
         showLogin: !accountStorage.get(),
-        username: 'tomcat',
+        username: '',
         items: [],
       }
     },
@@ -216,6 +213,11 @@
         const {
           username
         } = this;
+        
+        if (!username.trim()) {
+          alert('账号不能为空')
+          return;
+        }
 
         const value = await this.isExist(username)
         // 查询当前用户是否存在,如果不存在,则创建新用户
