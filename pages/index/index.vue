@@ -23,6 +23,7 @@
   import {
     nanoid
   } from 'nanoid'
+  import Compressor from 'compressorjs';
 
   const getFileExtension = (fileName) => {
     return fileName.split('.').pop();
@@ -128,13 +129,14 @@
           })
       },
       handleUpload() {
+
         uni.chooseImage({
           count: 10,
           success: async (res) => {
             const maxSize = 100 * 1024;
-            
+
             const username = accountStorage.get();
-            
+
 
             if (res.tempFilePaths.length === 0) {
               return;
@@ -150,6 +152,22 @@
             if (username !== 'tomcat' && isOverSize) {
               alert('狗东西，这么大文件你要死啊？不能大于100kb');
               return;
+            }
+
+            const compressorFile = (file, cb) => {
+              return new Promise((resolve) => {
+                new Compressor(file, {
+                  quality: 0.6,
+                  success: (result) => {
+                    resolve(URL.createObjectURL(result));
+                  },
+                });
+              })
+            }
+
+            for (const item of fileList) {
+              const tempFilePath = await compressorFile(item.file)
+              item.tempFilePath = tempFilePath;
             }
 
             wx.showLoading();
@@ -180,6 +198,7 @@
 
               this.saveImage(username, fileIDs);
             }).finally(wx.hideLoading)
+
           }
         });
       },
@@ -216,7 +235,7 @@
         const {
           username
         } = this;
-        
+
         if (!username.trim()) {
           alert('账号不能为空')
           return;
