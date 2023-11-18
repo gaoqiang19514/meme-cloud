@@ -6,6 +6,8 @@
       "path": "pages/usercenter/index"
     }, {
       "path": "pages/login/index"
+    }, {
+      "path": "pages/focus/index"
     }
   ],
   "globalStyle": {

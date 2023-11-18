@@ -15,6 +15,12 @@
         <uni-icons type="plusempty" size="50"></uni-icons>
       </li>
     </ul>
+    <div>
+      <ul>
+        <li @click="onClick('index')">meme-cloud</li>
+        <li @click="onClick('focus')">focus</li>
+      </ul>
+    </div>
   </view>
 </template>
 
@@ -52,6 +58,11 @@
       this.loadData();
     },
     methods: {
+      onClick(page) {
+        uni.navigateTo({
+          url: `/pages/${page}/index`
+        })
+      },
       handleLogout() {
         accountStorage.remove()
         uni.reLaunch({

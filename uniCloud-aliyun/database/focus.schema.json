@@ -1,0 +1,30 @@
+{
+  "bsonType": "object",
+  "required": [],
+  "permission": {
+    "read": true,
+    "create": true,
+    "update": true,
+    "delete": true
+  },
+  "properties": {
+    "_id": {
+      "description": "ID，系统自动生成"
+    },
+    "date": {
+      "description": "日期"
+    },
+    "user_id": {
+      "description": "用户id"
+    },
+    "value": {
+      "description": "当前值"
+    },
+    "name": {
+      "description": "任务名名称"
+    },
+    "target": {
+      "description": "任务名名称"
+    }
+  }
+}
