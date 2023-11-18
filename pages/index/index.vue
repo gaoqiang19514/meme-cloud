@@ -1,20 +1,19 @@
 <template>
   <view class="content">
-    <div v-if="showLogin">
-      <div class="input-box">
-        <input class="uni-input" v-model="username" placeholder="账号" />
-      </div>
-      <div class="input-box">
-        <button @click="handleSubmit">登录（未注册自动注册）</button>
-      </div>
+    <div class="head">
+      <div class="title">我的表情包</div>
+      <div class="button" v-if="!showLogin" @click="handleLogout">退出登录</div>
     </div>
-    <button v-if="!showLogin" @click="handleLogout">退出登录</button>
     <ul class="items" v-if="!showLogin">
       <li class="item" v-for="(url, index) in items" :key="index">
         <img :src="url" alt="">
-        <button @click="handleRemove(url)">删除</button>
+        <div class="remove" @click="handleRemove(url)">
+          <uni-icons type="closeempty" size="20"></uni-icons>
+        </div>
       </li>
-      <li class="item btn" @click="handleUpload">+</li>
+      <li class="item btn" @click="handleUpload">
+        <uni-icons type="plusempty" size="50"></uni-icons>
+      </li>
     </ul>
   </view>
 </template>
@@ -46,7 +45,6 @@
       return {
         db: uniCloud.database().collection("user"),
         showLogin: !accountStorage.get(),
-        username: '',
         items: [],
       }
     },
@@ -56,10 +54,11 @@
     methods: {
       handleLogout() {
         accountStorage.remove()
-        this.showLogin = true;
-        this.loadData()
+        uni.reLaunch({
+          url: '/pages/login/index'
+        })
       },
-      handleRemove(url) {
+      remove(url) {
         const {
           db
         } = this;
@@ -91,6 +90,16 @@
           .finally(() => {
             wx.hideLoading()
           })
+      },
+      // TODO: 这里应该封装为一个抽象的函数,只执行用户输入为ture的回调
+      handleRemove(url) {
+        const res = confirm('确认删除吗？')
+
+        if (!res) {
+          return;
+        }
+
+        this.remove(url);
       },
       loadData() {
         const {
@@ -129,14 +138,12 @@
           })
       },
       handleUpload() {
-
         uni.chooseImage({
           count: 10,
           success: async (res) => {
             const maxSize = 100 * 1024;
 
             const username = accountStorage.get();
-
 
             if (res.tempFilePaths.length === 0) {
               return;
@@ -202,53 +209,6 @@
           }
         });
       },
-      async isExist(username) {
-        const {
-          db
-        } = this;
-
-        const res = await db.where({
-          username
-        }).get()
-
-        return res.result.data.length > 0;
-      },
-      login(username) {
-        accountStorage.set(username)
-        this.showLogin = false;
-
-        this.loadData();
-      },
-      async register(username) {
-        const {
-          db
-        } = this;
-
-        // 创建用户        
-        await db.add({
-          username
-        })
-        // 自动登录
-        this.login(username)
-      },
-      async handleSubmit() {
-        const {
-          username
-        } = this;
-
-        if (!username.trim()) {
-          alert('账号不能为空')
-          return;
-        }
-
-        const value = await this.isExist(username)
-        // 查询当前用户是否存在,如果不存在,则创建新用户
-        if (value) {
-          this.login(username);
-        } else {
-          this.register(username);
-        }
-      }
     },
   }
 </script>
@@ -264,14 +224,44 @@
     display: block;
   }
 
+  .head {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+    background: #f7f7f8;
+  }
+
+  .title {
+    font-weight: bold;
+  }
+
+  .button {
+    cursor: pointer;
+  }
+
   .items {
     display: flex;
     flex-wrap: wrap;
+    padding: 10px;
   }
 
   .item {
-    width: 100px;
-    height: 100px;
+    box-sizing: border-box;
+    position: relative;
+    width: 150px;
+    height: 150px;
+    padding: 10px;
+    margin: 10px;
+    overflow: hidden;
+    /* 超出容器部分隐藏 */
+    border-radius: 3px;
+    border: 1px solid #ccc;
+  }
+
+  img {
+    height: 100%;
+    object-fit: contain;
+    /* 保持原始宽高比例，同时填充整个容器，可能裁剪部分内容 */
   }
 
   .btn {
@@ -287,5 +277,21 @@
   .input-box {
     padding: 10px;
     border: 1px solid #ccc;
+  }
+
+  .item:hover .remove {
+    visibility: visible;
+  }
+
+  .remove {
+    padding: 5px;
+    visibility: hidden;
+    line-height: 1;
+    position: absolute;
+    top: 0;
+    right: 0;
+    cursor: pointer;
+    background: #f7f7f8;
+    border-radius: 3px;
   }
 </style>
