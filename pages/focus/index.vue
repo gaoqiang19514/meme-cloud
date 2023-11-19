@@ -1,5 +1,12 @@
 <template>
   <div class="page">
+    <div class="date-btns">
+      <div class="date-btn" @click="onPrev">上一天</div>
+      <div class="date">
+        {{currentDateStr}}
+      </div>
+      <div class="date-btn" @click="onNext">下一天</div>
+    </div>
     <ul class="items">
       <li class="item" v-for="item in items" :key="item._id" @click="onClick(item._id)">
         <div class="progress" :style="{ width: `${(item.value / item.target) * 100}%` }" />
@@ -39,10 +46,29 @@
       }
     },
     onLoad() {
-      this.loadData()
+      const {
+        currentDateStr,
+      } = this;
+      this.loadData(currentDateStr)
     },
 
     methods: {
+      onPrev() {
+        const {
+          currentDateStr,
+        } = this;
+        
+        // 使用currentDateStr获取上一天
+        // 并且用结果更新currentDateStr
+        
+        this.loadData('2023-11-18')
+      },
+      onNext() {
+        const {
+          currentDateStr,
+        } = this;
+        this.loadData('2023-11-20')
+      },
       onPlus(value) {
         const {
           currentId
@@ -80,11 +106,11 @@
         this.currentId = _id;
         this.$refs.popup.open()
       },
-      async loadData() {
+      async loadData(currentDateStr) {
         const {
           db,
-          currentDateStr,
         } = this;
+
         const username = accountStorage.get();
         uni.showLoading()
 
@@ -93,7 +119,7 @@
           user_id: username
         }).get()
 
-        let letnewData = [{
+        const newData = [{
           date: currentDateStr,
           user_id: username,
           value: 0,
@@ -136,6 +162,7 @@
 
   .page {
     display: flex;
+    flex-direction: column;
     padding: 50px;
   }
 
@@ -180,5 +207,23 @@
     border-radius: 3px;
     margin: 0 10px;
     border: 1px solid #ccc;
+  }
+
+  .date-btns {
+    display: flex;
+    margin-bottom: 20px;
+  }
+
+  .date {
+    padding: 15px 20px;
+    margin: 0 10px;
+    border-radius: 3px;
+  }
+
+  .date-btn {
+    cursor: pointer;
+    padding: 15px 20px;
+    border: 2px solid #ccc;
+    border-radius: 3px;
   }
 </style>
