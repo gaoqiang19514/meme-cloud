@@ -28,6 +28,7 @@
   import {
     accountStorage,
     getCurrentFormattedDate,
+    manipulateDate,
   } from '@/util.js'
 
   export default {
@@ -35,7 +36,7 @@
       return {
         currentId: '',
         db: uniCloud.database().collection("focus"),
-        currentDateStr: getCurrentFormattedDate(),
+        currentDateStr: manipulateDate(new Date()),
         items: [],
         options: [25, 10],
       }
@@ -57,17 +58,19 @@
         const {
           currentDateStr,
         } = this;
-        
-        // 使用currentDateStr获取上一天
-        // 并且用结果更新currentDateStr
-        
-        this.loadData('2023-11-18')
+
+        const previousDay = manipulateDate(currentDateStr, -1);
+        this.currentDateStr = previousDay
+        this.loadData(previousDay)
       },
       onNext() {
         const {
           currentDateStr,
         } = this;
-        this.loadData('2023-11-20')
+
+        const nextDay = manipulateDate(currentDateStr, 1);
+        this.currentDateStr = nextDay
+        this.loadData(nextDay)
       },
       onPlus(value) {
         const {
