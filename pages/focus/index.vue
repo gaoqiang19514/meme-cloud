@@ -5,7 +5,7 @@
       <div class="date">
         {{currentDateStr}}
       </div>
-      <div class="date-btn" @click="onNext">下一天</div>
+      <div :class="['date-btn', {'disabled': disabledNextBtn}]" @click="onNext">下一天</div>
     </div>
     <ul class="items">
       <li class="item" v-for="item in items" :key="item._id" @click="onClick(item._id)">
@@ -44,6 +44,11 @@
     filters: {
       percent(value) {
         return value.toFixed(2);
+      }
+    },
+    computed: {
+      disabledNextBtn() {
+        return manipulateDate(new Date()) === this.currentDateStr;
       }
     },
     onLoad() {
@@ -228,5 +233,11 @@
     padding: 15px 20px;
     border: 2px solid #ccc;
     border-radius: 3px;
+  }
+  
+  .disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    pointer-events: none;
   }
 </style>
