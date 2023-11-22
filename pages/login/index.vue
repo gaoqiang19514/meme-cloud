@@ -13,17 +13,9 @@
 </template>
 
 <script>
-  const accountStorage = {
-    get: () => {
-      return localStorage.getItem('username');
-    },
-    set: (value) => {
-      localStorage.setItem('username', value);
-    },
-    remove: () => {
-      localStorage.removeItem('username')
-    }
-  }
+  import {
+    accountStorage,
+  } from '@/util.js'
 
   export default {
     data() {

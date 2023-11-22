@@ -1,21 +1,34 @@
 <template>
-  <div class="page">
-    <div class="date-btns">
-      <div class="date-btn" @click="onPrev">上一天</div>
-      <div class="date">
-        {{currentDateStr}}
+  <div>
+    <Header title="focus" />
+    <div class="page">
+
+      <div v-if="showAddTask" class="add-view">
+        <div class="add-btn" @click="handleAddTask">
+          请添加任务
+          <uni-icons type="plus" size="25"></uni-icons>
+        </div>
       </div>
-      <div :class="['date-btn', {'disabled': disabledNextBtn}]" @click="onNext">下一天</div>
+
+      <div v-if="!showAddTask">
+        <div class="date-btns">
+          <div class="date-btn" @click="onPrev">上一天</div>
+          <div class="date">
+            {{currentDateStr}}
+          </div>
+          <div :class="['date-btn', {'disabled': disabledNextBtn}]" @click="onNext">下一天</div>
+        </div>
+        <ul class="items">
+          <li class="item" v-for="item in items" :key="item._id" @click="onClick(item._id)">
+            <div class="progress" :style="{ width: `${(item.value / item.target) * 100}%` }" />
+            <span>{{ item.name}}</span>
+            <span class="cell">
+              <span>{{ item.value }}分钟</span><span>{{ (item.value / item.target) * 100 | percent }}%</span>
+            </span>
+          </li>
+        </ul>
+      </div>
     </div>
-    <ul class="items">
-      <li class="item" v-for="item in items" :key="item._id" @click="onClick(item._id)">
-        <div class="progress" :style="{ width: `${(item.value / item.target) * 100}%` }" />
-        <span>{{ item.name}}</span>
-        <span class="cell">
-          <span>{{ item.value }}分钟</span><span>{{ (item.value / item.target) * 100 | percent }}%</span>
-        </span>
-      </li>
-    </ul>
     <uni-popup ref="popup">
       <ul class="options">
         <li class="option" v-for="item in options" :key="item" @click="onPlus(item)">{{ item }}</li>
@@ -30,12 +43,17 @@
     getCurrentFormattedDate,
     manipulateDate,
   } from '@/util.js'
+  import Header from '@/components/Header.vue'
 
   export default {
     data() {
       return {
+        username: accountStorage.get(),
         currentId: '',
-        db: uniCloud.database().collection("focus"),
+        showAddTask: false,
+        taskTable: uniCloud.database().collection("task"),
+        dateTable: uniCloud.database().collection("date"),
+        db: uniCloud.database().collection("date"),
         currentDateStr: manipulateDate(new Date()),
         items: [],
         options: [25, 10],
@@ -51,14 +69,24 @@
         return manipulateDate(new Date()) === this.currentDateStr;
       }
     },
-    onLoad() {
+    async onLoad() {
       const {
         currentDateStr,
       } = this;
-      this.loadData(currentDateStr)
-    },
 
+      this.getTasks()
+        .then((tasks) => {
+          if (tasks.length > 0) {
+            this.loadData(currentDateStr)
+          } else {
+            this.showAddTask = true;
+          }
+        });
+    },
     methods: {
+      handleAddTask() {
+        // TODO: 待实现
+      },
       onPrev() {
         const {
           currentDateStr,
@@ -104,7 +132,6 @@
         })
       },
       dialogConfirm() {
-
         this.$refs.message.open()
       },
       dialogClose() {
@@ -114,46 +141,89 @@
         this.currentId = _id;
         this.$refs.popup.open()
       },
-      async loadData(currentDateStr) {
+      async addDate(dateStr) {
         const {
-          db,
+          username,
+          taskTable,
+          dateTable
         } = this;
 
+        // 拉取当前用户的任务列表
+        const taskRes = await taskTable.where({
+          username
+        }).get();
+
+        // 没有任务则终止
+        if (taskRes.result.data.length < 1) {
+          return;
+        }
+
+        // 为上面的任务列表创建指定日期的date数据
+        const items = taskRes.result.data.map((task) => ({
+          value: 0,
+          date: dateStr,
+          name: task.name,
+          target: task.target,
+          username: task.username,
+        }))
+        const dateRes = await dateTable.add(items)
+
+        // 同步到本地
+        this.items = dateRes.result.ids.map((id, index) => ({
+          _id: id,
+          ...items[index],
+        }))
+      },
+      async getTasks() {
+        const {
+          username,
+          taskTable,
+        } = this;
+
+        uni.showLoading()
+        // 获取当前用户拥有的任务
+        const taskRes = await taskTable.where({
+          username
+        }).get();
+        uni.hideLoading()
+
+        return taskRes.result.data;
+      },
+      async loadData(currentDateStr) {
+        const {
+          taskTable,
+          db,
+        } = this;
         const username = accountStorage.get();
+
         uni.showLoading()
 
-        const res = await db.where({
+        // 获取当前用户拥有的任务
+        const taskRes = await taskTable.where({
+          username
+        }).get()
+        const tasks = taskRes.result.data;
+
+        // 使用tasks查询当前日期属于当前用户的数据
+        const taskNames = tasks.map(item => item.name);
+        const dateRes = await db.where({
+          username,
           date: currentDateStr,
-          user_id: username
+          name: uniCloud.database().command.in(taskNames)
         }).get()
 
-        const newData = [{
-          date: currentDateStr,
-          user_id: username,
-          value: 0,
-          target: 60,
-          name: '前端',
-        }, {
-          date: currentDateStr,
-          user_id: username,
-          value: 0,
-          target: 60,
-          name: '英语',
-        }]
+        this.items = dateRes.result.data
 
-        // 没有当天数据,自动创建
-        if (res.result.data.length === 0) {
-          const res2 = await db.add(newData)
-          const nextNewData = newData.map((item, index) => ({
-            ...item,
-            _id: res.result.data[index]
-          }))
-          this.items = nextNewData
-        } else {
-          this.items = res.result.data
+        // 当天没有数据，自动创建
+        if (dateRes.result.data.length === 0 && currentDateStr === manipulateDate(new Date())) {
+          await this.addDate(currentDateStr);
         }
+
         uni.hideLoading()
       }
+    },
+    components: {
+      Header,
     }
   }
 </script>
@@ -234,10 +304,26 @@
     border: 2px solid #ccc;
     border-radius: 3px;
   }
-  
+
   .disabled {
     background: #ccc;
     cursor: not-allowed;
     pointer-events: none;
+  }
+
+  .add-view {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .add-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    padding: 10px 15px;
+    border-radius: 3px;
+    background: #ccc;
   }
 </style>

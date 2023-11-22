@@ -1,9 +1,6 @@
 <template>
-  <view class="content">
-    <div class="head">
-      <div class="title">我的表情包</div>
-      <div class="button" v-if="!showLogin" @click="handleLogout">退出登录</div>
-    </div>
+  <div>
+    <Header title="我的表情包" />
     <ul class="items" v-if="!showLogin">
       <li class="item" v-for="(url, index) in items" :key="index">
         <img :src="url" alt="">
@@ -15,13 +12,7 @@
         <uni-icons type="plusempty" size="50"></uni-icons>
       </li>
     </ul>
-    <div>
-      <ul>
-        <li @click="onClick('index')">meme-cloud</li>
-        <li @click="onClick('focus')">focus</li>
-      </ul>
-    </div>
-  </view>
+  </div>
 </template>
 
 <script>
@@ -29,21 +20,13 @@
     nanoid
   } from 'nanoid'
   import Compressor from 'compressorjs';
-
+  import Header from '@/components/Header.vue'
+  import {
+    accountStorage,
+  } from '@/util.js'
+  
   const getFileExtension = (fileName) => {
     return fileName.split('.').pop();
-  }
-
-  const accountStorage = {
-    get: () => {
-      return localStorage.getItem('username');
-    },
-    set: (value) => {
-      localStorage.setItem('username', value);
-    },
-    remove: () => {
-      localStorage.removeItem('username')
-    }
   }
 
   export default {
@@ -58,11 +41,6 @@
       this.loadData();
     },
     methods: {
-      onClick(page) {
-        uni.navigateTo({
-          url: `/pages/${page}/index`
-        })
-      },
       handleLogout() {
         accountStorage.remove()
         uni.reLaunch({
@@ -221,34 +199,14 @@
         });
       },
     },
+    components: {
+      Header,
+    }
   }
 </script>
 
 <style>
-  ul {
-    padding: 0;
-    list-style-type: none;
-  }
 
-  img {
-    width: 100%;
-    display: block;
-  }
-
-  .head {
-    display: flex;
-    justify-content: space-between;
-    padding: 20px;
-    background: #f7f7f8;
-  }
-
-  .title {
-    font-weight: bold;
-  }
-
-  .button {
-    cursor: pointer;
-  }
 
   .items {
     display: flex;
