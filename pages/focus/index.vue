@@ -1,8 +1,7 @@
 <template>
   <div>
-    <Header title="focus" />
-    <div class="page">
-
+    <Header title="Focus" />
+    <div class="content">
       <div v-if="showAddTask" class="add-view">
         <div class="add-btn" @click="handleAddTask">
           请添加任务
@@ -229,16 +228,7 @@
 </script>
 
 <style>
-  * {
-    padding: 0;
-    margin: 0;
-  }
-
-  ul {
-    list-style: none;
-  }
-
-  .page {
+  .content {
     display: flex;
     flex-direction: column;
     padding: 50px;

@@ -1,7 +1,8 @@
 <template>
   <ul class="nav">
-    <li class="nav-item" @click="onClick('index')">meme-cloud</li>
-    <li class="nav-item" @click="onClick('focus')">focus</li>
+    <li class="nav-item" @click="onClick('index')">MemeCloud</li>
+    <li class="nav-item" @click="onClick('focus')">Focus</li>
+    <li class="nav-item" @click="onClick('tomato')">Tomato</li>
   </ul>
 </template>
 

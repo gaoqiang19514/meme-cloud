@@ -48,7 +48,7 @@
 
   .title {
     text-align: center;
-    min-width: 170px;
+    min-width: 200px;
     font-size: 32px;
     font-weight: bold;
     margin-right: 20px;

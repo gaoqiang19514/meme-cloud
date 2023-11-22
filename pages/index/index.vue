@@ -1,17 +1,19 @@
 <template>
   <div>
-    <Header title="我的表情包" />
-    <ul class="items" v-if="!showLogin">
-      <li class="item" v-for="(url, index) in items" :key="index">
-        <img :src="url" alt="">
-        <div class="remove" @click="handleRemove(url)">
-          <uni-icons type="closeempty" size="20"></uni-icons>
-        </div>
-      </li>
-      <li class="item btn" @click="handleUpload">
-        <uni-icons type="plusempty" size="50"></uni-icons>
-      </li>
-    </ul>
+    <Header title="MemeCloud" />
+    <div class="content">
+      <ul class="items" v-if="!showLogin">
+        <li class="item" v-for="(url, index) in items" :key="index">
+          <img :src="url" alt="">
+          <div class="remove" @click="handleRemove(url)">
+            <uni-icons type="closeempty" size="20"></uni-icons>
+          </div>
+        </li>
+        <li class="item btn" @click="handleUpload">
+          <uni-icons type="plusempty" size="50"></uni-icons>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
@@ -24,7 +26,7 @@
   import {
     accountStorage,
   } from '@/util.js'
-  
+
   const getFileExtension = (fileName) => {
     return fileName.split('.').pop();
   }
@@ -206,12 +208,13 @@
 </script>
 
 <style>
-
+  .content {
+    padding: 50px;
+  }
 
   .items {
     display: flex;
     flex-wrap: wrap;
-    padding: 10px;
   }
 
   .item {
@@ -220,7 +223,8 @@
     width: 150px;
     height: 150px;
     padding: 10px;
-    margin: 10px;
+    margin-right: 10px;
+    margin-bottom: 10px;
     overflow: hidden;
     /* 超出容器部分隐藏 */
     border-radius: 3px;
