@@ -4,7 +4,10 @@
     <div class="content">
       <div v-if="isCountDown">
         <div class="row">
-          <div>倒计时中</div>
+          <div class="counter">
+            <div class="counter-title">倒计时中</div>
+            <div class="counter-value">{{ dateFormatter(autoUpdateTime) }}</div>
+          </div>
         </div>
         <div class="row">
           <div class="btn-box">
@@ -19,16 +22,12 @@
               <div>任务名：</div>
               <div class="form-options">
                 <div
-                  @click="handleSetValueByKey('name', '前端')"
-                  :class="['form-option', { active: name === '前端' }]"
+                  v-for="task in tasks"
+                  :key="task._id"
+                  @click="handleSetTask(task._id)"
+                  :class="['form-option', { active: selectTaskId === task._id }]"
                 >
-                  前端
-                </div>
-                <div
-                  @click="handleSetValueByKey('name', '英语')"
-                  :class="['form-option', { active: name === '英语' }]"
-                >
-                  英语
+                  {{ task.name }}
                 </div>
               </div>
             </div>
@@ -36,22 +35,12 @@
               <div>继续时间：</div>
               <div class="form-options">
                 <div
-                  @click="handleSetValueByKey('time', 10)"
-                  :class="['form-option', { active: time === 10 }]"
+                  v-for="item in times"
+                  :key="item"
+                  @click="handleSetValueByKey('time', item)"
+                  :class="['form-option', { active: time === item }]"
                 >
-                  10
-                </div>
-                <div
-                  @click="handleSetValueByKey('time', 15)"
-                  :class="['form-option', { active: time === 15 }]"
-                >
-                  15
-                </div>
-                <div
-                  @click="handleSetValueByKey('time', 25)"
-                  :class="['form-option', { active: time === 25 }]"
-                >
-                  25
+                  {{ item }}
                 </div>
               </div>
             </div>
@@ -59,7 +48,12 @@
         </div>
         <div class="row">
           <div class="btn-box">
-            <button @click="handleStart">启动</button>
+            <button
+              :disabled="isDisabled"
+              @click="handleStart"
+            >
+              启动
+            </button>
           </div>
         </div>
       </div>
@@ -69,26 +63,121 @@
 
 <script>
 import Header from '@/components/Header.vue';
+import FocusController from '@/controllers/focus';
+import { accountStorage, manipulateDate } from '@/util';
+
+const formatSeconds = (seconds) => {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+
+  // 使用padStart确保分钟和秒数始终是两位数
+  const formattedMinutes = minutes.toString().padStart(2, '0');
+  const formattedSeconds = remainingSeconds.toString().padStart(2, '0');
+
+  return formattedMinutes + ':' + formattedSeconds;
+};
+
+const countDown = (minutes, callback) => {
+  const countdownHelper = (secondsRemaining) => {
+    if (secondsRemaining > -1) {
+      const timer = setTimeout(() => countdownHelper(secondsRemaining - 1), 1000);
+      callback(secondsRemaining, timer);
+    }
+  };
+
+  const secondsRemaining = minutes * 60;
+  countdownHelper(secondsRemaining);
+};
 
 export default {
   data() {
     return {
+      username: accountStorage.get(),
+      tasks: [],
+      selectTaskId: '',
       name: '前端',
-      time: 10,
+      time: 0.1,
+      timer: null,
+      currentTime: 0.1,
+      autoUpdateTime: 0,
       isCountDown: false,
+      times: [0.1, 1, 10, 15, 25],
+      focusCtr: new FocusController(),
+      taskTable: uniCloud.database().collection('task'),
     };
   },
-  onLoad() {},
+  computed: {
+    currentTask() {
+      return this.tasks.find((item) => item._id === this.selectTaskId);
+    },
+    isDisabled() {
+      return !this.currentTask || !this.currentTime;
+    },
+  },
+  onLoad() {
+    this.loadTasks();
+  },
   methods: {
+    dateFormatter: formatSeconds,
+    loadTasks() {
+      const { username, taskTable } = this;
+
+      taskTable
+        .where({
+          username,
+        })
+        .get()
+        .then((res) => {
+          const tasks = res?.result?.data ?? [];
+
+          if (tasks.length > 0) {
+            this.selectTaskId = tasks[0]._id;
+          }
+
+          this.tasks = tasks;
+        });
+    },
+    handleSetTask(id) {
+      this.selectTaskId = id;
+    },
     handleSetValueByKey(key, value) {
       this[key] = value;
     },
+    addFocus() {
+      const { currentTask, currentTime } = this;
+      const today = manipulateDate(new Date());
+
+      if (!currentTime) {
+        return;
+      }
+
+      this.focusCtr.add({
+        date: today,
+        time: currentTime,
+        name: currentTask.name,
+        target: currentTask.target,
+      });
+    },
     handleStart() {
-      const { name, time } = this;
+      const { time } = this;
 
       this.isCountDown = true;
+      this.currentTime = time;
+
+      countDown(time, (value, timer) => {
+        this.timer = timer;
+        this.autoUpdateTime = value;
+
+        if (value === 0) {
+          this.addFocus();
+          this.handleCancel();
+        }
+      });
     },
     handleCancel() {
+      const { timer } = this;
+
+      clearInterval(timer);
       this.isCountDown = false;
     },
   },
@@ -98,24 +187,28 @@ export default {
 };
 </script>
 
-<style>
+<style lang="less">
 .content {
   padding: 50px;
 }
+
 .row {
   display: flex;
   justify-content: center;
 }
 
 .form {
-  padding: 20px;
+  height: 120px;
 }
 
 .form-item {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 10px;
   width: 300px;
+}
+
+.form-item:first-child {
+  margin-bottom: 10px;
 }
 
 .form-options {
@@ -138,5 +231,19 @@ export default {
 
 .btn-box {
   width: 300px;
+}
+
+.counter {
+  height: 120px;
+  text-align: center;
+}
+
+.counter-title {
+  margin-bottom: 10px;
+}
+
+.counter-value {
+  font-size: 42px;
+  font-weight: bold;
 }
 </style>
