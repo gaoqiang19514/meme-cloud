@@ -5,6 +5,8 @@ const username = accountStorage.get();
 const dateTable = uniCloud.database().collection('date');
 
 class Controller {
+
+  // 这里有问题，需要把update拆出来
   add({ date, name, time, target }) {
     dateTable
       .where({
@@ -28,6 +30,8 @@ class Controller {
         }
       });
   }
+
+  update() {}
 }
 
 export default Controller;
