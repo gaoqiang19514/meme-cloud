@@ -17,23 +17,32 @@
           ></uni-icons>
         </div>
       </div>
-
       <div v-if="!showAddTask">
-        <div class="date-btns">
-          <div
-            class="date-btn"
-            @click="onPrev"
-          >
-            上一天
+        <div class="btns">
+          <div class="date-btns">
+            <div
+              class="date-btn"
+              @click="onPrev"
+            >
+              上一天
+            </div>
+            <div class="date">
+              {{ currentDateStr }}
+            </div>
+            <div
+              :class="['date-btn', { disabled: disabledNextBtn }]"
+              @click="onNext"
+            >
+              下一天
+            </div>
           </div>
-          <div class="date">
-            {{ currentDateStr }}
-          </div>
-          <div
-            :class="['date-btn', { disabled: disabledNextBtn }]"
-            @click="onNext"
-          >
-            下一天
+          <div class="other-btns">
+            <div
+              class="date-btn"
+              @click="handleAddTask"
+            >
+              新增任务
+            </div>
           </div>
         </div>
         <ul class="items">
@@ -45,11 +54,11 @@
           >
             <div
               class="progress"
-              :style="{ width: `${(item.value / item.target) * 100}%` }"
+              :style="{ width: `${calc(item)}%` }"
             />
             <span>{{ item.name }}</span>
             <span class="cell">
-              <span>{{ item.value }}分钟</span><span>{{ ((item.value / item.target) * 100) | percent }}%</span>
+              <span>{{ item.value }}分钟</span><span>{{ calc(item) }}%</span>
             </span>
           </li>
         </ul>
@@ -66,6 +75,39 @@
           {{ item }}
         </li>
       </ul>
+    </uni-popup>
+
+    <uni-popup
+      ref="formPopup"
+      type="center"
+    >
+      <div class="add-form">
+        <div class="add-form-row">
+          <div class="add-form-label">任务名称</div>
+          <div class="input-box">
+            <input
+              auto-focus
+              v-model="username"
+              placeholder="账号"
+              @keydown.enter="handleSubmit"
+            />
+          </div>
+        </div>
+        <div class="add-form-row">
+          <div class="add-form-label">每日目标</div>
+          <div class="input-box">
+            <input
+              auto-focus
+              v-model="username"
+              placeholder="账号"
+              @keydown.enter="handleSubmit"
+            />
+          </div>
+        </div>
+        <div class="add-form-row">
+          <button>创建</button>
+        </div>
+      </div>
     </uni-popup>
   </div>
 </template>
@@ -88,11 +130,6 @@ export default {
       options: [25, 10],
     };
   },
-  filters: {
-    percent(value) {
-      return value.toFixed(2);
-    },
-  },
   computed: {
     disabledNextBtn() {
       return manipulateDate(new Date()) === this.currentDateStr;
@@ -110,8 +147,12 @@ export default {
     });
   },
   methods: {
+    calc(obj) {
+      const percent = obj.value / obj.target;
+      return (percent * 100).toFixed(2);
+    },
     handleAddTask() {
-      // TODO: 待实现
+      this.$refs.formPopup.open();
     },
     onPrev() {
       const { currentDateStr } = this;
@@ -148,12 +189,6 @@ export default {
         .update({
           value: target.value,
         });
-    },
-    dialogConfirm() {
-      this.$refs.message.open();
-    },
-    dialogClose() {
-      console.log('点击关闭');
     },
     onClick(_id) {
       this.currentId = _id;
@@ -294,9 +329,14 @@ export default {
   border: 1px solid #ccc;
 }
 
+.btns {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
 .date-btns {
   display: flex;
-  margin-bottom: 20px;
 }
 
 .date {
@@ -332,5 +372,25 @@ export default {
   padding: 10px 15px;
   border-radius: 3px;
   background: #ccc;
+}
+
+.add-form {
+  padding: 20px;
+  background: #fff;
+  border-radius: 3px;
+}
+.add-form-row:first-child {
+  margin-bottom: 10px;
+}
+
+.add-form-label {
+  margin-bottom: 10px;
+}
+.input-box {
+  margin-bottom: 10px;
+  width: 300px;
+  padding: 10px;
+  border-radius: 3px;
+  border: 1px solid #ccc;
 }
 </style>

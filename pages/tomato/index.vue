@@ -63,7 +63,7 @@
 
 <script>
 import Header from '@/components/Header.vue';
-import FocusController from '@/controllers/focus';
+import DateController from '@/controllers/date';
 import { accountStorage, manipulateDate } from '@/util';
 
 const formatSeconds = (seconds) => {
@@ -102,7 +102,7 @@ export default {
       autoUpdateTime: 0,
       isCountDown: false,
       times: [0.1, 1, 10, 15, 25],
-      focusCtr: new FocusController(),
+      focusCtr: new DateController(),
       taskTable: uniCloud.database().collection('task'),
     };
   },
