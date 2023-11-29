@@ -1,37 +1,60 @@
 <template>
   <ul class="nav">
-    <li class="nav-item" @click="onClick('index')">MemeCloud</li>
-    <li class="nav-item" @click="onClick('focus')">Focus</li>
-    <li class="nav-item" @click="onClick('tomato')">Tomato</li>
+    <li v-for="item in items" :key="item.path" :class="['nav-item', { active: item.path === currentPath }]"
+      @click="onClick(item.path)">{{ item.name }}</li>
   </ul>
 </template>
 
 <script>
-  export default {
-    name: "Nav",
-    data() {
-      return {};
+export default {
+  name: "Nav",
+  data() {
+    return {
+      items: [{
+        name: 'MemeCloud',
+        path: '/pages/index/index'
+      }, {
+        name: 'Focus',
+        path: '/pages/focus/index'
+      }, {
+        name: 'Tomato',
+        path: '/pages/tomato/index'
+      }, {
+        name: 'Bookmark',
+        path: '/pages/bookmark/index'
+      }],
+    };
+  },
+  computed: {
+    currentPath() {
+      return this.$route.path.includes('pages') ? this.$route.path : '/pages/index/index'
     },
-    methods: {
-      onClick(page) {
-        uni.navigateTo({
-          url: `/pages/${page}/index`
-        })
-      },
-    }
-  }
+  },
+  methods: {
+    onClick(path) {
+      uni.navigateTo({
+        url: path
+      })
+    },
+  },
+}
 </script>
 
 <style lang="less">
-  .nav {
-    display: flex;
-  }
+.nav {
+  display: flex;
+}
 
-  .nav-item {
-    cursor: pointer;
-    padding: 10px 20px;
-    background: #ccc;
-    margin: 0 5px;
-    border-radius: 3px;
-  }
+.nav-item {
+  cursor: pointer;
+  padding: 10px 20px;
+  background: #ccc;
+  margin: 0 5px;
+  border-radius: 3px;
+}
+
+.active {
+  background: #000;
+  color: #fff;
+}
 </style>
