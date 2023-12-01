@@ -37,8 +37,8 @@
                 <div
                   v-for="item in times"
                   :key="item"
-                  @click="handleSetValueByKey('time', item)"
-                  :class="['form-option', { active: time === item }]"
+                  @click="handleSetValueByKey('currentTime', item)"
+                  :class="['form-option', { active: currentTime === item }]"
                 >
                   {{ item }}
                 </div>
@@ -77,16 +77,16 @@ const formatSeconds = (seconds) => {
   return formattedMinutes + ':' + formattedSeconds;
 };
 
-const countDown = (minutes, callback) => {
-  const countdownHelper = (secondsRemaining) => {
-    if (secondsRemaining > -1) {
-      const timer = setTimeout(() => countdownHelper(secondsRemaining - 1), 1000);
-      callback(secondsRemaining, timer);
-    }
+const countDown = (endTime, callback) => {
+  const countdownHelper = () => {
+    const currentTime = new Date().getTime();
+    const secondsRemaining = Math.max(0, Math.floor((endTime - currentTime) / 1000));
+
+    const timer = setTimeout(countdownHelper, 300);
+    callback(secondsRemaining, timer);
   };
 
-  const secondsRemaining = minutes * 60;
-  countdownHelper(secondsRemaining);
+  countdownHelper();
 };
 
 export default {
@@ -96,9 +96,8 @@ export default {
       tasks: [],
       selectTaskId: '',
       name: '前端',
-      time: 0.1,
+      currentTime: 25,
       timer: null,
-      currentTime: 0.1,
       autoUpdateTime: 0,
       isCountDown: false,
       times: [0.1, 1, 10, 15, 25],
@@ -115,6 +114,16 @@ export default {
     },
   },
   onLoad() {
+    const endTime = localStorage.getItem('endTime');
+    const selectTaskId = localStorage.getItem('selectTaskId');
+    const currentTime = localStorage.getItem('currentTime');
+    if (endTime && selectTaskId && currentTime) {
+      this.selectTaskId = selectTaskId;
+      this.currentTime = currentTime;
+
+      this.startCountdown(Number(endTime));
+    }
+
     this.loadTasks();
   },
   methods: {
@@ -158,13 +167,9 @@ export default {
         target: currentTask.target,
       });
     },
-    handleStart() {
-      const { time } = this;
-
+    startCountdown(endTime) {
       this.isCountDown = true;
-      this.currentTime = time;
-
-      countDown(time, (value, timer) => {
+      countDown(endTime, (value, timer) => {
         this.timer = timer;
         this.autoUpdateTime = value;
 
@@ -174,10 +179,25 @@ export default {
         }
       });
     },
+    save(endTime, selectTaskId, currentTime) {
+      localStorage.setItem('endTime', endTime);
+      localStorage.setItem('selectTaskId', selectTaskId);
+      localStorage.setItem('currentTime', currentTime);
+    },
+    handleStart() {
+      const { currentTime, selectTaskId } = this;
+      const endTime = new Date().getTime() + currentTime * 60 * 1000;
+
+      this.save(endTime, selectTaskId, currentTime);
+      this.startCountdown(endTime);
+    },
     handleCancel() {
       const { timer } = this;
 
       clearInterval(timer);
+      localStorage.removeItem('endTime');
+      localStorage.removeItem('selectTaskId');
+      localStorage.removeItem('currentTime');
       this.isCountDown = false;
     },
   },
