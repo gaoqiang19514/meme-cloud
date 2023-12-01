@@ -66,6 +66,8 @@ import Header from '@/components/Header.vue';
 import DateController from '@/controllers/date';
 import { accountStorage, manipulateDate } from '@/util';
 
+
+
 const formatSeconds = (seconds) => {
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = seconds % 60;
@@ -158,6 +160,16 @@ export default {
 
       if (!currentTime) {
         return;
+      }
+
+      if ('Notification' in window) {
+        Notification.requestPermission().then(function (permission) {
+          if (permission === 'granted') {
+            new Notification('Tomato', {
+              body: '你的番茄完成了',
+            });
+          }
+        });
       }
 
       this.focusCtr.add({
