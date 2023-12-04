@@ -139,18 +139,14 @@ export default {
       return manipulateDate(new Date()) === this.currentDateStr;
     },
   },
-  async onLoad() {
-    const { currentDateStr } = this;
-
-    this.getTasks().then((tasks) => {
-      if (tasks.length > 0) {
-        this.loadData(currentDateStr);
-      } else {
-        this.showAddTask = true;
-      }
-    });
+  onLoad() {
+    this.init();
   },
   methods: {
+    init() {
+      const { currentDateStr } = this;
+      this.loadData(currentDateStr);
+    },
     calc(obj) {
       const percent = obj.value / obj.target;
       return (percent * 100).toFixed(2);
@@ -269,17 +265,21 @@ export default {
       });
       uni.hideLoading();
     },
-    onSubmit() {
+    async onSubmit() {
       const { name, target } = this;
 
       if (!name || !target) {
         return;
       }
 
-      this.ctr.add({
+      await this.ctr.add({
         name,
         target,
       });
+
+      this.$refs.formPopup.close();
+
+      this.init();
     },
   },
   components: {

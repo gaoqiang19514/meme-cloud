@@ -4,7 +4,7 @@ class Controller {
   async add({ name, target }) {
     uni.showLoading();
     await api.add({ name, target });
-    window.location.reload()
+    uni.hideLoading();
   }
 
   update() {}
