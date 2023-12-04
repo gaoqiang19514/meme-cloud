@@ -88,7 +88,7 @@
             <input
               auto-focus
               v-model="name"
-              placeholder="账号"
+              placeholder="给你的任务起个名字"
               @keydown.enter="handleSubmit"
             />
           </div>
@@ -99,7 +99,7 @@
             <input
               auto-focus
               v-model="target"
-              placeholder="账号"
+              placeholder="希望坚持多少分钟"
               @keydown.enter="handleSubmit"
             />
           </div>
