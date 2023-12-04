@@ -58,7 +58,9 @@
             />
             <span>{{ item.name }}</span>
             <span class="cell">
-              <span>{{ item.value }}分钟</span><span>{{ calc(item) }}%</span>
+              <span>目标：{{ item.target }}分钟</span>
+              <span>已完成：{{ item.value }}分钟</span>
+              <span>进度：{{ calc(item) }}%</span>
             </span>
           </li>
         </ul>
