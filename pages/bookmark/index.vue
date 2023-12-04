@@ -36,7 +36,7 @@
           </div>
         </div>
         <div class="add-form-row">
-          <button @click="onSumbit">提交</button>
+          <button @click="onSubmit">提交</button>
         </div>
       </div>
     </uni-popup>
@@ -76,7 +76,7 @@ export default {
     onClick(obj) {
       window.open(obj.url)
     },
-    onSumbit() {
+    onSubmit() {
       const { name, url, img } = this;
 
       if (!name || !url | !img) {

@@ -3,16 +3,11 @@ import { accountStorage } from '@/util';
 const username = accountStorage.get();
 const taskTable = uniCloud.database().collection('task');
 
-const add = ({ date, name, time, target }) => {
-  const data = {
-    value: time,
-    date,
-    name,
-    target,
+const add = async (payload) => {
+  await taskTable.add({
     username,
-  };
-
-  taskTable.add(data);
+    ...payload,
+  });
 };
 
 const update = (date, name, username, payload) => {
@@ -25,7 +20,16 @@ const update = (date, name, username, payload) => {
     .update(payload);
 };
 
+const get = () => {
+  return taskTable
+    .where({
+      username,
+    })
+    .get();
+};
+
 export default {
   add,
   update,
+  get,
 };

@@ -87,7 +87,7 @@
           <div class="input-box">
             <input
               auto-focus
-              v-model="username"
+              v-model="name"
               placeholder="账号"
               @keydown.enter="handleSubmit"
             />
@@ -98,14 +98,14 @@
           <div class="input-box">
             <input
               auto-focus
-              v-model="username"
+              v-model="target"
               placeholder="账号"
               @keydown.enter="handleSubmit"
             />
           </div>
         </div>
         <div class="add-form-row">
-          <button>创建</button>
+          <button @click="onSubmit">提交</button>
         </div>
       </div>
     </uni-popup>
@@ -115,10 +115,12 @@
 <script>
 import { accountStorage, manipulateDate } from '@/util.js';
 import Header from '@/components/Header.vue';
+import Controller from '@/controllers/task';
 
 export default {
   data() {
     return {
+      ctr: new Controller(),
       username: accountStorage.get(),
       currentId: '',
       showAddTask: false,
@@ -128,6 +130,8 @@ export default {
       currentDateStr: manipulateDate(new Date()),
       items: [],
       options: [25, 10],
+      name: '英语',
+      target: 5,
     };
   },
   computed: {
@@ -226,17 +230,9 @@ export default {
       }));
     },
     async getTasks() {
-      const { username, taskTable } = this;
-
       uni.showLoading();
-      // 获取当前用户拥有的任务
-      const taskRes = await taskTable
-        .where({
-          username,
-        })
-        .get();
+      const taskRes = await this.ctr.get();
       uni.hideLoading();
-
       return taskRes.result.data;
     },
     async loadData(currentDateStr) {
@@ -262,15 +258,28 @@ export default {
           name: uniCloud.database().command.in(taskNames),
         })
         .get();
+      const dates = dateRes.result.data;
 
-      this.items = dateRes.result.data;
+      this.items = tasks.map((task) => {
+        const date = dates.find((date) => task.name === date.name);
+        return {
+          ...task,
+          value: date?.value ?? 0,
+        };
+      });
+      uni.hideLoading();
+    },
+    onSubmit() {
+      const { name, target } = this;
 
-      // 当天没有数据，自动创建
-      if (dateRes.result.data.length === 0 && currentDateStr === manipulateDate(new Date())) {
-        await this.addDate(currentDateStr);
+      if (!name || !target) {
+        return;
       }
 
-      uni.hideLoading();
+      this.ctr.add({
+        name,
+        target,
+      });
     },
   },
   components: {
