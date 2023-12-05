@@ -102,7 +102,7 @@ export default {
       timer: null,
       autoUpdateTime: 0,
       isCountDown: false,
-      times: [0.1, 1, 10, 15, 25],
+      times: [5, 10, 15, 25],
       focusCtr: new DateController(),
       taskTable: uniCloud.database().collection('task'),
     };
