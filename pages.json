@@ -10,7 +10,7 @@
       "path": "pages/login/index"
     },
     {
-      "path": "pages/focus/index"
+      "path": "pages/task/index"
     },
     {
       "path": "pages/bookmark/index"

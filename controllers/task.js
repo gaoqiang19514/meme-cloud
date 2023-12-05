@@ -9,8 +9,9 @@ class Controller {
 
   update() {}
 
-  get() {
-    return api.get();
+  async get() {
+    const res = await api.get();
+    return res.result.data ?? [];
   }
 }
 

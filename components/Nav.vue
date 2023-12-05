@@ -14,8 +14,8 @@ export default {
         name: 'MemeCloud',
         path: '/pages/index/index'
       }, {
-        name: 'Focus',
-        path: '/pages/focus/index'
+        name: 'Task',
+        path: '/pages/task/index'
       }, {
         name: 'Tomato',
         path: '/pages/tomato/index'

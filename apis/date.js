@@ -15,17 +15,26 @@ const add = ({ date, name, time, target }) => {
   dateTable.add(data);
 };
 
-const update = (date, name, username, payload) => {
-  dateTable
+const update = (query, payload) => {
+  // 可能会找不到当前日期的date数据 需要创建
+  return dateTable.where({
+    username,
+    ...query
+  }).update(payload);
+};
+
+const get = (date, names) => {
+  return dateTable
     .where({
-      date,
-      name,
       username,
+      date,
+      name: uniCloud.database().command.in(names),
     })
-    .update(payload);
+    .get();
 };
 
 export default {
+  get,
   add,
   update,
 };

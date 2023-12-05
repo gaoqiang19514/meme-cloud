@@ -1,23 +1,8 @@
 <template>
   <div>
-    <Header title="Focus" />
+    <Header title="Task" />
     <div class="content">
-      <div
-        v-if="showAddTask"
-        class="add-view"
-      >
-        <div
-          class="add-btn"
-          @click="handleAddTask"
-        >
-          请添加任务
-          <uni-icons
-            type="plus"
-            size="25"
-          ></uni-icons>
-        </div>
-      </div>
-      <div v-if="!showAddTask">
+      <div>
         <div class="btns">
           <div class="date-btns">
             <div
@@ -48,19 +33,19 @@
         <ul class="items">
           <li
             class="item"
-            v-for="item in items"
-            :key="item._id"
-            @click="onClick(item._id)"
+            v-for="task in tasks"
+            :key="task._id"
+            @click="onClick(task._id)"
           >
             <div
               class="progress"
-              :style="{ width: `${calc(item)}%` }"
+              :style="{ width: `${calc(task)}%` }"
             />
-            <span>{{ item.name }}</span>
+            <span>{{ task.name }}</span>
             <span class="cell">
-              <span>目标：{{ item.target }}分钟</span>
-              <span>已完成：{{ item.value }}分钟</span>
-              <span>进度：{{ calc(item) }}%</span>
+              <span>目标：{{ task.target }}分钟</span>
+              <span>已完成：{{ task.value }}分钟</span>
+              <span>进度：{{ calc(task) }}%</span>
             </span>
           </li>
         </ul>
@@ -78,7 +63,6 @@
         </li>
       </ul>
     </uni-popup>
-
     <uni-popup
       ref="formPopup"
       type="center"
@@ -89,7 +73,7 @@
           <div class="input-box">
             <input
               auto-focus
-              v-model="name"
+              v-model="formValues.name"
               placeholder="给你的任务起个名字"
               @keydown.enter="handleSubmit"
             />
@@ -100,7 +84,7 @@
           <div class="input-box">
             <input
               auto-focus
-              v-model="target"
+              v-model="formValues.target"
               placeholder="希望坚持多少分钟"
               @keydown.enter="handleSubmit"
             />
@@ -115,25 +99,24 @@
 </template>
 
 <script>
-import { accountStorage, manipulateDate } from '@/util.js';
+import { manipulateDate } from '@/util.js';
 import Header from '@/components/Header.vue';
-import Controller from '@/controllers/task';
+import TaskController from '@/controllers/task';
+import DateController from '@/controllers/date';
 
 export default {
   data() {
     return {
-      ctr: new Controller(),
-      username: accountStorage.get(),
-      currentId: '',
-      showAddTask: false,
-      taskTable: uniCloud.database().collection('task'),
-      dateTable: uniCloud.database().collection('date'),
-      db: uniCloud.database().collection('date'),
+      taskCtr: new TaskController(),
+      dateCtr: new DateController(),
+      currTaskId: '',
       currentDateStr: manipulateDate(new Date()),
-      items: [],
+      tasks: [],
       options: [25, 10],
-      name: '英语',
-      target: 5,
+      formValues: {
+        name: '',
+        target: 5,
+      }
     };
   },
   computed: {
@@ -141,14 +124,7 @@ export default {
       return manipulateDate(new Date()) === this.currentDateStr;
     },
   },
-  onLoad() {
-    this.init();
-  },
   methods: {
-    init() {
-      const { currentDateStr } = this;
-      this.loadData(currentDateStr);
-    },
     calc(obj) {
       const percent = obj.value / obj.target;
       return (percent * 100).toFixed(2);
@@ -159,129 +135,87 @@ export default {
     onPrev() {
       const { currentDateStr } = this;
 
-      const previousDay = manipulateDate(currentDateStr, -1);
-      this.currentDateStr = previousDay;
-      this.loadData(previousDay);
+      this.currentDateStr = manipulateDate(currentDateStr, -1);
     },
     onNext() {
       const { currentDateStr } = this;
 
-      const nextDay = manipulateDate(currentDateStr, 1);
-      this.currentDateStr = nextDay;
-      this.loadData(nextDay);
+      this.currentDateStr = manipulateDate(currentDateStr, 1);
     },
+    // 给当前任务增加时间
     onPlus(value) {
-      const { currentId } = this;
-
-      this.items = this.items.map((item) => ({
+      const { currTaskId } = this;
+      this.tasks = this.tasks.map((item) => ({
         ...item,
-        value: item._id === currentId ? item.value + value : item.value,
+        value: item._id === currTaskId ? item.value + value : item.value,
       }));
-
       this.update();
     },
+    // 修改当前任务的远程时间
     async update() {
-      const { db, items, currentId } = this;
+      const { tasks, currTaskId, currentDateStr } = this;
 
-      const target = items.find((item) => item._id === currentId);
-      const res = await db
-        .where({
-          _id: currentId,
-        })
-        .update({
-          value: target.value,
-        });
+      const currTask = tasks.find((item) => item._id === currTaskId);
+      await this.dateCtr.update(
+        {
+          name: currTask.name,
+          date: currentDateStr,
+        },
+        {
+          value: currTask.value,
+        },
+      );
     },
-    onClick(_id) {
-      this.currentId = _id;
+    onClick(id) {
+      this.currTaskId = id;
       this.$refs.popup.open();
     },
-    async addDate(dateStr) {
-      const { username, taskTable, dateTable } = this;
-
-      // 拉取当前用户的任务列表
-      const taskRes = await taskTable
-        .where({
-          username,
-        })
-        .get();
-
-      // 没有任务则终止
-      if (taskRes.result.data.length < 1) {
-        return;
-      }
-
-      // 为上面的任务列表创建指定日期的date数据
-      const items = taskRes.result.data.map((task) => ({
-        value: 0,
-        date: dateStr,
-        name: task.name,
-        target: task.target,
-        username: task.username,
-      }));
-      const dateRes = await dateTable.add(items);
-
-      // 同步到本地
-      this.items = dateRes.result.ids.map((id, index) => ({
-        _id: id,
-        ...items[index],
-      }));
-    },
-    async getTasks() {
-      uni.showLoading();
-      const taskRes = await this.ctr.get();
-      uni.hideLoading();
-      return taskRes.result.data;
-    },
-    async loadData(currentDateStr) {
-      const { taskTable, db } = this;
-      const username = accountStorage.get();
-
+    async loadTask(date) {
       uni.showLoading();
 
       // 获取当前用户拥有的任务
-      const taskRes = await taskTable
-        .where({
-          username,
-        })
-        .get();
-      const tasks = taskRes.result.data;
-
+      const tasks = await this.taskCtr.get();
       // 使用tasks查询当前日期属于当前用户的数据
-      const taskNames = tasks.map((item) => item.name);
-      const dateRes = await db
-        .where({
-          username,
-          date: currentDateStr,
-          name: uniCloud.database().command.in(taskNames),
-        })
-        .get();
-      const dates = dateRes.result.data;
-
-      this.items = tasks.map((task) => {
+      const dates = await this.dateCtr.get(
+        date,
+        tasks.map((item) => item.name),
+      );
+      // 将date数据融合进task中
+      this.tasks = tasks.map((task) => {
         const date = dates.find((date) => task.name === date.name);
         return {
           ...task,
           value: date?.value ?? 0,
         };
       });
+
       uni.hideLoading();
     },
     async onSubmit() {
-      const { name, target } = this;
+      const { currentDateStr, formValues } = this;
+      const { name, target } = formValues;
 
       if (!name || !target) {
         return;
       }
 
-      await this.ctr.add({
+      await this.taskCtr.add({
         name,
         target,
       });
 
-      this.$refs.formPopup.close();
+      // 刷新任务数据
+      this.loadTask(currentDateStr);
 
-      this.init();
+      this.$refs.formPopup.close();
+    },
+  },
+  watch: {
+    currentDateStr: {
+      handler(value) {
+        this.loadTask(value);
+      },
+      immediate: true,
     },
   },
   components: {
