@@ -35,7 +35,7 @@ function generateThisWeek(date) {
 
   // 将结果封装为对象返回
   return daysOfWeek.map((day, index) => {
-    const dayOfWeek = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'][index];
+    const dayOfWeek = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'][index];
     return {
       dayOfWeek,
       date: manipulateDate(day),

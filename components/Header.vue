@@ -4,9 +4,10 @@
     <div class="nav-box">
       <Nav />
     </div>
+    <div class="username">{{ username }}</div>
     <div
       class="button"
-      v-if="!showLogin"
+      v-if="showLogin"
       @click="handleLogout"
     >
       退出登录
@@ -25,7 +26,8 @@ export default {
   },
   data() {
     return {
-      showLogin: !accountStorage.get(),
+      username: accountStorage.get(),
+      showLogin: !this.username,
     };
   },
   methods: {
@@ -59,6 +61,10 @@ export default {
 
 .nav-box {
   flex: 1;
+}
+
+.username {
+  margin-right: 10px;
 }
 
 .button {
