@@ -15,7 +15,6 @@ function padZero(number) {
   return number < 10 ? "0" + number : number;
 }
 
-
 export function manipulateDate(inputDate, offset = 0) {
   const date = new Date(inputDate);
   date.setDate(date.getDate() + offset);

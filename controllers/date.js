@@ -1,4 +1,4 @@
-import api from '@/apis/date';
+import * as api from '@/apis/date';
 import { accountStorage } from '@/util';
 
 const username = accountStorage.get();
@@ -32,8 +32,8 @@ class Controller {
 
   async update(query, payload) {
     // 需要先查找，当前任务是否存在date数据，否则会修改失败
-    const res = await api.get(query.date, [query.name])
-    const len  = res.result.data.length;
+    const res = await api.get(query.date, [query.name]);
+    const len = res.result.data.length;
 
     if (len === 0) {
       // 需要用当前任务创建一条date数据，然后再进行更新
@@ -46,12 +46,17 @@ class Controller {
 
     if (len > 1) {
       // 需要抛出异常
-      throw new Error('查询到超过一条数据，无法定位到需要更新的数据')
+      throw new Error('查询到超过一条数据，无法定位到需要更新的数据');
     }
   }
 
   async get(date, names = []) {
     const res = await api.get(date, names);
+    return res.result.data ?? [];
+  }
+
+  async newGet(query) {
+    const res = await api.newGet(query);
     return res.result.data ?? [];
   }
 }
