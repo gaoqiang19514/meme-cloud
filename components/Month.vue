@@ -9,7 +9,7 @@
       >
         <div
           :class="[
-            { ['date']: Number(getDay(item.date)) < Number(getDay(date)) && !item.value },
+            { ['date']: Number(getDay(item.date)) < Number(getDay(now)) && !item.value },
             { ['active']: item.value },
           ]"
         >
@@ -68,6 +68,7 @@ export default {
     return {
       ctr: new DateController(),
       items: [],
+      now: manipulateDate(new Date()),
     };
   },
   computed: {
