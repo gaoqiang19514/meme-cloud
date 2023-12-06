@@ -31,24 +31,12 @@ class Controller {
       });
   }
 
+  async newAdd({ date, name, time, target }) {
+    api.add({ date, name, time, target });
+  }
+
   async update(query, payload) {
-    // 需要先查找，当前任务是否存在date数据，否则会修改失败
-    const res = await api.get(query.date, [query.name]);
-    const len = res.result.data.length;
-
-    if (len === 0) {
-      // 需要用当前任务创建一条date数据，然后再进行更新
-    }
-
-    if (len === 1) {
-      // 如果不存在当前数据，需要创建一条date用于修改
-      await api.update(query, payload);
-    }
-
-    if (len > 1) {
-      // 需要抛出异常
-      throw new Error('查询到超过一条数据，无法定位到需要更新的数据');
-    }
+    await api.update(query, payload);
   }
 
   async get(date, names = []) {

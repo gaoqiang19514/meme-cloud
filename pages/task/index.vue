@@ -176,18 +176,43 @@ export default {
     },
     // 修改当前任务的远程时间
     async update() {
-      const { tasks, currTaskId, currentDateStr } = this;
+      const { tasks, currTaskId, currentDateStr, selectValue } = this;
 
       const currTask = tasks.find((item) => item._id === currTaskId);
-      await this.dateCtr.update(
-        {
-          name: currTask.name,
+
+      const data = await this.dateCtr.newGet({
+        date: currentDateStr,
+        name: currTask.name,
+      });
+
+      const len = data.length;
+
+      // 当前任务在当前没有date数据，需要创建一条
+      if (len === 0) {
+        await this.dateCtr.newAdd({
           date: currentDateStr,
-        },
-        {
-          value: currTask.value,
-        },
-      );
+          name: currTask.name,
+          time: selectValue,
+          target: currTask.target,
+        });
+      }
+
+      if (len === 1) {
+        await this.dateCtr.update(
+          {
+            name: currTask.name,
+            date: currentDateStr,
+          },
+          {
+            value: currTask.value,
+          },
+        );
+      }
+
+      if (len > 1) {
+        // 需要抛出异常
+        throw new Error('查询到超过一条数据，无法定位到需要更新的数据');
+      }
     },
     onClick(id) {
       this.currTaskId = id;
