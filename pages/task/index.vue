@@ -85,8 +85,45 @@
             确定
           </button>
         </div>
+        <div
+          class="container-bottom"
+          @click="onClickForceUpdate"
+        >
+          暴力修改（慎用）
+        </div>
       </div>
     </uni-popup>
+    <uni-popup
+      ref="force-update-popup"
+      :mask-click="false"
+    >
+      <div class="container">
+        <div class="container-title">设置</div>
+        <div class="input-box">
+          <input
+            auto-focus
+            v-model="forceValue"
+            placeholder="目标值"
+          />
+        </div>
+        <div class="container-btns">
+          <button
+            @click="$refs['force-update-popup'].close()"
+            class="container-btn"
+          >
+            取消
+          </button>
+          <button
+            :disabled="!forceValue"
+            @click="onSubmitForceSetValue"
+            class="container-btn"
+          >
+            确定
+          </button>
+        </div>
+      </div>
+    </uni-popup>
+
     <uni-popup
       ref="formPopup"
       type="center"
@@ -130,6 +167,7 @@ import Week from '@/components/Week.vue';
 import Month from '@/components/Month.vue';
 import TaskController from '@/controllers/task';
 import DateController from '@/controllers/date';
+import * as dateApi from '@/apis/date';
 
 export default {
   data() {
@@ -145,6 +183,7 @@ export default {
         target: 5,
       },
       selectValue: 0,
+      forceValue: undefined,
     };
   },
   computed: {
@@ -257,6 +296,28 @@ export default {
       await this.update();
       uni.hideLoading();
       this.$refs.popup.close();
+    },
+    onClickForceUpdate() {
+      this.$refs['popup'].close();
+      this.$refs['force-update-popup'].open();
+    },
+    async onSubmitForceSetValue() {
+      const { tasks, currTaskId, currentDateStr, forceValue } = this;
+      const currTask = tasks.find((item) => item._id === currTaskId);
+
+      try {
+        await dateApi.update(
+          {
+            name: currTask.name,
+            date: currentDateStr,
+          },
+          { value: Number(forceValue) },
+        );
+        this.$refs['force-update-popup'].close();
+        this.forceValue = undefined;
+        // 刷新任务数据
+        this.loadTask(currentDateStr);
+      } catch (err) {}
     },
     async onSubmit() {
       const { currentDateStr, formValues } = this;
@@ -372,6 +433,13 @@ export default {
 .container-btns {
   display: flex;
   justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.container-bottom {
+  color: red;
+  cursor: pointer;
+  text-align: right;
 }
 
 .container-btn {
