@@ -1,12 +1,13 @@
 import * as api from '@/apis/date';
 import { accountStorage } from '@/util';
 
-const username = accountStorage.get();
 const dateTable = uniCloud.database().collection('date');
 
 class Controller {
   // TODO: 这里有问题，需要把update拆出来
   add({ date, name, time, target }) {
+    const username = accountStorage.get();
+
     dateTable
       .where({
         date,
