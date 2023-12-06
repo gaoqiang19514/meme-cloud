@@ -52,21 +52,44 @@
       </div>
       <Week :date="currentDateStr" />
     </div>
-    <uni-popup ref="popup">
-      <ul class="options">
-        <li
-          class="option"
-          v-for="item in options"
-          :key="item"
-          @click="onPlus(item)"
-        >
-          {{ item }}
-        </li>
-      </ul>
+    <uni-popup
+      ref="popup"
+      :mask-click="false"
+    >
+      <div class="container">
+        <div class="container-title">设置</div>
+        <div class="title">请选择需要添加的时间：</div>
+        <ul class="options">
+          <li
+            :class="['option', { ['active']: selectValue === item }]"
+            v-for="item in options"
+            :key="item"
+            @click="onPlus(item)"
+          >
+            {{ item }}分钟
+          </li>
+        </ul>
+        <div class="container-btns">
+          <button
+            @click="$refs.popup.close()"
+            class="container-btn"
+          >
+            取消
+          </button>
+          <button
+            :disabled="!selectValue"
+            @click="onSubmitSetValue"
+            class="container-btn"
+          >
+            确定
+          </button>
+        </div>
+      </div>
     </uni-popup>
     <uni-popup
       ref="formPopup"
       type="center"
+      :mask-click="false"
     >
       <div class="add-form">
         <div class="add-form-row">
@@ -114,11 +137,12 @@ export default {
       currTaskId: '',
       currentDateStr: manipulateDate(new Date()),
       tasks: [],
-      options: [25, 10],
+      options: [5, 10, 15, 25],
       formValues: {
         name: '',
         target: 5,
       },
+      selectValue: 0,
     };
   },
   computed: {
@@ -146,12 +170,7 @@ export default {
     },
     // 给当前任务增加时间
     onPlus(value) {
-      const { currTaskId } = this;
-      this.tasks = this.tasks.map((item) => ({
-        ...item,
-        value: item._id === currTaskId ? item.value + value : item.value,
-      }));
-      this.update();
+      this.selectValue = value;
     },
     // 修改当前任务的远程时间
     async update() {
@@ -192,6 +211,25 @@ export default {
       });
 
       uni.hideLoading();
+    },
+    async onSubmitSetValue() {
+      const { currTaskId, selectValue } = this;
+
+      uni.showLoading({ mask: true });
+
+      this.tasks = this.tasks.map((item) => {
+        if (currTaskId === item._id) {
+          return {
+            ...item,
+            value: item.value + selectValue,
+          };
+        }
+        return item;
+      });
+
+      await this.update();
+      uni.hideLoading();
+      this.$refs.popup.close();
     },
     async onSubmit() {
       const { currentDateStr, formValues } = this;
@@ -264,8 +302,26 @@ export default {
   background: limegreen;
 }
 
+.container {
+  padding: 30px;
+  border-radius: 3px;
+  background: #fff;
+}
+
+.container-title {
+  text-align: center;
+  font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.title {
+  margin-bottom: 20px;
+}
+
 .options {
   display: flex;
+  margin-bottom: 20px;
 }
 
 .option {
@@ -273,8 +329,26 @@ export default {
   padding: 10px 20px;
   background: #fff;
   border-radius: 3px;
-  margin: 0 10px;
+  margin-right: 10px;
   border: 1px solid #ccc;
+}
+
+.option.active {
+  background: #ccc;
+}
+
+.option:last-child {
+  margin-right: 0;
+}
+
+.container-btns {
+  display: flex;
+  justify-content: space-between;
+}
+
+.container-btn {
+  margin: 0;
+  width: calc(50% - 5px);
 }
 
 .btns {
