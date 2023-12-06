@@ -51,6 +51,7 @@
         </ul>
       </div>
       <Week :date="currentDateStr" />
+      <Month :date="currentDateStr" />
     </div>
     <uni-popup
       ref="popup"
@@ -126,6 +127,7 @@
 import { manipulateDate } from '@/util.js';
 import Header from '@/components/Header.vue';
 import Week from '@/components/Week.vue';
+import Month from '@/components/Month.vue';
 import TaskController from '@/controllers/task';
 import DateController from '@/controllers/date';
 
@@ -261,6 +263,7 @@ export default {
   components: {
     Header,
     Week,
+    Month,
   },
 };
 </script>
