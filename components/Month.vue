@@ -7,12 +7,7 @@
         :key="item.date"
         class="day"
       >
-        <div
-          :class="[
-            { ['date']: Number(getDay(item.date)) < Number(getDay(now)) && !item.value },
-            { ['active']: item.value },
-          ]"
-        >
+        <div :class="getDateClass(item)">
           {{ getDay(item.date) }}
         </div>
         <div>{{ item.value }}分</div>
@@ -83,6 +78,39 @@ export default {
   },
   methods: {
     getDay,
+    getDateClass(item) {
+      const nowDate = new Date().getTime();
+      const currDate = new Date(item.date).getTime();
+
+      // 往期
+      if (currDate < nowDate) {
+        // 未完成
+        if (!item.value) {
+          return 'unfinished';
+        }
+        // 部分完成
+        if (item.value < item.target) {
+          return 'middlefinished';
+        }
+        // 完成
+        if (item.value >= item.target) {
+          return 'finished';
+        }
+      } else {
+        // 未完成
+        if (!item.value) {
+          return '';
+        }
+        // 部分完成
+        if (item.value < item.target) {
+          return '';
+        }
+        // 完成
+        if (item.value >= item.target) {
+          return 'finished';
+        }
+      }
+    },
     async loadData() {
       const { month } = this;
 
@@ -131,6 +159,24 @@ export default {
   font-weight: bold;
   color: #fff;
   background: red;
+}
+
+.unfinished {
+  font-weight: bold;
+  color: #fff;
+  background: red;
+}
+
+.middlefinished {
+  font-weight: bold;
+  color: #fff;
+  background: yellow;
+}
+
+.finished {
+  font-weight: bold;
+  color: #fff;
+  background: green;
 }
 
 .active {
