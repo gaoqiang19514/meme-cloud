@@ -161,7 +161,7 @@
 </template>
 
 <script>
-import { manipulateDate } from '@/util.js';
+import { manipulateDate, getToday } from '@/util.js';
 import Header from '@/components/Header.vue';
 import Week from '@/components/Week.vue';
 import Month from '@/components/Month.vue';
@@ -254,6 +254,14 @@ export default {
       }
     },
     onClick(id) {
+      const { currentDateStr } = this;
+      const today = getToday();
+
+      if (new Date(currentDateStr).getTime() < new Date(today).getTime()) {
+        alert('狗东西，想作弊？');
+        return;
+      }
+
       this.currTaskId = id;
       this.$refs.popup.open();
     },
