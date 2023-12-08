@@ -6,13 +6,13 @@ export const accountStorage = {
     localStorage.setItem('username', value);
   },
   remove: () => {
-    localStorage.removeItem('username')
-  }
-}
+    localStorage.removeItem('username');
+  },
+};
 
 // 辅助函数：如果数字小于10，在前面加上一个零
 function padZero(number) {
-  return number < 10 ? "0" + number : number;
+  return number < 10 ? '0' + number : number;
 }
 
 export function manipulateDate(inputDate, offset = 0) {
@@ -26,4 +26,15 @@ export function manipulateDate(inputDate, offset = 0) {
   return `${year}-${month}-${day}`;
 }
 
+/**
+ * 获取当天的年月日
+ * @returns {String}
+ */
+export function getToday() {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = (1 + date.getMonth()).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
 
+  return year + '-' + month + '-' + day;
+}

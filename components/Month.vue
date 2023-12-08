@@ -17,8 +17,9 @@
 </template>
 
 <script>
-import { manipulateDate } from '@/util';
+import { manipulateDate, getToday } from '@/util';
 import DateController from '@/controllers/date';
+import taskApi from '@/apis/task';
 
 function getDay(dateString) {
   return new Date(dateString).getDate();
@@ -79,36 +80,26 @@ export default {
   methods: {
     getDay,
     getDateClass(item) {
-      const nowDate = new Date().getTime();
+      const nowDate = new Date(getToday()).getTime();
       const currDate = new Date(item.date).getTime();
 
-      // 往期
-      if (currDate < nowDate) {
-        // 未完成
-        if (!item.value) {
-          return 'unfinished';
-        }
-        // 部分完成
-        if (item.value < item.target) {
-          return 'middlefinished';
-        }
-        // 完成
-        if (item.value >= item.target) {
-          return 'finished';
-        }
-      } else {
-        // 未完成
-        if (!item.value) {
-          return '';
-        }
-        // 部分完成
-        if (item.value < item.target) {
-          return '';
-        }
-        // 完成
-        if (item.value >= item.target) {
-          return 'finished';
-        }
+      if (nowDate < currDate) {
+        return '';
+      }
+
+      // 未完成
+      if (!item.value && nowDate !== currDate) {
+        return 'unfinished';
+      }
+
+      // 部分完成
+      if (item.value !== 0 && item.value < item.target) {
+        return 'middlefinished';
+      }
+
+      // 完成
+      if (item.value >= item.target) {
+        return 'finished';
       }
     },
     async loadData() {
@@ -118,12 +109,16 @@ export default {
         date: uniCloud.database().command.in(month.map((day) => day.date)),
       });
 
-      this.items = month.map((item) => {
-        const value = dates.filter((date) => date.date === item.date).reduce((acc, curr) => (acc += curr.value), 0);
+      const taskRes = await taskApi.get();
+      const targetTotalAmount = taskRes.result.data.reduce((acc, curr) => (acc += curr.target), 0);
 
+      this.items = month.map((item) => {
+        const dateData = dates.filter((date) => date.date === item.date);
+        const value = dateData.reduce((acc, curr) => (acc += curr.value), 0);
         return {
           ...item,
           value,
+          target: targetTotalAmount,
         };
       });
     },
