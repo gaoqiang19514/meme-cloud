@@ -2,19 +2,10 @@
   <div class="page">
     <div class="form">
       <div class="input-box">
-        <input
-          auto-focus
-          v-model="username"
-          placeholder="账号"
-          @keydown.enter="handleSubmit"
-        />
+        <input auto-focus v-model="username" placeholder="账号" @keydown.enter="handleSubmit" />
       </div>
       <div class="input-box">
-        <input
-          v-model="password"
-          placeholder="密码"
-          @keydown.enter="handleSubmit"
-        />
+        <input v-model="password" placeholder="密码" @keydown.enter="handleSubmit" />
       </div>
       <button @click="handleSubmit">登录（未注册自动注册）</button>
     </div>
@@ -80,20 +71,4 @@ export default {
 };
 </script>
 
-<style>
-.page {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  padding: 100px;
-}
-
-.input-box {
-  margin-bottom: 10px;
-  width: 300px;
-  padding: 10px;
-  border-radius: 3px;
-  border: 1px solid #ccc;
-}
-</style>
+<style lang="less" src="./style.less"></style>
