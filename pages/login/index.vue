@@ -7,7 +7,7 @@
       <div class="input-box">
         <input v-model="password" placeholder="密码" @keydown.enter="handleSubmit" />
       </div>
-      <button @click="handleSubmit">登录（未注册自动注册）</button>
+      <button @click="handleSubmit">登录（注册）</button>
     </div>
   </div>
 </template>
