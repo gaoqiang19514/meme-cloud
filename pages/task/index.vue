@@ -150,7 +150,7 @@ export default {
       this.taskCtr.currentDateStr = manipulateDate(currentDateStr, -1);
     },
     onNext() {
-      const { currentDateStr } = this;
+      const { currentDateStr } = this.taskCtr;
 
       this.taskCtr.currentDateStr = manipulateDate(currentDateStr, 1);
     },
