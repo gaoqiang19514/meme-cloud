@@ -52,7 +52,7 @@
 
 <script>
 import Header from '@/components/Header.vue';
-import DateController from '@/controllers/date';
+import RecordController from '@/controllers/record';
 import { accountStorage, manipulateDate } from '@/util';
 
 const formatSeconds = (seconds) => {
@@ -90,7 +90,7 @@ export default {
       autoUpdateTime: 0,
       isCountDown: false,
       times: [5, 10, 15, 25],
-      dateCtr: new DateController(),
+      dateCtr: new RecordController(),
       taskTable: uniCloud.database().collection('task'),
     };
   },

@@ -13,7 +13,7 @@
 
 <script>
 import { manipulateDate, getToday } from '@/util';
-import DateController from '@/controllers/date';
+import RecordController from '@/controllers/record';
 
 function generateThisWeek(date) {
   // 获取当前日期
@@ -48,7 +48,7 @@ export default {
   inject: ['taskCtr'],
   data() {
     return {
-      ctr: new DateController(),
+      ctr: new RecordController(),
       items: [],
     };
   },

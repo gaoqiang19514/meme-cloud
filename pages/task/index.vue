@@ -107,14 +107,14 @@ import Header from '@/components/Header.vue';
 import Week from '@/components/Week.vue';
 import Month from '@/components/Month.vue';
 import TaskController from '@/controllers/task';
-import DateController from '@/controllers/date';
-import * as dateApi from '@/apis/date';
+import RecordController from '@/controllers/record';
+import * as recordApi from '@/apis/record';
 
 export default {
   data() {
     return {
       taskCtr: new TaskController(),
-      dateCtr: new DateController(),
+      dateCtr: new RecordController(),
       currTaskId: '',
       tasks: [],
       options: [5, 10, 15, 25],
@@ -274,7 +274,7 @@ export default {
 
         // 新增
         if (len === 0) {
-          await dateApi.add({
+          await recordApi.add({
             date: currentDateStr,
             name: currTask.name,
             time: forceValue,
@@ -284,7 +284,7 @@ export default {
 
         // 修改
         if (len === 1) {
-          await dateApi.update(
+          await recordApi.update(
             {
               name: currTask.name,
               date: currentDateStr,

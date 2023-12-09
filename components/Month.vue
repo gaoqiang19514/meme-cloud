@@ -15,7 +15,7 @@
 
 <script>
 import { manipulateDate, getToday } from '@/util';
-import DateController from '@/controllers/date';
+import RecordController from '@/controllers/record';
 import taskApi from '@/apis/task';
 
 function getDay(dateString) {
@@ -84,7 +84,7 @@ export default {
   inject: ['taskCtr'],
   data() {
     return {
-      ctr: new DateController(),
+      ctr: new RecordController(),
       items: [],
       now: manipulateDate(new Date()),
     };

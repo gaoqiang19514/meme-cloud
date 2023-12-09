@@ -1,6 +1,6 @@
 import { accountStorage } from '@/util';
 
-const dateTable = uniCloud.database().collection('date');
+const recordTable = uniCloud.database().collection('record');
 
 export const add = ({ date, name, time, target }) => {
   const username = accountStorage.get();
@@ -12,13 +12,13 @@ export const add = ({ date, name, time, target }) => {
     username,
   };
 
-  dateTable.add(data);
+  recordTable.add(data);
 };
 
 export const update = (query, payload) => {
   const username = accountStorage.get();
   // 可能会找不到当前日期的date数据 需要创建
-  return dateTable
+  return recordTable
     .where({
       username,
       ...query,
@@ -28,7 +28,7 @@ export const update = (query, payload) => {
 
 export const get = (date, names) => {
   const username = accountStorage.get();
-  return dateTable
+  return recordTable
     .where({
       username,
       date,
@@ -38,7 +38,7 @@ export const get = (date, names) => {
 };
 
 export const newGet = (query) =>
-  dateTable
+  recordTable
     .where({
       username: accountStorage.get(),
       ...query,

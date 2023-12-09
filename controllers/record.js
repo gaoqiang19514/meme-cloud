@@ -1,14 +1,14 @@
-import * as api from '@/apis/date';
+import * as recordApi from '@/apis/record';
 import { accountStorage } from '@/util';
 
-const dateTable = uniCloud.database().collection('date');
+const recordTable = uniCloud.database().collection('record');
 
 class Controller {
   // TODO: 这里有问题，需要把update拆出来
   add({ date, name, time, target }) {
     const username = accountStorage.get();
 
-    dateTable
+    recordTable
       .where({
         date,
         name,
@@ -20,32 +20,32 @@ class Controller {
         const len = data.length;
 
         if (len === 0) {
-          api.add({ date, name, time, target });
+          recordApi.add({ date, name, time, target });
           return;
         }
 
         if (len === 1) {
-          api.update({ date, name }, { value: data[0].value + time });
+          recordApi.update({ date, name }, { value: data[0].value + time });
           return;
         }
       });
   }
 
   async newAdd({ date, name, time, target }) {
-    api.add({ date, name, time, target });
+    recordApi.add({ date, name, time, target });
   }
 
   async update(query, payload) {
-    await api.update(query, payload);
+    await recordApi.update(query, payload);
   }
 
   async get(date, names = []) {
-    const res = await api.get(date, names);
+    const res = await recordApi.get(date, names);
     return res.result.data ?? [];
   }
 
   async newGet(query) {
-    const res = await api.newGet(query);
+    const res = await recordApi.newGet(query);
     return res.result.data ?? [];
   }
 }
