@@ -2,11 +2,8 @@
   <div>
     <div class="title">本周合计: {{ totalAmount }} 分钟</div>
     <div class="weeks">
-      <div
-        v-for="item in items"
-        :key="item.date"
-        class="week"
-      >
+      <div v-for="item in items" :key="item.date" :class="['week', { ['disabled']: isDisabled(item.date) }]"
+        @click="onClickSetDate(item.date)">
         <div>{{ item.date }} {{ item.dayOfWeek }}</div>
         <div>{{ item.value }}分钟</div>
       </div>
@@ -15,7 +12,7 @@
 </template>
 
 <script>
-import { manipulateDate } from '@/util';
+import { manipulateDate, getToday } from '@/util';
 import DateController from '@/controllers/date';
 
 function generateThisWeek(date) {
@@ -48,6 +45,7 @@ export default {
   props: {
     date: String,
   },
+  inject: ['taskCtr'],
   data() {
     return {
       ctr: new DateController(),
@@ -65,6 +63,12 @@ export default {
     },
   },
   methods: {
+    isDisabled(date) {
+      const todayDate = new Date(getToday()).getTime();
+      const currDate = new Date(date).getTime();
+
+      return currDate > todayDate
+    },
     async loadData() {
       const { weeks } = this;
 
@@ -81,6 +85,9 @@ export default {
         };
       });
     },
+    onClickSetDate(date) {
+      this.taskCtr.setDate(date);
+    }
   },
   watch: {
     date: {
@@ -105,5 +112,9 @@ export default {
 
 .week {
   margin-right: 20px;
+}
+
+.disabled {
+  cursor: not-allowed;
 }
 </style>

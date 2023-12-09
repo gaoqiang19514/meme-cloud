@@ -5,14 +5,17 @@
       <div>
         <div class="btns">
           <div class="date-btns">
-            <div class="date-btn" @click="onPrev">
+            <div class="action-btn date-btn" @click="onPrev">
               上一天
             </div>
-            <div class="date">
-              {{ currentDateStr }}
+            <div class="action-btn date">
+              {{ taskCtr.currentDateStr }}
             </div>
-            <div :class="['date-btn', { disabled: disabledNextBtn }]" @click="onNext">
+            <div :class="['action-btn date-btn', { disabled: disabledNextBtn }]" @click="onNext">
               下一天
+            </div>
+            <div :class="['action-btn date-btn', { disabled: disabledNextBtn }]" @click="onClickToday">
+              今天
             </div>
           </div>
           <div class="other-btns">
@@ -33,8 +36,8 @@
           </li>
         </ul>
       </div>
-      <Week :date="currentDateStr" />
-      <Month :date="currentDateStr" />
+      <Week :date="taskCtr.currentDateStr" />
+      <Month :date="taskCtr.currentDateStr" />
     </div>
     <uni-popup ref="popup" :mask-click="false">
       <div class="container">
@@ -113,7 +116,6 @@ export default {
       taskCtr: new TaskController(),
       dateCtr: new DateController(),
       currTaskId: '',
-      currentDateStr: manipulateDate(new Date()),
       tasks: [],
       options: [5, 10, 15, 25],
       formValues: {
@@ -126,8 +128,13 @@ export default {
   },
   computed: {
     disabledNextBtn() {
-      return manipulateDate(new Date()) === this.currentDateStr;
+      return manipulateDate(new Date()) === this.taskCtr.currentDateStr;
     },
+  },
+  provide() {
+    return {
+      taskCtr: this.taskCtr,
+    }
   },
   methods: {
     calc(obj) {
@@ -138,14 +145,17 @@ export default {
       this.$refs.formPopup.open();
     },
     onPrev() {
-      const { currentDateStr } = this;
+      const { currentDateStr } = this.taskCtr;
 
-      this.currentDateStr = manipulateDate(currentDateStr, -1);
+      this.taskCtr.currentDateStr = manipulateDate(currentDateStr, -1);
     },
     onNext() {
       const { currentDateStr } = this;
 
-      this.currentDateStr = manipulateDate(currentDateStr, 1);
+      this.taskCtr.currentDateStr = manipulateDate(currentDateStr, 1);
+    },
+    onClickToday() {
+      this.taskCtr.currentDateStr = manipulateDate(new Date());
     },
     // 给当前任务增加时间
     onPlus(value) {
@@ -153,7 +163,9 @@ export default {
     },
     // 修改当前任务的远程时间
     async update() {
-      const { tasks, currTaskId, currentDateStr, selectValue } = this;
+      const { tasks, currTaskId, selectValue } = this;
+
+      const { currentDateStr } = this.taskCtr;
 
       const currTask = tasks.find((item) => item._id === currTaskId);
 
@@ -192,7 +204,7 @@ export default {
       }
     },
     onClick(id) {
-      const { currentDateStr } = this;
+      const { currentDateStr } = this.taskCtr;
       const today = getToday();
 
       if (new Date(currentDateStr).getTime() < new Date(today).getTime()) {
@@ -248,7 +260,8 @@ export default {
       this.$refs['force-update-popup'].open();
     },
     async onSubmitForceSetValue() {
-      const { tasks, currTaskId, currentDateStr, forceValue } = this;
+      const { tasks, currTaskId, forceValue } = this;
+      const { currentDateStr } = this.taskCtr;
       const currTask = tasks.find((item) => item._id === currTaskId);
 
       const data = await this.dateCtr.newGet({
@@ -287,7 +300,8 @@ export default {
       } catch (err) { }
     },
     async onSubmit() {
-      const { currentDateStr, formValues } = this;
+      const { formValues } = this;
+      const { currentDateStr } = this.taskCtr;
       const { name, target } = formValues;
 
       if (!name || !target) {
@@ -306,7 +320,7 @@ export default {
     },
   },
   watch: {
-    currentDateStr: {
+    'taskCtr.currentDateStr': {
       handler(value) {
         this.loadTask(value);
       },
@@ -441,6 +455,7 @@ export default {
   background: #ccc;
   cursor: not-allowed;
   pointer-events: none;
+  opacity: .5;
 }
 
 .add-view {
@@ -479,5 +494,11 @@ export default {
   padding: 10px;
   border-radius: 3px;
   border: 1px solid #ccc;
+}
+
+.action-btn {
+  min-width: 100px;
+  text-align: center;
+  margin-right: 20px;
 }
 </style>

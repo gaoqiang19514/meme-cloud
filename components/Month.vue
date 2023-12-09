@@ -2,7 +2,8 @@
   <div>
     <div class="title">本月合计: {{ totalAmount }} 分钟</div>
     <div class="month">
-      <div v-for="item in items" :key="item.date" class="day">
+      <div v-for="item in items" :key="item.date" :class="['day', { ['disabled']: isDisabled(item.date) }]"
+        @click="onClickSetDate(item)">
         <div :class="getDateClass(item)">
           {{ getDay(item.date) }}
         </div>
@@ -80,6 +81,7 @@ export default {
   props: {
     date: String,
   },
+  inject: ['taskCtr'],
   data() {
     return {
       ctr: new DateController(),
@@ -99,6 +101,12 @@ export default {
   },
   methods: {
     getDay,
+    isDisabled(date) {
+      const todayDate = new Date(getToday()).getTime();
+      const currDate = new Date(date).getTime();
+
+      return currDate > todayDate
+    },
     getDateClass(item) {
       const nowDate = new Date(getToday()).getTime();
       const currDate = new Date(item.date).getTime();
@@ -155,8 +163,10 @@ export default {
           target: targetTotalAmount,
         };
       });
-
     },
+    onClickSetDate(obj) {
+      this.taskCtr.setDate(obj.date);
+    }
   },
   watch: {
     date: {
@@ -177,6 +187,10 @@ export default {
 
 .month {
   display: flex;
+}
+
+.disabled {
+  cursor: not-allowed;
 }
 
 .day {
