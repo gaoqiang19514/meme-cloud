@@ -2,37 +2,32 @@
   <div class="page">
     <div class="form">
       <div class="input-box">
-        <input auto-focus v-model="username" placeholder="账号" @keydown.enter="handleSubmit" />
+        <input auto-focus v-model="username" placeholder="账号" @keydown.enter="onSubmit" />
       </div>
       <div class="input-box">
-        <input v-model="password" placeholder="密码" @keydown.enter="handleSubmit" />
+        <input v-model="password" placeholder="密码" @keydown.enter="onSubmit" />
       </div>
-      <button @click="handleSubmit">登录（注册）</button>
+      <button @click="onSubmit">登录（注册）</button>
     </div>
   </div>
 </template>
 
 <script>
 import { accountStorage } from '@/util.js';
+import * as userApi from '@/apis/user';
 
 export default {
   data() {
     return {
-      db: uniCloud.database().collection('user'),
       username: '',
       password: '',
     };
   },
   methods: {
     async isExist(username) {
-      const { db } = this;
-
-      const res = await db
-        .where({
-          username,
-        })
-        .get();
-
+      const res = await userApi.list({
+        username
+      })
       return res.result.data.length > 0;
     },
     login(username) {
@@ -42,16 +37,12 @@ export default {
       });
     },
     async register(username) {
-      const { db } = this;
-
-      // 创建用户
-      await db.add({
+      await userApi.add({
         username,
       });
-      // 自动登录
       this.login(username);
     },
-    async handleSubmit() {
+    async onSubmit() {
       const { username } = this;
 
       if (!username.trim()) {
@@ -60,7 +51,6 @@ export default {
       }
 
       const value = await this.isExist(username);
-      // 查询当前用户是否存在,如果不存在,则创建新用户
       if (value) {
         this.login(username);
       } else {

@@ -21,12 +21,8 @@
             <div class="form-item">
               <div>任务名：</div>
               <div class="form-options">
-                <div
-                  v-for="task in tasks"
-                  :key="task._id"
-                  @click="handleSetTask(task._id)"
-                  :class="['form-option', { active: selectTaskId === task._id }]"
-                >
+                <div v-for="task in tasks" :key="task._id" @click="handleSetTask(task._id)"
+                  :class="['form-option', { active: selectTaskId === task._id }]">
                   {{ task.name }}
                 </div>
               </div>
@@ -34,12 +30,8 @@
             <div class="form-item">
               <div>继续时间：</div>
               <div class="form-options">
-                <div
-                  v-for="item in times"
-                  :key="item"
-                  @click="handleSetValueByKey('currentTime', item)"
-                  :class="['form-option', { active: currentTime === item }]"
-                >
+                <div v-for="item in times" :key="item" @click="handleSetValueByKey('currentTime', item)"
+                  :class="['form-option', { active: currentTime === item }]">
                   {{ item }}
                 </div>
               </div>
@@ -48,10 +40,7 @@
         </div>
         <div class="row">
           <div class="btn-box">
-            <button
-              :disabled="isDisabled"
-              @click="handleStart"
-            >
+            <button :disabled="isDisabled" @click="handleStart">
               启动
             </button>
           </div>
@@ -65,8 +54,6 @@
 import Header from '@/components/Header.vue';
 import DateController from '@/controllers/date';
 import { accountStorage, manipulateDate } from '@/util';
-
-
 
 const formatSeconds = (seconds) => {
   const minutes = Math.floor(seconds / 60);
@@ -103,7 +90,7 @@ export default {
       autoUpdateTime: 0,
       isCountDown: false,
       times: [5, 10, 15, 25],
-      focusCtr: new DateController(),
+      dateCtr: new DateController(),
       taskTable: uniCloud.database().collection('task'),
     };
   },
@@ -172,7 +159,7 @@ export default {
         });
       }
 
-      this.focusCtr.add({
+      this.dateCtr.add({
         date: today,
         time: currentTime,
         name: currentTask.name,
