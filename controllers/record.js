@@ -1,20 +1,17 @@
 import * as recordApi from '@/apis/record';
 import { accountStorage } from '@/util';
 
-const recordTable = uniCloud.database().collection('record');
-
 class Controller {
   // TODO: 这里有问题，需要把update拆出来
   add({ date, name, time, target }) {
     const username = accountStorage.get();
 
-    recordTable
-      .where({
+    recordApi
+      .newGet({
         date,
         name,
         username,
       })
-      .get()
       .then((res) => {
         const data = res?.result?.data ?? [];
         const len = data.length;

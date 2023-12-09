@@ -6,7 +6,7 @@
         <uni-icons class="btn" type="plus" size="45" @click="onAdd"></uni-icons>
       </div>
       <ul class="items">
-        <li class="item" v-for="item in ctr.items" :key="item._id" @click="onClick(item)">
+        <li class="item" v-for="item in items" :key="item._id" @click="onOpen(item.url)">
           <div class="name">{{ item.name }}</div>
           <img class="img" :src="item.img" :alt="item.name">
           <div class="clear" @click.stop="onDel(item._id)">
@@ -44,13 +44,13 @@
 </template>
 
 <script>
+import * as bookmarkApi from '@/apis/bookmark';
 import Header from '@/components/Header.vue';
-import Controller from '@/controllers/bookmark';
 
 export default {
   data() {
     return {
-      ctr: new Controller(),
+      items: [],
       name: '',
       img: '',
       url: '',
@@ -60,30 +60,34 @@ export default {
     this.loadBookmarks();
   },
   methods: {
+    onOpen(url) {
+      window.open(url)
+    },
     onAdd() {
       this.$refs.popup.open();
     },
-    onDel(id) {
+    async onDel(id) {
       const res = confirm('确认删除吗？')
       if (!res) {
         return;
       }
-      this.ctr.del(id);
+      await bookmarkApi.del({
+        _id: id,
+      });
     },
-    loadBookmarks() {
-      this.ctr.get();
+    async loadBookmarks() {
+      const res = await bookmarkApi.list();
+      this.items = res.result.data ?? [];
     },
-    onClick(obj) {
-      window.open(obj.url)
-    },
-    onSubmit() {
+    async onSubmit() {
       const { name, url, img } = this;
 
+      // TODO: 添加表单校验组件
       if (!name || !url | !img) {
         return;
       }
 
-      this.ctr.add({
+      await bookmarkApi.add({
         name, url, img
       });
     },

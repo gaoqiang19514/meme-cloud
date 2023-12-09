@@ -1,30 +1,25 @@
 import { accountStorage } from '@/util';
 
-const bookmarkTable = uniCloud.database().collection('bookmark');
+const memeTable = uniCloud.database().collection('meme');
 
 export const list = () => {
   const username = accountStorage.get();
 
-  return bookmarkTable
+  return memeTable
     .where({
       username,
     })
     .get();
 };
 
+
 export const del = (query) => {
-  return bookmarkTable
+  return memeTable
     .where(query)
     .remove();
 };
 
 export const add = (query) => {
-  const username = accountStorage.get();
-
-  const data = {
-    ...query,
-    username,
-  };
-
-  bookmarkTable.add(data);
+  return memeTable.add(query);
 };
+

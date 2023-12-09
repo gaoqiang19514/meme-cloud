@@ -103,12 +103,14 @@
 
 <script>
 import { manipulateDate, getToday } from '@/util.js';
+import * as recordApi from '@/apis/record';
+
+import RecordController from '@/controllers/record';
+
 import Header from '@/components/Header.vue';
 import Week from '@/components/Week.vue';
 import Month from '@/components/Month.vue';
 import TaskController from '@/controllers/task';
-import RecordController from '@/controllers/record';
-import * as recordApi from '@/apis/record';
 
 export default {
   data() {

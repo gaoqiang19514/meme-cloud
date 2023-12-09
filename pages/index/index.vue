@@ -3,9 +3,9 @@
     <Header title="MemeCloud" />
     <div class="content">
       <ul class="items" v-if="!showLogin">
-        <li class="item" v-for="(url, index) in items" :key="index">
-          <img :src="url" alt="">
-          <div class="remove" @click="handleRemove(url)">
+        <li class="item" v-for="item in items" :key="item._id">
+          <img :src="item.url" alt="">
+          <div class="remove" @click="handleRemove(item.url)">
             <uni-icons type="closeempty" size="20"></uni-icons>
           </div>
         </li>
@@ -27,6 +27,8 @@ import {
   accountStorage,
 } from '@/util.js'
 
+import * as memeApi from '@/apis/meme'
+
 const getFileExtension = (fileName) => {
   return fileName.split('.').pop();
 }
@@ -34,7 +36,6 @@ const getFileExtension = (fileName) => {
 export default {
   data() {
     return {
-      db: uniCloud.database().collection("user"),
       showLogin: !accountStorage.get(),
       items: [],
     }
@@ -49,38 +50,21 @@ export default {
         url: '/pages/login/index'
       })
     },
-    remove(url) {
-      const {
-        db
-      } = this;
-      const username = accountStorage.get();
-
+    async remove(url) {
       wx.showLoading();
-      db.where({
-        username
-      }).get().then(res => {
-        const [data] = res.result.data;
-        const images = data?.images ?? [];
 
-        return images.filter(_url => _url !== url)
-      }).then(images => {
-        db.where({
-          username
-        }).update({
-          images
-        })
-        return url;
-      })
-        .then((url) => {
-          const action = uniCloud.importObject('action')
-          return action.delete(url)
-        })
-        .then(() => {
-          this.loadData()
-        })
-        .finally(() => {
-          wx.hideLoading()
-        })
+      // 从数据库中删除
+      await memeApi.del({
+        url
+      });
+
+      // 从云存储中删除
+      await uniCloud.importObject('action').delete(url)
+
+      // 重置数据
+      await this.loadData()
+
+      wx.hideLoading()
     },
     // TODO: 这里应该封装为一个抽象的函数,只执行用户输入为ture的回调
     handleRemove(url) {
@@ -92,41 +76,18 @@ export default {
 
       this.remove(url);
     },
-    loadData() {
-      const {
-        db
-      } = this;
-      const username = accountStorage.get();
-
-      db.where({
-        username
-      }).get().then(res => {
-        const [data] = res.result.data;
-        this.items = data?.images ?? [];
-      });
+    async loadData() {
+      const res = await memeApi.list()
+      this.items = res.result.data ?? [];
     },
-    saveImage(username, fileIDs) {
-      const {
-        db
-      } = this;
-
-      db.where({
-        username
-      }).get().then(res => {
-        const [data] = res.result.data;
-        return data?.images ?? []
-      }).then(images => {
-        return db.where({
-          username
-        }).update({
-          images: [...fileIDs, ...images,],
-        })
-      }).then(() => {
-        return this.loadData();
-      })
-        .finally(() => {
-          wx.hideLoading()
-        })
+    async saveImage(fileIDs) {
+      const username = accountStorage.get();
+      const list = fileIDs.map((url) => ({
+        username,
+        url,
+      }))
+      await memeApi.add(list)
+      await this.loadData();
     },
     handleUpload() {
       uni.chooseImage({
@@ -179,22 +140,13 @@ export default {
               filePath,
               cloudPath,
               cloudPathAsRealPath: true,
-              onUploadProgress: function (progressEvent) {
-                const percentCompleted = Math.round(
-                  (progressEvent.loaded * 100) / progressEvent.total
-                );
-              }
             })
           })
 
           Promise.all(promises).then(reses => {
-            const {
-              fileID
-            } = res;
-            const username = accountStorage.get();
             const fileIDs = reses.map(item => item.fileID);
 
-            this.saveImage(username, fileIDs);
+            this.saveImage(fileIDs);
           }).finally(wx.hideLoading)
 
         }
