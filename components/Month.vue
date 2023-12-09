@@ -2,11 +2,7 @@
   <div>
     <div class="title">本月合计: {{ totalAmount }} 分钟</div>
     <div class="month">
-      <div
-        v-for="item in items"
-        :key="item.date"
-        class="day"
-      >
+      <div v-for="item in items" :key="item.date" class="day">
         <div :class="getDateClass(item)">
           {{ getDay(item.date) }}
         </div>
@@ -55,6 +51,30 @@ function generateThisMonth(date) {
   });
 }
 
+const getTaskStatus = (finishedTaskLen, taskLen) => {
+  // 没有任务
+  if (taskLen === 0) {
+    return 0
+  }
+
+  // 有任务，一个都没完成
+  if (taskLen > 0 && finishedTaskLen === 0) {
+    return 0;
+  }
+
+  // 有任务，部分完成
+  if (taskLen > 0 && finishedTaskLen < taskLen) {
+    return 1;
+  }
+
+  // 有任务，任务完成
+  if (finishedTaskLen > 0 && finishedTaskLen >= taskLen) {
+    return 2;
+  }
+
+  return 0;
+}
+
 export default {
   name: 'Month',
   props: {
@@ -87,18 +107,21 @@ export default {
         return '';
       }
 
-      // 未完成
-      if (!item.value && nowDate !== currDate) {
+
+      if (nowDate === currDate && item.finishedStatus === 0) {
+        return '';
+      }
+
+
+      if (item.finishedStatus === 0) {
         return 'unfinished';
       }
 
-      // 部分完成
-      if (item.value !== 0 && item.value < item.target) {
+      if (item.finishedStatus === 1) {
         return 'middlefinished';
       }
 
-      // 完成
-      if (item.value >= item.target) {
+      if (item.finishedStatus === 2) {
         return 'finished';
       }
     },
@@ -112,15 +135,27 @@ export default {
       const taskRes = await taskApi.get();
       const targetTotalAmount = taskRes.result.data.reduce((acc, curr) => (acc += curr.target), 0);
 
+      const tasks = taskRes.result.data
+
       this.items = month.map((item) => {
         const dateData = dates.filter((date) => date.date === item.date);
+        const finishedTaskLen = dateData.reduce((acc, item) => {
+          const task = tasks.find(task => task.name === item.name);
+          return item.value >= task.target ? acc += 1 : acc
+        }, 0)
+
+        // 任务数
+        const taskLen = tasks.length;
         const value = dateData.reduce((acc, curr) => (acc += curr.value), 0);
+
         return {
           ...item,
           value,
+          finishedStatus: getTaskStatus(finishedTaskLen, taskLen),
           target: targetTotalAmount,
         };
       });
+
     },
   },
   watch: {

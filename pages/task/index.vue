@@ -5,42 +5,25 @@
       <div>
         <div class="btns">
           <div class="date-btns">
-            <div
-              class="date-btn"
-              @click="onPrev"
-            >
+            <div class="date-btn" @click="onPrev">
               上一天
             </div>
             <div class="date">
               {{ currentDateStr }}
             </div>
-            <div
-              :class="['date-btn', { disabled: disabledNextBtn }]"
-              @click="onNext"
-            >
+            <div :class="['date-btn', { disabled: disabledNextBtn }]" @click="onNext">
               下一天
             </div>
           </div>
           <div class="other-btns">
-            <div
-              class="date-btn"
-              @click="handleAddTask"
-            >
+            <div class="date-btn" @click="handleAddTask">
               新增任务
             </div>
           </div>
         </div>
         <ul class="items">
-          <li
-            class="item"
-            v-for="task in tasks"
-            :key="task._id"
-            @click="onClick(task._id)"
-          >
-            <div
-              class="progress"
-              :style="{ width: `${calc(task)}%` }"
-            />
+          <li class="item" v-for="task in tasks" :key="task._id" @click="onClick(task._id)">
+            <div class="progress" :style="{ width: `${calc(task)}%` }" />
             <span>{{ task.name }}</span>
             <span class="cell">
               <span>目标：{{ task.target }}分钟</span>
@@ -53,103 +36,58 @@
       <Week :date="currentDateStr" />
       <Month :date="currentDateStr" />
     </div>
-    <uni-popup
-      ref="popup"
-      :mask-click="false"
-    >
+    <uni-popup ref="popup" :mask-click="false">
       <div class="container">
         <div class="container-title">设置</div>
         <div class="title">请选择需要添加的时间：</div>
         <ul class="options">
-          <li
-            :class="['option', { ['active']: selectValue === item }]"
-            v-for="item in options"
-            :key="item"
-            @click="onPlus(item)"
-          >
+          <li :class="['option', { ['active']: selectValue === item }]" v-for="item in options" :key="item"
+            @click="onPlus(item)">
             {{ item }}分钟
           </li>
         </ul>
         <div class="container-btns">
-          <button
-            @click="$refs.popup.close()"
-            class="container-btn"
-          >
+          <button @click="$refs.popup.close()" class="container-btn">
             取消
           </button>
-          <button
-            :disabled="!selectValue"
-            @click="onSubmitSetValue"
-            class="container-btn"
-          >
+          <button :disabled="!selectValue" @click="onSubmitSetValue" class="container-btn">
             确定
           </button>
         </div>
-        <div
-          class="container-bottom"
-          @click="onClickForceUpdate"
-        >
+        <div class="container-bottom" @click="onClickForceUpdate">
           暴力修改（慎用）
         </div>
       </div>
     </uni-popup>
-    <uni-popup
-      ref="force-update-popup"
-      :mask-click="false"
-    >
+    <uni-popup ref="force-update-popup" :mask-click="false">
       <div class="container">
         <div class="container-title">设置</div>
         <div class="input-box">
-          <input
-            auto-focus
-            v-model="forceValue"
-            placeholder="目标值"
-          />
+          <input auto-focus v-model="forceValue" placeholder="目标值" />
         </div>
         <div class="container-btns">
-          <button
-            @click="$refs['force-update-popup'].close()"
-            class="container-btn"
-          >
+          <button @click="$refs['force-update-popup'].close()" class="container-btn">
             取消
           </button>
-          <button
-            :disabled="!forceValue"
-            @click="onSubmitForceSetValue"
-            class="container-btn"
-          >
+          <button :disabled="!forceValue" @click="onSubmitForceSetValue" class="container-btn">
             确定
           </button>
         </div>
       </div>
     </uni-popup>
 
-    <uni-popup
-      ref="formPopup"
-      type="center"
-      :mask-click="false"
-    >
+    <uni-popup ref="formPopup" type="center" :mask-click="false">
       <div class="add-form">
         <div class="add-form-row">
           <div class="add-form-label">任务名称</div>
           <div class="input-box">
-            <input
-              auto-focus
-              v-model="formValues.name"
-              placeholder="给你的任务起个名字"
-              @keydown.enter="handleSubmit"
-            />
+            <input auto-focus v-model="formValues.name" placeholder="给你的任务起个名字" @keydown.enter="handleSubmit" />
           </div>
         </div>
         <div class="add-form-row">
           <div class="add-form-label">每日目标</div>
           <div class="input-box">
-            <input
-              auto-focus
-              v-model="formValues.target"
-              placeholder="希望坚持多少分钟"
-              @keydown.enter="handleSubmit"
-            />
+            <input auto-focus v-model="formValues.target" placeholder="希望坚持多少分钟" @keydown.enter="handleSubmit" />
           </div>
         </div>
         <div class="add-form-row">
@@ -313,19 +251,40 @@ export default {
       const { tasks, currTaskId, currentDateStr, forceValue } = this;
       const currTask = tasks.find((item) => item._id === currTaskId);
 
+      const data = await this.dateCtr.newGet({
+        date: currentDateStr,
+        name: currTask.name,
+      });
+
       try {
-        await dateApi.update(
-          {
-            name: currTask.name,
+        const len = data.length;
+
+        // 新增
+        if (len === 0) {
+          await dateApi.add({
             date: currentDateStr,
-          },
-          { value: Number(forceValue) },
-        );
+            name: currTask.name,
+            time: forceValue,
+            target: currTask.target,
+          });
+        }
+
+        // 修改
+        if (len === 1) {
+          await dateApi.update(
+            {
+              name: currTask.name,
+              date: currentDateStr,
+            },
+            { value: Number(forceValue) },
+          );
+        }
+
         this.$refs['force-update-popup'].close();
         this.forceValue = undefined;
         // 刷新任务数据
         this.loadTask(currentDateStr);
-      } catch (err) {}
+      } catch (err) { }
     },
     async onSubmit() {
       const { currentDateStr, formValues } = this;
@@ -505,6 +464,7 @@ export default {
   background: #fff;
   border-radius: 3px;
 }
+
 .add-form-row:first-child {
   margin-bottom: 10px;
 }
@@ -512,6 +472,7 @@ export default {
 .add-form-label {
   margin-bottom: 10px;
 }
+
 .input-box {
   margin-bottom: 10px;
   width: 300px;
