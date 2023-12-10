@@ -62,3 +62,15 @@ export const getTaskStatus = (finishedTaskLen, taskLen) => {
 
   return 0;
 }
+
+
+export const getMonthAndDay = (dateString) => {
+  // 使用split函数将字符串分割成数组
+  const dateArray = dateString.split('-');
+
+  // 去掉数组中的第一个元素（年份）
+  dateArray.shift();
+
+  // 使用join函数将数组元素合并为字符串
+  return dateArray.join('-');
+}

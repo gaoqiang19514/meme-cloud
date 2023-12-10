@@ -2,9 +2,10 @@
   <div>
     <div class="title">本周合计: {{ totalAmount }} 分钟</div>
     <div class="weeks">
-      <div v-for="item in items" :key="item.date" :class="['week', { ['disabled']: isDisabled(item.date) }]"
-        @click="onClickSetDate(item.date)">
-        <div :class="getDateClass(item)">{{ item.date }} {{ item.dayOfWeek }}</div>
+      <div v-for="item in items" :key="item.date"
+        :class="['week', getDateClass(item), { ['disabled']: isDisabled(item.date) }]" @click="onClickSetDate(item.date)">
+        <div>{{ getMonthAndDay(item.date) }}</div>
+        <div>{{ item.dayOfWeek }}</div>
         <div>{{ item.value }}分钟</div>
       </div>
     </div>
@@ -12,9 +13,10 @@
 </template>
 
 <script>
-import { manipulateDate, getToday, getTaskStatus } from '@/util';
+import { manipulateDate, getToday, getTaskStatus, getMonthAndDay } from '@/util';
 import * as taskApi from '@/apis/task';
 import * as recordApi from '@/apis/record';
+
 
 function generateThisWeek(date) {
   // 获取当前日期
@@ -63,6 +65,7 @@ export default {
     },
   },
   methods: {
+    getMonthAndDay,
     isDisabled(date) {
       const todayDate = new Date(getToday()).getTime();
       const currDate = new Date(date).getTime();
@@ -152,11 +155,16 @@ export default {
 }
 
 .week {
-  margin-right: 20px;
+  cursor: pointer;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  width: 100px;
+  padding: 10px;
+  border-radius: 3px;
 }
 
 .disabled {
-  cursor: not-allowed;
+  cursor: not-allowed !important;
 }
 
 .unfinished {
@@ -174,6 +182,6 @@ export default {
 .finished {
   font-weight: bold;
   color: #fff;
-  background: green;
+  background: limegreen;
 }
 </style>

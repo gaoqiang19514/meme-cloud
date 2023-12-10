@@ -2,24 +2,49 @@
   <div>
     <div class="title">本月合计: {{ totalAmount }} 分钟</div>
     <div class="month">
-      <div v-for="item in items" :key="item.date" :class="['day', { ['disabled']: isDisabled(item.date) }]"
-        @click="onClickSetDate(item)">
-        <div :class="getDateClass(item)">
-          {{ getDay(item.date) }}
+      <div v-for="item in items" :key="item.date"
+        :class="['day', getDateClass(item), { ['disabled']: isDisabled(item.date) }]" @click="onClickSetDate(item)">
+        <div>
+          {{ getMonthAndDay(item.date) }}
         </div>
-        <div>{{ item.value }}分</div>
+        <div>
+          {{ getWeek(item.date) }}
+        </div>
+        <div>{{ item.value }}分钟</div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { manipulateDate, getToday, getTaskStatus } from '@/util';
+import { manipulateDate, getToday, getTaskStatus, getMonthAndDay } from '@/util';
 import * as taskApi from '@/apis/task';
 import * as recordApi from '@/apis/record';
+/**
+ * 表示特定日期格式 "YYYY-MM-DD" 的日期字符串
+ * @typedef {string} DateFormat
+ */
 
+/**
+ * 获取日
+ * @param {DateFormat} dateString 
+ */
 function getDay(dateString) {
   return new Date(dateString).getDate();
+}
+
+/**
+ * 获取星期几
+ * @param {DateFormat} dateString 
+ */
+function getWeek(dateString) {
+  const specifiedDate = new Date(dateString);
+
+  // 获取星期几（0表示星期日，1表示星期一，依此类推）
+  const dayOfWeek = specifiedDate.getDay();
+
+  // 将数字转换为对应的星期几字符串
+  return ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'][dayOfWeek];
 }
 
 function generateThisMonth(date) {
@@ -76,6 +101,8 @@ export default {
   },
   methods: {
     getDay,
+    getWeek,
+    getMonthAndDay,
     isDisabled(date) {
       const todayDate = new Date(getToday()).getTime();
       const currDate = new Date(date).getTime();
@@ -132,7 +159,6 @@ export default {
           return item.value >= task.target ? acc += 1 : acc
         }, 0)
 
-
         return {
           ...item,
           value,
@@ -164,16 +190,22 @@ export default {
 
 .month {
   display: flex;
+  flex-wrap: wrap;
+  width: 1000px;
 }
 
 .disabled {
-  cursor: not-allowed;
+  cursor: not-allowed !important;
 }
 
 .day {
-  margin-right: 20px;
-  width: 50px;
-  text-align: center;
+  cursor: pointer;
+  white-space: nowrap;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  width: 100px;
+  padding: 10px;
+  border-radius: 3px;
 }
 
 .date {
@@ -197,12 +229,12 @@ export default {
 .finished {
   font-weight: bold;
   color: #fff;
-  background: green;
+  background: limegreen;
 }
 
 .active {
   font-weight: bold;
   color: #fff;
-  background: green;
+  background: limegreen;
 }
 </style>

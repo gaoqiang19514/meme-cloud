@@ -25,7 +25,8 @@
           </div>
         </div>
         <ul class="items">
-          <li class="item" v-for="task in tasks" :key="task._id" @click="onClick(task._id)">
+          <li :class="['item', { ['finished']: calc(task) >= 100 }]" v-for="task in tasks" :key="task._id"
+            @click="onClick(task._id)">
             <div class="progress" :style="{ width: `${calc(task)}%` }" />
             <span>{{ task.name }}</span>
             <span class="cell">
@@ -36,7 +37,7 @@
           </li>
         </ul>
       </div>
-      <Week :date="currentDateStr" />
+      <Week :date="currentDateStr" class="mb-1" />
       <Month :date="currentDateStr" />
     </div>
     <uni-popup ref="popup" :mask-click="false">
