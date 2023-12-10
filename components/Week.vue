@@ -17,7 +17,6 @@ import { manipulateDate, getToday, getTaskStatus, getMonthAndDay } from '@/util'
 import * as taskApi from '@/apis/task';
 import * as recordApi from '@/apis/record';
 
-
 function generateThisWeek(date) {
   // 获取当前日期
   const today = new Date(date);
@@ -26,12 +25,18 @@ function generateThisWeek(date) {
   const firstDay = new Date(today);
   firstDay.setDate(today.getDate() - today.getDay() + (today.getDay() === 0 ? -6 : 1));
 
-  // 生成本周的星期一到星期天的日期数组
+  // 生成本周的星期一到星期天的日期数组，过滤掉大于当天的日期
   const daysOfWeek = Array.from({ length: 7 }, (_, index) => {
     const day = new Date(firstDay);
     day.setDate(firstDay.getDate() + index);
-    return day;
-  });
+
+    // 过滤掉大于当天的日期
+    if (day <= today) {
+      return day;
+    } else {
+      return null;
+    }
+  }).filter((day) => day !== null);
 
   // 将结果封装为对象返回
   return daysOfWeek.map((day, index) => {

@@ -62,19 +62,23 @@ function generateThisMonth(date) {
   // 计算需要生成的天数
   const daysInMonth = Math.floor((nextMonthFirstDay - firstDay) / (24 * 60 * 60 * 1000));
 
-  // 生成本月的日期数组
+  // 生成本月的日期数组，过滤掉大于当天的日期
   const daysOfMonth = Array.from({ length: daysInMonth }, (_, index) => {
     const day = new Date(firstDay);
     day.setDate(firstDay.getDate() + index);
-    return day;
-  });
+
+    // 过滤掉大于当天的日期
+    if (day <= today) {
+      return {
+        date: manipulateDate(day),
+      };
+    } else {
+      return null;
+    }
+  }).filter((day) => day !== null);
 
   // 将结果封装为对象返回
-  return daysOfMonth.map((day) => {
-    return {
-      date: manipulateDate(day),
-    };
-  });
+  return daysOfMonth;
 }
 
 export default {
