@@ -25,9 +25,8 @@
           </div>
         </div>
         <ul class="items">
-          <li :class="['item', { ['finished']: calc(task) >= 100 }]" v-for="task in tasks" :key="task._id"
-            @click="onClick(task._id)">
-            <div class="progress" :style="{ width: `${calc(task)}%` }" />
+          <li :class="['item']" v-for="task in tasks" :key="task._id" @click="onClick(task._id)">
+            <div :class="['progress', getLevelClass(task.value, task.target)]" :style="{ width: `${calc(task)}%` }" />
             <span>{{ task.name }}</span>
             <span class="cell">
               <span>目标：{{ task.target }}分钟</span>
@@ -103,7 +102,7 @@
 </template>
 
 <script>
-import { manipulateDate, getToday } from '@/util';
+import { manipulateDate, getToday, getLevelClass } from '@/util';
 import * as recordApi from '@/apis/record';
 import * as taskApi from '@/apis/task';
 import Header from '@/components/Header.vue';
@@ -136,6 +135,7 @@ export default {
     }
   },
   methods: {
+    getLevelClass,
     setCurrentDateStr(date) {
       // 组织跳转到未来的日子
       const today = manipulateDate(new Date())

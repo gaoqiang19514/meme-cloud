@@ -63,7 +63,6 @@ export const getTaskStatus = (finishedTaskLen, taskLen) => {
   return 0;
 }
 
-
 export const getMonthAndDay = (dateString) => {
   // 使用split函数将字符串分割成数组
   const dateArray = dateString.split('-');
@@ -73,4 +72,21 @@ export const getMonthAndDay = (dateString) => {
 
   // 使用join函数将数组元素合并为字符串
   return dateArray.join('-');
+}
+
+export const getLevelClass = (value, target) => {
+  const ratio = value / target;
+  if (ratio < 1) {
+    return '';
+  }
+  if (ratio === 1) {
+    return 'l1-bg'
+  }
+  if (ratio <= 5) {
+    return 'l2-bg'
+  }
+  if (ratio <= 10) {
+    return 'l3-bg'
+  }
+  return 'l4-bg'
 }

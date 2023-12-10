@@ -3,7 +3,8 @@
     <div class="title">本周合计: {{ totalAmount }} 分钟</div>
     <div class="weeks">
       <div v-for="item in items" :key="item.date"
-        :class="['week', getDateClass(item), { ['disabled']: isDisabled(item.date) }]" @click="onClickSetDate(item.date)">
+        :class="['week', getLevelClass(item.value, item.target), { ['disabled']: isDisabled(item.date) }]"
+        @click="onClickSetDate(item.date)">
         <div>{{ getMonthAndDay(item.date) }}</div>
         <div>{{ item.dayOfWeek }}</div>
         <div>{{ item.value }}分钟</div>
@@ -13,7 +14,7 @@
 </template>
 
 <script>
-import { manipulateDate, getToday, getTaskStatus, getMonthAndDay } from '@/util';
+import { manipulateDate, getToday, getTaskStatus, getMonthAndDay, getLevelClass } from '@/util';
 import * as taskApi from '@/apis/task';
 import * as recordApi from '@/apis/record';
 
@@ -70,38 +71,13 @@ export default {
     },
   },
   methods: {
+    getLevelClass,
     getMonthAndDay,
     isDisabled(date) {
       const todayDate = new Date(getToday()).getTime();
       const currDate = new Date(date).getTime();
 
       return currDate > todayDate
-    },
-    getDateClass(item) {
-      const nowDate = new Date(getToday()).getTime();
-      const currDate = new Date(item.date).getTime();
-
-      if (nowDate < currDate) {
-        return '';
-      }
-
-
-      if (nowDate === currDate && item.finishedStatus === 0) {
-        return '';
-      }
-
-
-      if (item.finishedStatus === 0) {
-        return 'unfinished';
-      }
-
-      if (item.finishedStatus === 1) {
-        return 'middlefinished';
-      }
-
-      if (item.finishedStatus === 2) {
-        return 'finished';
-      }
     },
     async loadData() {
       const { weeks } = this;
@@ -113,24 +89,15 @@ export default {
 
       const taskRes = await taskApi.get();
       const targetTotalAmount = taskRes.result.data.reduce((acc, curr) => (acc += curr.target), 0);
-      const tasks = taskRes.result.data
-      // 任务数
-      const taskLen = tasks.length;
 
       this.items = weeks.map((item) => {
         const dateData = dates.filter((date) => date.date === item.date);
         const value = dateData.reduce((acc, curr) => (acc += curr.value), 0);
 
-        const finishedTaskLen = dateData.reduce((acc, item) => {
-          const task = tasks.find(task => task.name === item.name);
-          return item.value >= task.target ? acc += 1 : acc
-        }, 0)
-
         return {
           ...item,
           value,
           target: targetTotalAmount,
-          finishedStatus: getTaskStatus(finishedTaskLen, taskLen),
         };
       });
     },

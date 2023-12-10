@@ -6,7 +6,7 @@ import {
 export default {
   onLaunch: function () {
     const username = accountStorage.get()
-    
+
     Notification.requestPermission()
 
     if (!username) {
@@ -38,5 +38,21 @@ ul {
 img {
   width: 100%;
   display: block;
+}
+
+.l1-bg {
+  background: #9be9a8 !important;
+}
+
+.l2-bg {
+  background: #40c463 !important;
+}
+
+.l3-bg {
+  background: #30a14e !important;
+}
+
+.l4-bg {
+  background: #216e39 !important;
 }
 </style>
