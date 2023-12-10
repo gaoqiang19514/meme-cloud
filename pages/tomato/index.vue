@@ -184,13 +184,14 @@ export default {
       }
       // 更新
       if (len === 1) {
+        const [existRecord] = res.result.data
         await recordApi
           .update({
             date: today,
             name: currentTask.name,
           },
             {
-              value: currentTask.value,
+              value: existRecord.value + currentTime,
             });
       }
 
