@@ -55,6 +55,10 @@ import { accountStorage, manipulateDate } from '@/util';
 import * as recordApi from '@/apis/record';
 import Header from '@/components/Header.vue';
 
+/**
+ * 表示特定日期格式 "YYYY-MM-DD" 的日期字符串
+ * @typedef {string} DateFormat
+ */
 
 const formatSeconds = (seconds) => {
   const minutes = Math.floor(seconds / 60);
@@ -141,8 +145,11 @@ export default {
     handleSetValueByKey(key, value) {
       this[key] = value;
     },
-    addFocus() {
+    async addFocus() {
       const { currentTask, currentTime } = this;
+      /**
+       * @type {DateFormat}
+       */
       const today = manipulateDate(new Date());
 
       if (!currentTime) {
@@ -159,12 +166,34 @@ export default {
         });
       }
 
-      recordApi.add({
+      // 查询是否有当天数据，如果有直接更新，否则新增
+      const res = await recordApi.get({
         date: today,
-        time: currentTime,
-        name: currentTask.name,
-        target: currentTask.target,
+        name: currentTask.name
       });
+
+      const len = res.result.data.length;
+      // 创建
+      if (len === 0) {
+        await recordApi.add({
+          date: today,
+          time: currentTime,
+          name: currentTask.name,
+          target: currentTask.target,
+        });
+      }
+      // 更新
+      if (len === 1) {
+        await recordApi
+          .update({
+            date: today,
+            name: currentTask.name,
+          },
+            {
+              value: currentTask.value,
+            });
+      }
+
     },
     startCountdown(endTime) {
       this.isCountDown = true;
