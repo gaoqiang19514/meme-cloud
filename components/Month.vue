@@ -15,8 +15,8 @@
 
 <script>
 import { manipulateDate, getToday } from '@/util';
-import RecordController from '@/controllers/record';
 import taskApi from '@/apis/task';
+import * as recordApi from '@/apis/record';
 
 function getDay(dateString) {
   return new Date(dateString).getDate();
@@ -81,10 +81,9 @@ export default {
   props: {
     date: String,
   },
-  inject: ['taskCtr'],
+  inject: ['setCurrentDateStr'],
   data() {
     return {
-      ctr: new RecordController(),
       items: [],
       now: manipulateDate(new Date()),
     };
@@ -136,9 +135,11 @@ export default {
     async loadData() {
       const { month } = this;
 
-      const dates = await this.ctr.newGet({
+      const res = await recordApi.get({
         date: uniCloud.database().command.in(month.map((day) => day.date)),
-      });
+      })
+
+      const dates = res.result.data;
 
       const taskRes = await taskApi.get();
       const targetTotalAmount = taskRes.result.data.reduce((acc, curr) => (acc += curr.target), 0);
@@ -165,7 +166,7 @@ export default {
       });
     },
     onClickSetDate(obj) {
-      this.taskCtr.setDate(obj.date);
+      this.setCurrentDateStr(obj.date);
     }
   },
   watch: {

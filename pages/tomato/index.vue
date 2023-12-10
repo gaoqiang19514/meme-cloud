@@ -51,9 +51,10 @@
 </template>
 
 <script>
-import Header from '@/components/Header.vue';
-import RecordController from '@/controllers/record';
 import { accountStorage, manipulateDate } from '@/util';
+import * as recordApi from '@/apis/record';
+import Header from '@/components/Header.vue';
+
 
 const formatSeconds = (seconds) => {
   const minutes = Math.floor(seconds / 60);
@@ -90,7 +91,6 @@ export default {
       autoUpdateTime: 0,
       isCountDown: false,
       times: [5, 10, 15, 25],
-      dateCtr: new RecordController(),
       taskTable: uniCloud.database().collection('task'),
     };
   },
@@ -159,7 +159,7 @@ export default {
         });
       }
 
-      this.dateCtr.add({
+      recordApi.add({
         date: today,
         time: currentTime,
         name: currentTask.name,

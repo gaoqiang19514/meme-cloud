@@ -13,7 +13,7 @@
 
 <script>
 import { manipulateDate, getToday } from '@/util';
-import RecordController from '@/controllers/record';
+import * as recordApi from '@/apis/record';
 
 function generateThisWeek(date) {
   // 获取当前日期
@@ -45,10 +45,9 @@ export default {
   props: {
     date: String,
   },
-  inject: ['taskCtr'],
+  inject: ['setCurrentDateStr'],
   data() {
     return {
-      ctr: new RecordController(),
       items: [],
     };
   },
@@ -72,9 +71,11 @@ export default {
     async loadData() {
       const { weeks } = this;
 
-      const dates = await this.ctr.newGet({
+      const res = await recordApi.get({
         date: uniCloud.database().command.in(weeks.map((week) => week.date)),
       });
+
+      const dates = res.result.data;
 
       this.items = weeks.map((item) => {
         const value = dates.filter((date) => date.date === item.date).reduce((acc, curr) => (acc += curr.value), 0);
@@ -86,7 +87,7 @@ export default {
       });
     },
     onClickSetDate(date) {
-      this.taskCtr.setDate(date);
+      this.setCurrentDateStr(date);
     }
   },
   watch: {

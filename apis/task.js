@@ -2,16 +2,16 @@ import { accountStorage } from '@/util';
 
 const taskTable = uniCloud.database().collection('task');
 
-const add = async (payload) => {
+export const add = (payload) => {
   const username = accountStorage.get();
-  await taskTable.add({
+  taskTable.add({
     username,
     ...payload,
   });
 };
 
 // TODO: 这里的username需要去掉
-const update = (date, name, username, payload) => {
+export const update = (date, name, username, payload) => {
   taskTable
     .where({
       date,
@@ -21,7 +21,7 @@ const update = (date, name, username, payload) => {
     .update(payload);
 };
 
-const get = () => {
+export const get = () => {
   const username = accountStorage.get();
   return taskTable
     .where({

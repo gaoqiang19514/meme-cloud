@@ -9,7 +9,7 @@
               上一天
             </div>
             <div class="action-btn date">
-              {{ taskCtr.currentDateStr }}
+              {{ currentDateStr }}
             </div>
             <div :class="['action-btn date-btn', { disabled: disabledNextBtn }]" @click="onNext">
               下一天
@@ -36,8 +36,8 @@
           </li>
         </ul>
       </div>
-      <Week :date="taskCtr.currentDateStr" />
-      <Month :date="taskCtr.currentDateStr" />
+      <Week :date="currentDateStr" />
+      <Month :date="currentDateStr" />
     </div>
     <uni-popup ref="popup" :mask-click="false">
       <div class="container">
@@ -102,21 +102,17 @@
 </template>
 
 <script>
-import { manipulateDate, getToday } from '@/util.js';
+import { manipulateDate, getToday } from '@/util';
 import * as recordApi from '@/apis/record';
-
-import RecordController from '@/controllers/record';
-
+import * as taskApi from '@/apis/task';
 import Header from '@/components/Header.vue';
 import Week from '@/components/Week.vue';
 import Month from '@/components/Month.vue';
-import TaskController from '@/controllers/task';
 
 export default {
   data() {
     return {
-      taskCtr: new TaskController(),
-      dateCtr: new RecordController(),
+      currentDateStr: manipulateDate(new Date()),
       currTaskId: '',
       tasks: [],
       options: [5, 10, 15, 25],
@@ -130,15 +126,28 @@ export default {
   },
   computed: {
     disabledNextBtn() {
-      return manipulateDate(new Date()) === this.taskCtr.currentDateStr;
+      return manipulateDate(new Date()) === this.currentDateStr;
     },
   },
   provide() {
     return {
-      taskCtr: this.taskCtr,
+      setCurrentDateStr: this.setCurrentDateStr,
     }
   },
   methods: {
+    setCurrentDateStr(date) {
+      // 组织跳转到未来的日子
+      const today = manipulateDate(new Date())
+      const dayTimestamp = new Date(manipulateDate(date)).getTime()
+      const todayTimestamp = new Date(today).getTime();
+
+      if (dayTimestamp > todayTimestamp) {
+        // 不允许切换到未来
+        return;
+      }
+
+      this.currentDateStr = date;
+    },
     calc(obj) {
       const percent = obj.value / obj.target;
       return (percent * 100).toFixed(2);
@@ -147,17 +156,17 @@ export default {
       this.$refs.formPopup.open();
     },
     onPrev() {
-      const { currentDateStr } = this.taskCtr;
+      const { currentDateStr } = this;
 
-      this.taskCtr.currentDateStr = manipulateDate(currentDateStr, -1);
+      this.currentDateStr = manipulateDate(currentDateStr, -1);
     },
     onNext() {
-      const { currentDateStr } = this.taskCtr;
+      const { currentDateStr } = this;
 
-      this.taskCtr.currentDateStr = manipulateDate(currentDateStr, 1);
+      this.currentDateStr = manipulateDate(currentDateStr, 1);
     },
     onClickToday() {
-      this.taskCtr.currentDateStr = manipulateDate(new Date());
+      this.currentDateStr = manipulateDate(new Date());
     },
     // 给当前任务增加时间
     onPlus(value) {
@@ -165,22 +174,20 @@ export default {
     },
     // 修改当前任务的远程时间
     async update() {
-      const { tasks, currTaskId, selectValue } = this;
-
-      const { currentDateStr } = this.taskCtr;
+      const { currentDateStr, tasks, currTaskId, selectValue } = this;
 
       const currTask = tasks.find((item) => item._id === currTaskId);
 
-      const data = await this.dateCtr.newGet({
+      const res = await recordApi.get({
         date: currentDateStr,
         name: currTask.name,
       });
 
-      const len = data.length;
+      const len = res.result.data.length;
 
       // 当前任务在当前没有date数据，需要创建一条
       if (len === 0) {
-        await this.dateCtr.newAdd({
+        await recordApi.add({
           date: currentDateStr,
           name: currTask.name,
           time: selectValue,
@@ -189,15 +196,14 @@ export default {
       }
 
       if (len === 1) {
-        await this.dateCtr.update(
-          {
+        await recordApi
+          .update({
             name: currTask.name,
             date: currentDateStr,
           },
-          {
-            value: currTask.value,
-          },
-        );
+            {
+              value: currTask.value,
+            });
       }
 
       if (len > 1) {
@@ -206,7 +212,7 @@ export default {
       }
     },
     onClick(id) {
-      const { currentDateStr } = this.taskCtr;
+      const { currentDateStr } = this;
       const today = getToday();
 
       if (new Date(currentDateStr).getTime() < new Date(today).getTime()) {
@@ -220,13 +226,14 @@ export default {
     async loadTask(date) {
       uni.showLoading();
 
-      // 获取当前用户拥有的任务
-      const tasks = await this.taskCtr.get();
+      const taskRes = await taskApi.get();
+      const tasks = taskRes.result.data;
       // 使用tasks查询当前日期属于当前用户的数据
-      const dates = await this.dateCtr.get(
-        date,
-        tasks.map((item) => item.name),
-      );
+      const res = await recordApi.get({
+        date, name: uniCloud.database().command.in(tasks.map((item) => item.name))
+      });
+
+      const dates = res.result.data;
       // 将date数据融合进task中
       this.tasks = tasks.map((task) => {
         const date = dates.find((date) => task.name === date.name);
@@ -262,17 +269,15 @@ export default {
       this.$refs['force-update-popup'].open();
     },
     async onSubmitForceSetValue() {
-      const { tasks, currTaskId, forceValue } = this;
-      const { currentDateStr } = this.taskCtr;
+      const { currentDateStr, tasks, currTaskId, forceValue } = this;
       const currTask = tasks.find((item) => item._id === currTaskId);
 
-      const data = await this.dateCtr.newGet({
-        date: currentDateStr,
-        name: currTask.name,
+      const res = await recordApi.get({
+        date: currentDateStr, name: currTask.name
       });
 
       try {
-        const len = data.length;
+        const len = res.result.data.length;
 
         // 新增
         if (len === 0) {
@@ -302,15 +307,14 @@ export default {
       } catch (err) { }
     },
     async onSubmit() {
-      const { formValues } = this;
-      const { currentDateStr } = this.taskCtr;
+      const { currentDateStr, formValues } = this;
       const { name, target } = formValues;
 
       if (!name || !target) {
         return;
       }
 
-      await this.taskCtr.add({
+      await taskApi.add({
         name,
         target,
       });
@@ -322,7 +326,7 @@ export default {
     },
   },
   watch: {
-    'taskCtr.currentDateStr': {
+    'currentDateStr': {
       handler(value) {
         this.loadTask(value);
       },

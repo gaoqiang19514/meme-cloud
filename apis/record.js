@@ -17,7 +17,6 @@ export const add = ({ date, name, time, target }) => {
 
 export const update = (query, payload) => {
   const username = accountStorage.get();
-  // 可能会找不到当前日期的date数据 需要创建
   return recordTable
     .where({
       username,
@@ -26,13 +25,12 @@ export const update = (query, payload) => {
     .update(payload);
 };
 
-export const get = (date, names) => {
+export const get = (query) => {
   const username = accountStorage.get();
   return recordTable
     .where({
       username,
-      date,
-      name: uniCloud.database().command.in(names),
+      ...query,
     })
     .get();
 };
