@@ -4,7 +4,7 @@
     <div class="weeks">
       <div v-for="item in items" :key="item.date" :class="['week', { ['disabled']: isDisabled(item.date) }]"
         @click="onClickSetDate(item.date)">
-        <div>{{ item.date }} {{ item.dayOfWeek }}</div>
+        <div :class="getDateClass(item)">{{ item.date }} {{ item.dayOfWeek }}</div>
         <div>{{ item.value }}分钟</div>
       </div>
     </div>
@@ -12,7 +12,8 @@
 </template>
 
 <script>
-import { manipulateDate, getToday } from '@/util';
+import { manipulateDate, getToday, getTaskStatus } from '@/util';
+import * as taskApi from '@/apis/task';
 import * as recordApi from '@/apis/record';
 
 function generateThisWeek(date) {
@@ -68,21 +69,60 @@ export default {
 
       return currDate > todayDate
     },
+    getDateClass(item) {
+      const nowDate = new Date(getToday()).getTime();
+      const currDate = new Date(item.date).getTime();
+
+      if (nowDate < currDate) {
+        return '';
+      }
+
+
+      if (nowDate === currDate && item.finishedStatus === 0) {
+        return '';
+      }
+
+
+      if (item.finishedStatus === 0) {
+        return 'unfinished';
+      }
+
+      if (item.finishedStatus === 1) {
+        return 'middlefinished';
+      }
+
+      if (item.finishedStatus === 2) {
+        return 'finished';
+      }
+    },
     async loadData() {
       const { weeks } = this;
 
       const res = await recordApi.get({
         date: uniCloud.database().command.in(weeks.map((week) => week.date)),
       });
-
       const dates = res.result.data;
 
+      const taskRes = await taskApi.get();
+      const targetTotalAmount = taskRes.result.data.reduce((acc, curr) => (acc += curr.target), 0);
+      const tasks = taskRes.result.data
+      // 任务数
+      const taskLen = tasks.length;
+
       this.items = weeks.map((item) => {
-        const value = dates.filter((date) => date.date === item.date).reduce((acc, curr) => (acc += curr.value), 0);
+        const dateData = dates.filter((date) => date.date === item.date);
+        const value = dateData.reduce((acc, curr) => (acc += curr.value), 0);
+
+        const finishedTaskLen = dateData.reduce((acc, item) => {
+          const task = tasks.find(task => task.name === item.name);
+          return item.value >= task.target ? acc += 1 : acc
+        }, 0)
 
         return {
           ...item,
           value,
+          target: targetTotalAmount,
+          finishedStatus: getTaskStatus(finishedTaskLen, taskLen),
         };
       });
     },
@@ -117,5 +157,23 @@ export default {
 
 .disabled {
   cursor: not-allowed;
+}
+
+.unfinished {
+  font-weight: bold;
+  color: #fff;
+  background: red;
+}
+
+.middlefinished {
+  font-weight: bold;
+  color: #fff;
+  background: yellow;
+}
+
+.finished {
+  font-weight: bold;
+  color: #fff;
+  background: green;
 }
 </style>

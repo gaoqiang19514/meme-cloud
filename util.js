@@ -38,3 +38,27 @@ export function getToday() {
 
   return year + '-' + month + '-' + day;
 }
+
+export const getTaskStatus = (finishedTaskLen, taskLen) => {
+  // 没有任务
+  if (taskLen === 0) {
+    return 0
+  }
+
+  // 有任务，一个都没完成
+  if (taskLen > 0 && finishedTaskLen === 0) {
+    return 0;
+  }
+
+  // 有任务，部分完成
+  if (taskLen > 0 && finishedTaskLen < taskLen) {
+    return 1;
+  }
+
+  // 有任务，任务完成
+  if (finishedTaskLen > 0 && finishedTaskLen >= taskLen) {
+    return 2;
+  }
+
+  return 0;
+}

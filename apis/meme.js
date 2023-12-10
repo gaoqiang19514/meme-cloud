@@ -12,7 +12,6 @@ export const list = () => {
     .get();
 };
 
-
 export const del = (query) => {
   return memeTable
     .where(query)

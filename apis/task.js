@@ -4,6 +4,7 @@ const taskTable = uniCloud.database().collection('task');
 
 export const add = (payload) => {
   const username = accountStorage.get();
+
   taskTable.add({
     username,
     ...payload,
@@ -23,15 +24,10 @@ export const update = (date, name, username, payload) => {
 
 export const get = () => {
   const username = accountStorage.get();
+
   return taskTable
     .where({
       username,
     })
     .get();
-};
-
-export default {
-  add,
-  update,
-  get,
 };

@@ -4,6 +4,7 @@ const recordTable = uniCloud.database().collection('record');
 
 export const add = ({ date, name, time, target }) => {
   const username = accountStorage.get();
+
   const data = {
     value: time,
     date,
@@ -17,6 +18,7 @@ export const add = ({ date, name, time, target }) => {
 
 export const update = (query, payload) => {
   const username = accountStorage.get();
+
   return recordTable
     .where({
       username,
@@ -27,6 +29,7 @@ export const update = (query, payload) => {
 
 export const get = (query) => {
   const username = accountStorage.get();
+
   return recordTable
     .where({
       username,
@@ -34,11 +37,3 @@ export const get = (query) => {
     })
     .get();
 };
-
-export const newGet = (query) =>
-  recordTable
-    .where({
-      username: accountStorage.get(),
-      ...query,
-    })
-    .get();

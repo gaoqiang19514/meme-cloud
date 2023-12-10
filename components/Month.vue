@@ -14,8 +14,8 @@
 </template>
 
 <script>
-import { manipulateDate, getToday } from '@/util';
-import taskApi from '@/apis/task';
+import { manipulateDate, getToday, getTaskStatus } from '@/util';
+import * as taskApi from '@/apis/task';
 import * as recordApi from '@/apis/record';
 
 function getDay(dateString) {
@@ -50,30 +50,6 @@ function generateThisMonth(date) {
       date: manipulateDate(day),
     };
   });
-}
-
-const getTaskStatus = (finishedTaskLen, taskLen) => {
-  // 没有任务
-  if (taskLen === 0) {
-    return 0
-  }
-
-  // 有任务，一个都没完成
-  if (taskLen > 0 && finishedTaskLen === 0) {
-    return 0;
-  }
-
-  // 有任务，部分完成
-  if (taskLen > 0 && finishedTaskLen < taskLen) {
-    return 1;
-  }
-
-  // 有任务，任务完成
-  if (finishedTaskLen > 0 && finishedTaskLen >= taskLen) {
-    return 2;
-  }
-
-  return 0;
 }
 
 export default {
@@ -138,30 +114,30 @@ export default {
       const res = await recordApi.get({
         date: uniCloud.database().command.in(month.map((day) => day.date)),
       })
-
       const dates = res.result.data;
 
       const taskRes = await taskApi.get();
       const targetTotalAmount = taskRes.result.data.reduce((acc, curr) => (acc += curr.target), 0);
-
       const tasks = taskRes.result.data
+      // 任务数
+      const taskLen = tasks.length;
 
       this.items = month.map((item) => {
         const dateData = dates.filter((date) => date.date === item.date);
+        const value = dateData.reduce((acc, curr) => (acc += curr.value), 0);
+
+
         const finishedTaskLen = dateData.reduce((acc, item) => {
           const task = tasks.find(task => task.name === item.name);
           return item.value >= task.target ? acc += 1 : acc
         }, 0)
 
-        // 任务数
-        const taskLen = tasks.length;
-        const value = dateData.reduce((acc, curr) => (acc += curr.value), 0);
 
         return {
           ...item,
           value,
-          finishedStatus: getTaskStatus(finishedTaskLen, taskLen),
           target: targetTotalAmount,
+          finishedStatus: getTaskStatus(finishedTaskLen, taskLen),
         };
       });
     },
