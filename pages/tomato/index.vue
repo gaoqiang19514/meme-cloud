@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Header title="Tomato" />
+    <Header title="番茄" />
     <div class="content">
       <div v-if="isCountDown">
         <div class="row">

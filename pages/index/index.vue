@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Header title="MemeCloud" />
+    <Header title="表情包" />
     <div class="content">
       <ul class="items" v-if="!showLogin">
         <li class="item" v-for="item in items" :key="item._id">

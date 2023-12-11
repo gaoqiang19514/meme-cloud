@@ -4,7 +4,7 @@
       v-for="item in items"
       :key="item.path"
       :class="['nav-item', { active: item.path === currentPath }]"
-      @click="onClick(item.path)"
+      @click="onClick(item)"
     >
       {{ item.name }}
     </li>
@@ -18,19 +18,19 @@ export default {
     return {
       items: [
         {
-          name: 'Task',
+          name: '微习惯',
           path: '/pages/task/index',
         },
         {
-          name: 'Tomato',
+          name: '番茄',
           path: '/pages/tomato/index',
         },
         {
-          name: 'Bookmark',
+          name: '书签',
           path: '/pages/bookmark/index',
         },
         {
-          name: 'MemeCloud',
+          name: '表情包',
           path: '/pages/index/index',
         },
       ],
@@ -42,9 +42,10 @@ export default {
     },
   },
   methods: {
-    onClick(path) {
+    onClick(item) {
+      document.title = item.name;
       uni.navigateTo({
-        url: path,
+        url: item.path,
       });
     },
   },

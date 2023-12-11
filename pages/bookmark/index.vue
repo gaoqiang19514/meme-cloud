@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Header title="Bookmark" />
+    <Header title="书签" />
     <div class="content">
       <div class="btn-box">
         <uni-icons class="btn" type="plus" size="45" @click="onAdd"></uni-icons>
