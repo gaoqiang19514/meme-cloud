@@ -33,7 +33,7 @@ export default {
     login(username) {
       accountStorage.set(username);
       uni.reLaunch({
-        url: '/pages/index/index',
+        url: '/pages/task/index',
       });
     },
     async register(username) {
