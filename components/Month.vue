@@ -2,9 +2,12 @@
   <div>
     <div class="title">本月合计: {{ totalAmount }} 分钟</div>
     <div class="month">
-      <div v-for="item in items" :key="item.date"
+      <div
+        v-for="item in items"
+        :key="item.date"
         :class="['day', getLevelClass(item.value, item.target), { ['disabled']: isDisabled(item.date) }]"
-        @click="onClickSetDate(item)">
+        @click="onClickSetDate(item)"
+      >
         <div>
           {{ getMonthAndDay(item.date) }}
         </div>
@@ -18,7 +21,7 @@
 </template>
 
 <script>
-import { manipulateDate, getToday, getTaskStatus, getMonthAndDay, getLevelClass } from '@/util';
+import { manipulateDate, getToday, getMonthDatesUntilToday, getMonthAndDay, getLevelClass } from '@/util';
 import * as taskApi from '@/apis/task';
 import * as recordApi from '@/apis/record';
 /**
@@ -28,7 +31,7 @@ import * as recordApi from '@/apis/record';
 
 /**
  * 获取日
- * @param {DateFormat} dateString 
+ * @param {DateFormat} dateString
  */
 function getDay(dateString) {
   return new Date(dateString).getDate();
@@ -36,7 +39,7 @@ function getDay(dateString) {
 
 /**
  * 获取星期几
- * @param {DateFormat} dateString 
+ * @param {DateFormat} dateString
  */
 function getWeek(dateString) {
   const specifiedDate = new Date(dateString);
@@ -46,40 +49,6 @@ function getWeek(dateString) {
 
   // 将数字转换为对应的星期几字符串
   return ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'][dayOfWeek];
-}
-
-function generateThisMonth(date) {
-  const today = new Date(date);
-  // 获取指定日期的年份和月份
-  const year = today.getFullYear();
-  const month = today.getMonth();
-
-  // 获取指定年月的第一天
-  const firstDay = new Date(year, month, 1);
-
-  // 获取指定年月的下个月的第一天
-  const nextMonthFirstDay = new Date(year, month + 1, 1);
-
-  // 计算需要生成的天数
-  const daysInMonth = Math.floor((nextMonthFirstDay - firstDay) / (24 * 60 * 60 * 1000));
-
-  // 生成本月的日期数组，过滤掉大于当天的日期
-  const daysOfMonth = Array.from({ length: daysInMonth }, (_, index) => {
-    const day = new Date(firstDay);
-    day.setDate(firstDay.getDate() + index);
-
-    // 过滤掉大于当天的日期
-    if (day <= today) {
-      return {
-        date: manipulateDate(day),
-      };
-    } else {
-      return null;
-    }
-  }).filter((day) => day !== null);
-
-  // 将结果封装为对象返回
-  return daysOfMonth;
 }
 
 export default {
@@ -97,7 +66,8 @@ export default {
   computed: {
     month() {
       const { date } = this;
-      return generateThisMonth(date);
+
+      return getMonthDatesUntilToday(date);
     },
     totalAmount() {
       const { items } = this;
@@ -112,7 +82,7 @@ export default {
       const todayDate = new Date(getToday()).getTime();
       const currDate = new Date(date).getTime();
 
-      return currDate > todayDate
+      return currDate > todayDate;
     },
     getLevelClass,
     async loadData() {
@@ -120,7 +90,7 @@ export default {
 
       const res = await recordApi.get({
         date: uniCloud.database().command.in(month.map((day) => day.date)),
-      })
+      });
       const dates = res.result.data;
 
       const taskRes = await taskApi.get();
@@ -139,7 +109,7 @@ export default {
     },
     onClickSetDate(obj) {
       this.setCurrentDateStr(obj.date);
-    }
+    },
   },
   watch: {
     date: {

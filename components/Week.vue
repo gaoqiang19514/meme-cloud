@@ -2,9 +2,12 @@
   <div>
     <div class="title">本周合计: {{ totalAmount }} 分钟</div>
     <div class="weeks">
-      <div v-for="item in items" :key="item.date"
+      <div
+        v-for="item in items"
+        :key="item.date"
         :class="['week', getLevelClass(item.value, item.target), { ['disabled']: isDisabled(item.date) }]"
-        @click="onClickSetDate(item.date)">
+        @click="onClickSetDate(item.date)"
+      >
         <div>{{ getMonthAndDay(item.date) }}</div>
         <div>{{ item.dayOfWeek }}</div>
         <div>{{ item.value }}分钟</div>
@@ -14,37 +17,32 @@
 </template>
 
 <script>
-import { manipulateDate, getToday, getTaskStatus, getMonthAndDay, getLevelClass } from '@/util';
+import { getToday, getMonthAndDay, getLevelClass } from '@/util';
 import * as taskApi from '@/apis/task';
 import * as recordApi from '@/apis/record';
 
-function generateThisWeek(date) {
-  // 获取当前日期
-  const today = new Date(date);
+function generateThisWeek(dateStr) {
+  const date = new Date(dateStr);
+  const dayOfWeek = date.getDay(); // 获取星期几（0表示星期日，1表示星期一，以此类推）
+  const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // 计算当前日期距离星期一的天数
 
-  // 获取本周的第一天（星期一）
-  const firstDay = new Date(today);
-  firstDay.setDate(today.getDate() - today.getDay() + (today.getDay() === 0 ? -6 : 1));
+  // 计算星期一的日期
+  const monday = new Date(date);
+  monday.setDate(date.getDate() - diff);
 
-  // 生成本周的星期一到星期天的日期数组，过滤掉大于当天的日期
-  const daysOfWeek = Array.from({ length: 7 }, (_, index) => {
-    const day = new Date(firstDay);
-    day.setDate(firstDay.getDate() + index);
+  // 创建包含一周日期的数组
+  const weekDates = [];
+  for (let i = 0; i < 7; i++) {
+    const currentDay = new Date(monday);
+    currentDay.setDate(monday.getDate() + i);
+    weekDates.push(currentDay.toISOString().slice(0, 10));
+  }
 
-    // 过滤掉大于当天的日期
-    if (day <= today) {
-      return day;
-    } else {
-      return null;
-    }
-  }).filter((day) => day !== null);
-
-  // 将结果封装为对象返回
-  return daysOfWeek.map((day, index) => {
+  return weekDates.map((dateString, index) => {
     const dayOfWeek = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'][index];
     return {
-      dayOfWeek,
-      date: manipulateDate(day),
+      dayOfWeek: dayOfWeek,
+      date: dateString,
     };
   });
 }
@@ -77,7 +75,7 @@ export default {
       const todayDate = new Date(getToday()).getTime();
       const currDate = new Date(date).getTime();
 
-      return currDate > todayDate
+      return currDate > todayDate;
     },
     async loadData() {
       const { weeks } = this;
@@ -103,7 +101,7 @@ export default {
     },
     onClickSetDate(date) {
       this.setCurrentDateStr(date);
-    }
+    },
   },
   watch: {
     date: {

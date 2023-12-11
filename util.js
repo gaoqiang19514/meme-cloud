@@ -10,11 +10,6 @@ export const accountStorage = {
   },
 };
 
-// 辅助函数：如果数字小于10，在前面加上一个零
-function padZero(number) {
-  return number < 10 ? '0' + number : number;
-}
-
 export function manipulateDate(inputDate, offset = 0) {
   const date = new Date(inputDate);
   date.setDate(date.getDate() + offset);
@@ -24,6 +19,33 @@ export function manipulateDate(inputDate, offset = 0) {
   const day = String(date.getDate()).padStart(2, '0');
 
   return `${year}-${month}-${day}`;
+}
+
+export function formatDate(date) {
+  const nextDate = date ? new Date(date) : new Date();
+
+  const year = nextDate.getFullYear();
+  const month = String(nextDate.getMonth() + 1).padStart(2, '0');
+  const day = String(nextDate.getDate()).padStart(2, '0');
+
+  // 格式化日期为"年-月-日"
+  return `${year}-${month}-${day}`;
+}
+
+export function getMonthDatesUntilToday(date) {
+  const today = date ? new Date(date) : new Date();
+  const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  const now = new Date();
+
+  const monthDates = [];
+  let currentDay = new Date(firstDayOfMonth);
+
+  while (currentDay.getMonth() === today.getMonth() && currentDay <= now) {
+    monthDates.push(formatDate(currentDay));
+    currentDay.setDate(currentDay.getDate() + 1);
+  }
+
+  return monthDates.map((date) => ({ date }));
 }
 
 /**
@@ -42,7 +64,7 @@ export function getToday() {
 export const getTaskStatus = (finishedTaskLen, taskLen) => {
   // 没有任务
   if (taskLen === 0) {
-    return 0
+    return 0;
   }
 
   // 有任务，一个都没完成
@@ -61,7 +83,7 @@ export const getTaskStatus = (finishedTaskLen, taskLen) => {
   }
 
   return 0;
-}
+};
 
 export const getMonthAndDay = (dateString) => {
   // 使用split函数将字符串分割成数组
@@ -72,7 +94,7 @@ export const getMonthAndDay = (dateString) => {
 
   // 使用join函数将数组元素合并为字符串
   return dateArray.join('-');
-}
+};
 
 export const getLevelClass = (value, target) => {
   const ratio = value / target;
@@ -80,13 +102,13 @@ export const getLevelClass = (value, target) => {
     return '';
   }
   if (ratio === 1) {
-    return 'l1-bg'
+    return 'l1-bg';
   }
   if (ratio <= 5) {
-    return 'l2-bg'
+    return 'l2-bg';
   }
   if (ratio <= 10) {
-    return 'l3-bg'
+    return 'l3-bg';
   }
-  return 'l4-bg'
-}
+  return 'l4-bg';
+};
