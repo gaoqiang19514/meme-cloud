@@ -1,10 +1,26 @@
 'use strict';
-exports.main = async (event, context) => {
-	//event为客户端上传的参数
-	console.log('event : ', event)
 
-	//返回数据给客户端
-	return {
-    data: 'list ok'
-  }
+const add = () => {
+  return 'add';
+};
+
+const update = () => {
+  return 'update';
+};
+
+const get = () => {
+  return 'get';
+};
+
+const actions = {
+  add,
+  update,
+  get,
+};
+
+exports.main = async (event) => {
+  // event为客户端上传的参数
+  console.log('event : ', event);
+
+  return actions[event.action](event);
 };
