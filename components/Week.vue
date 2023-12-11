@@ -17,35 +17,33 @@
 </template>
 
 <script>
-import { getToday, getMonthAndDay, getLevelClass } from '@/util';
+import { getToday, getMonthAndDay, getLevelClass, generateThisWeek } from '@/util';
 import * as taskApi from '@/apis/task';
 import * as recordApi from '@/apis/record';
 
-function generateThisWeek(dateStr) {
-  const date = new Date(dateStr);
-  const dayOfWeek = date.getDay(); // 获取星期几（0表示星期日，1表示星期一，以此类推）
-  const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // 计算当前日期距离星期一的天数
+// function generateThisWeek(dateStr) {
 
-  // 计算星期一的日期
-  const monday = new Date(date);
-  monday.setDate(date.getDate() - diff);
+//   // 计算星期一的日期
+//   monday.setDate(date.getDate() - diff);
 
-  // 创建包含一周日期的数组
-  const weekDates = [];
-  for (let i = 0; i < 7; i++) {
-    const currentDay = new Date(monday);
-    currentDay.setDate(monday.getDate() + i);
-    weekDates.push(currentDay.toISOString().slice(0, 10));
-  }
+//   const monday = getDateInWeek(dateStr);
 
-  return weekDates.map((dateString, index) => {
-    const dayOfWeek = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'][index];
-    return {
-      dayOfWeek: dayOfWeek,
-      date: dateString,
-    };
-  });
-}
+//   // 创建包含一周日期的数组
+//   const weekDates = [];
+//   for (let i = 0; i < 7; i++) {
+//     const currentDay = new Date(monday);
+//     currentDay.setDate(monday.getDate() + i);
+//     weekDates.push(currentDay.toISOString().slice(0, 10));
+//   }
+
+//   return weekDates.map((dateString, index) => {
+//     const dayOfWeek = ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'][index];
+//     return {
+//       dayOfWeek: dayOfWeek,
+//       date: dateString,
+//     };
+//   });
+// }
 
 export default {
   name: 'Week',
