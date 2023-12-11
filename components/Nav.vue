@@ -1,43 +1,54 @@
 <template>
   <ul class="nav">
-    <li v-for="item in items" :key="item.path" :class="['nav-item', { active: item.path === currentPath }]"
-      @click="onClick(item.path)">{{ item.name }}</li>
+    <li
+      v-for="item in items"
+      :key="item.path"
+      :class="['nav-item', { active: item.path === currentPath }]"
+      @click="onClick(item.path)"
+    >
+      {{ item.name }}
+    </li>
   </ul>
 </template>
 
 <script>
 export default {
-  name: "Nav",
+  name: 'Nav',
   data() {
     return {
-      items: [{
-        name: 'MemeCloud',
-        path: '/pages/index/index'
-      }, {
-        name: 'Task',
-        path: '/pages/task/index'
-      }, {
-        name: 'Tomato',
-        path: '/pages/tomato/index'
-      }, {
-        name: 'Bookmark',
-        path: '/pages/bookmark/index'
-      }],
+      items: [
+        {
+          name: 'Task',
+          path: '/pages/task/index',
+        },
+        {
+          name: 'Tomato',
+          path: '/pages/tomato/index',
+        },
+        {
+          name: 'Bookmark',
+          path: '/pages/bookmark/index',
+        },
+        {
+          name: 'MemeCloud',
+          path: '/pages/index/index',
+        },
+      ],
     };
   },
   computed: {
     currentPath() {
-      return this.$route.path.includes('pages') ? this.$route.path : '/pages/index/index'
+      return this.$route.path.includes('pages') ? this.$route.path : '/pages/task/index';
     },
   },
   methods: {
     onClick(path) {
       uni.navigateTo({
-        url: path
-      })
+        url: path,
+      });
     },
   },
-}
+};
 </script>
 
 <style lang="less">
