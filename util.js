@@ -152,6 +152,10 @@ export const getMonthAndDay = (dateString) => {
 
 export const getLevelClass = (value, target) => {
   const ratio = value / target;
+
+  if (!target) {
+    return '';
+  }
   if (ratio < 1) {
     return '';
   }
