@@ -1,12 +1,11 @@
-const userTable = uniCloud.database().collection('user')
+import db from './db';
+
+const userTable = db.collection('user');
 
 export const list = (query) => {
-  return userTable
-    .where(query)
-    .get()
-}
+  return userTable.where(query).get();
+};
 
 export const add = (query) => {
-  return userTable
-    .add(query)
-}
+  return userTable.add(query);
+};

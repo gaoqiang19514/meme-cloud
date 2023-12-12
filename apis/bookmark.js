@@ -1,6 +1,7 @@
 import { accountStorage } from '@/util';
+import db from './db';
 
-const bookmarkTable = uniCloud.database().collection('bookmark');
+const bookmarkTable = db.collection('bookmark');
 
 export const list = () => {
   const username = accountStorage.get();
@@ -13,9 +14,7 @@ export const list = () => {
 };
 
 export const del = (query) => {
-  return bookmarkTable
-    .where(query)
-    .remove();
+  return bookmarkTable.where(query).remove();
 };
 
 export const add = (query) => {

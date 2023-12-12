@@ -1,6 +1,7 @@
 import { accountStorage } from '@/util';
+import db from './db'
 
-const memeTable = uniCloud.database().collection('meme');
+const memeTable = db.collection('meme');
 
 export const list = () => {
   const username = accountStorage.get();

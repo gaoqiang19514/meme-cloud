@@ -1,6 +1,7 @@
 import { accountStorage } from '@/util';
+import db from './db';
 
-const recordTable = uniCloud.database().collection('record');
+const recordTable = db.collection('record');
 
 export const add = ({ date, name, time, target }) => {
   const username = accountStorage.get();

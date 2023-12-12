@@ -1,6 +1,7 @@
 import { accountStorage } from '@/util';
+import db from './db';
 
-const taskTable = uniCloud.database().collection('task');
+const taskTable = db.collection('task');
 
 export const add = (payload) => {
   const username = accountStorage.get();
