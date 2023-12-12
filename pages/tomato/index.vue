@@ -2,7 +2,7 @@
   <div>
     <Header title="番茄" />
     <div class="content">
-      <div v-if="isCountDown">
+      <div v-if="viewType === '1'">
         <div class="row">
           <div class="counter">
             <div class="counter-title">倒计时中</div>
@@ -15,14 +15,27 @@
           </div>
         </div>
       </div>
-      <div v-if="!isCountDown">
+
+      <div
+        class="container"
+        v-if="viewType === '2'"
+      >
+        已完成
+        <button @click="taskCompleted = false">确定</button>
+      </div>
+
+      <div v-if="viewType === '3'">
         <div class="row">
           <div class="form">
             <div class="form-item">
               <div>任务名：</div>
               <div class="form-options">
-                <div v-for="task in tasks" :key="task._id" @click="handleSetTask(task._id)"
-                  :class="['form-option', { active: selectTaskId === task._id }]">
+                <div
+                  v-for="task in tasks"
+                  :key="task._id"
+                  @click="handleSetTask(task._id)"
+                  :class="['form-option', { active: selectTaskId === task._id }]"
+                >
                   {{ task.name }}
                 </div>
               </div>
@@ -30,8 +43,12 @@
             <div class="form-item">
               <div>继续时间：</div>
               <div class="form-options">
-                <div v-for="item in times" :key="item" @click="handleSetValueByKey('currentTime', item)"
-                  :class="['form-option', { active: currentTime === item }]">
+                <div
+                  v-for="item in times"
+                  :key="item"
+                  @click="handleSetValueByKey('currentTime', item)"
+                  :class="['form-option', { active: currentTime === item }]"
+                >
                   {{ item }}
                 </div>
               </div>
@@ -40,7 +57,10 @@
         </div>
         <div class="row">
           <div class="btn-box">
-            <button :disabled="isDisabled" @click="handleStart">
+            <button
+              :disabled="isDisabled"
+              @click="handleStart"
+            >
               启动
             </button>
           </div>
@@ -96,6 +116,7 @@ export default {
       isCountDown: false,
       times: [5, 10, 15, 25],
       taskTable: uniCloud.database().collection('task'),
+      taskCompleted: true,
     };
   },
   computed: {
@@ -104,6 +125,22 @@ export default {
     },
     isDisabled() {
       return !this.currentTask || !this.currentTime;
+    },
+    viewType() {
+      const { isCountDown, taskCompleted } = this;
+
+      // 倒计时中
+      if (isCountDown) {
+        return '1';
+      }
+
+      // 任务完成
+      if (taskCompleted) {
+        return '2';
+      }
+
+      // 默认视图
+      return '3';
     },
   },
   onLoad() {
@@ -169,7 +206,7 @@ export default {
       // 查询是否有当天数据，如果有直接更新，否则新增
       const res = await recordApi.get({
         date: today,
-        name: currentTask.name
+        name: currentTask.name,
       });
 
       const len = res.result.data.length;
@@ -184,17 +221,17 @@ export default {
       }
       // 更新
       if (len === 1) {
-        const [existRecord] = res.result.data
-        await recordApi
-          .update({
+        const [existRecord] = res.result.data;
+        await recordApi.update(
+          {
             date: today,
             name: currentTask.name,
           },
-            {
-              value: existRecord.value + currentTime,
-            });
+          {
+            value: existRecord.value + currentTime,
+          },
+        );
       }
-
     },
     startCountdown(endTime) {
       this.isCountDown = true;
@@ -203,6 +240,7 @@ export default {
         this.autoUpdateTime = value;
 
         if (value === 0) {
+          this.taskCompleted = true;
           this.addFocus();
           this.handleCancel();
         }
