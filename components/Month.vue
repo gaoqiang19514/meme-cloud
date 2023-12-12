@@ -45,10 +45,10 @@ function getWeek(dateString) {
   const specifiedDate = new Date(dateString);
 
   // 获取星期几（0表示星期日，1表示星期一，依此类推）
-  const dayOfWeek = specifiedDate.getDay();
+  const dayOfWeek = specifiedDate.getDay() || 7;
 
   // 将数字转换为对应的星期几字符串
-  return ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'][dayOfWeek];
+  return ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日'][dayOfWeek - 1];
 }
 
 export default {
