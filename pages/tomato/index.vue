@@ -116,7 +116,7 @@ export default {
       isCountDown: false,
       times: [5, 10, 15, 25],
       taskTable: uniCloud.database().collection('task'),
-      taskCompleted: true,
+      taskCompleted: false,
     };
   },
   computed: {
