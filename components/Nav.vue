@@ -31,7 +31,7 @@ export default {
         },
         {
           name: '表情包',
-          path: '/pages/index/index',
+          path: '/pages/meme/index',
         },
       ],
     };
