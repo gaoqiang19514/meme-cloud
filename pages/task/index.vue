@@ -25,8 +25,7 @@
           </div>
         </div>
         <ul class="items">
-          <li :class="['item']" v-for="task in tasks" :key="task._id" @click="onClick(task._id)">
-            <div :class="['progress', getLevelClass(task.value, task.target)]" :style="{ width: `${calc(task)}%` }" />
+          <li :class="['item', getLevelClass(task.value, task.target)]" v-for="task in tasks" :key="task._id" @click="onClick(task._id)">
             <span>{{ task.name }}</span>
             <span class="cell">
               <span>目标：{{ task.target }}分钟</span>

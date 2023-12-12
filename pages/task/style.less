@@ -9,7 +9,6 @@
 }
 
 .item {
-  position: relative;
   display: flex;
   justify-content: space-between;
   padding: 20px;
@@ -21,17 +20,6 @@
 .cell {
   display: flex;
   flex-direction: column;
-}
-
-.progress {
-  position: absolute;
-  left: 0;
-  top: 0;
-  z-index: -1;
-  height: 100%;
-  width: 50%;
-  border-radius: 3px;
-  background: limegreen;
 }
 
 .container {
@@ -117,7 +105,7 @@
   background: #ccc;
   cursor: not-allowed;
   pointer-events: none;
-  opacity: .5;
+  opacity: 0.5;
 }
 
 .add-view {
