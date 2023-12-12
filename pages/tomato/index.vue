@@ -73,6 +73,7 @@
 <script>
 import { accountStorage, manipulateDate } from '@/util';
 import * as recordApi from '@/apis/record';
+import * as taskApi from '@/apis/task';
 import Header from '@/components/Header.vue';
 
 /**
@@ -115,7 +116,6 @@ export default {
       autoUpdateTime: 0,
       isCountDown: false,
       times: [5, 10, 15, 25],
-      taskTable: uniCloud.database().collection('task'),
       taskCompleted: false,
     };
   },
@@ -159,22 +159,15 @@ export default {
   methods: {
     dateFormatter: formatSeconds,
     loadTasks() {
-      const { username, taskTable } = this;
+      taskApi.get().then((res) => {
+        const tasks = res?.result?.data ?? [];
 
-      taskTable
-        .where({
-          username,
-        })
-        .get()
-        .then((res) => {
-          const tasks = res?.result?.data ?? [];
+        if (tasks.length > 0) {
+          this.selectTaskId = tasks[0]._id;
+        }
 
-          if (tasks.length > 0) {
-            this.selectTaskId = tasks[0]._id;
-          }
-
-          this.tasks = tasks;
-        });
+        this.tasks = tasks;
+      });
     },
     handleSetTask(id) {
       this.selectTaskId = id;
