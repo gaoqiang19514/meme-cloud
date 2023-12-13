@@ -5,16 +5,20 @@
 }
 
 .items {
-  width: 500px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
 }
 
 .item {
   display: flex;
   justify-content: space-between;
+  width: calc(50% - 10px);
   padding: 20px;
   margin-bottom: 20px;
   border-radius: 3px;
   border: 1px solid #eaeaea;
+  box-sizing: border-box;
 }
 
 .cell {

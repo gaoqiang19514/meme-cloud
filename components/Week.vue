@@ -91,7 +91,7 @@ export default {
 <style lang="less">
 .title {
   font-weight: bold;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
 }
 
 .weeks {
