@@ -55,6 +55,7 @@ export default {
 <style lang="less">
 .nav {
   display: flex;
+  flex-wrap: wrap;
 }
 
 .nav-item {

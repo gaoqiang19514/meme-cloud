@@ -5,91 +5,152 @@
       <div>
         <div class="btns">
           <div class="date-btns">
-            <div class="action-btn date-btn" @click="onPrev">
+            <div
+              class="action-btn date-btn"
+              @click="onPrev"
+            >
               上一天
             </div>
             <div class="action-btn date">
               {{ currentDateStr }}
             </div>
-            <div :class="['action-btn date-btn', { disabled: disabledNextBtn }]" @click="onNext">
+            <div
+              :class="['action-btn date-btn', { disabled: disabledNextBtn }]"
+              @click="onNext"
+            >
               下一天
             </div>
-            <div :class="['action-btn date-btn', { disabled: disabledNextBtn }]" @click="onClickToday">
+            <div
+              :class="['action-btn date-btn', { disabled: disabledNextBtn }]"
+              @click="onClickToday"
+            >
               今天
             </div>
           </div>
-          <div class="other-btns">
-            <div class="date-btn" @click="handleAddTask">
-              新增任务
-            </div>
+          <div
+            class="date-btn"
+            @click="handleAddTask"
+          >
+            新增任务
           </div>
         </div>
-        <ul>
-          <li :class="['item', getLevelClass(task.value, task.target)]" v-for="task in tasks" :key="task._id" @click="onClick(task._id)">
-            <span>{{ task.name }}</span>
-            <span class="cell">
-              <span>目标：{{ task.target }}分钟</span>
-              <span>已完成：{{ task.value }}分钟</span>
-              <span>进度：{{ calc(task) }}%</span>
-            </span>
+        <ul class="items">
+          <li
+            :class="['item', getLevelClass(task.value, task.target)]"
+            v-for="task in tasks"
+            :key="task._id"
+            @click="onClick(task._id)"
+          >
+            <span class="item-title">{{ task.name }}</span>
+            <span>目标：{{ task.target }}分钟</span>
+            <span>已完成：{{ task.value }}分钟</span>
+            <span>进度：{{ calc(task) }}%</span>
           </li>
         </ul>
       </div>
-      <Week :date="currentDateStr" class="mb-1" />
+      <Week
+        :date="currentDateStr"
+        class="mb-1"
+      />
       <Month :date="currentDateStr" />
     </div>
-    <uni-popup ref="popup" :mask-click="false">
+    <uni-popup
+      ref="popup"
+      :mask-click="false"
+    >
       <div class="container">
         <div class="container-title">设置</div>
         <div class="title">请选择需要添加的时间：</div>
         <ul class="options">
-          <li :class="['option', { ['active']: selectValue === item }]" v-for="item in options" :key="item"
-            @click="onPlus(item)">
+          <li
+            :class="['option', { ['active']: selectValue === item }]"
+            v-for="item in options"
+            :key="item"
+            @click="onPlus(item)"
+          >
             {{ item }}分钟
           </li>
         </ul>
         <div class="container-btns">
-          <button @click="$refs.popup.close()" class="container-btn">
+          <button
+            @click="$refs.popup.close()"
+            class="container-btn"
+          >
             取消
           </button>
-          <button :disabled="!selectValue" @click="onSubmitSetValue" class="container-btn">
+          <button
+            :disabled="!selectValue"
+            @click="onSubmitSetValue"
+            class="container-btn"
+          >
             确定
           </button>
         </div>
-        <div class="container-bottom" @click="onClickForceUpdate">
+        <div
+          class="container-bottom"
+          @click="onClickForceUpdate"
+        >
           暴力修改（慎用）
         </div>
       </div>
     </uni-popup>
-    <uni-popup ref="force-update-popup" :mask-click="false">
+    <uni-popup
+      ref="force-update-popup"
+      :mask-click="false"
+    >
       <div class="container">
         <div class="container-title">设置</div>
         <div class="input-box">
-          <input auto-focus v-model="forceValue" placeholder="目标值" />
+          <input
+            auto-focus
+            v-model="forceValue"
+            placeholder="目标值"
+          />
         </div>
         <div class="container-btns">
-          <button @click="$refs['force-update-popup'].close()" class="container-btn">
+          <button
+            @click="$refs['force-update-popup'].close()"
+            class="container-btn"
+          >
             取消
           </button>
-          <button :disabled="!forceValue" @click="onSubmitForceSetValue" class="container-btn">
+          <button
+            :disabled="!forceValue"
+            @click="onSubmitForceSetValue"
+            class="container-btn"
+          >
             确定
           </button>
         </div>
       </div>
     </uni-popup>
 
-    <uni-popup ref="formPopup" type="center" :mask-click="false">
+    <uni-popup
+      ref="formPopup"
+      type="center"
+      :mask-click="false"
+    >
       <div class="add-form">
         <div class="add-form-row">
           <div class="add-form-label">任务名称</div>
           <div class="input-box">
-            <input auto-focus v-model="formValues.name" placeholder="给你的任务起个名字" @keydown.enter="handleSubmit" />
+            <input
+              auto-focus
+              v-model="formValues.name"
+              placeholder="给你的任务起个名字"
+              @keydown.enter="handleSubmit"
+            />
           </div>
         </div>
         <div class="add-form-row">
           <div class="add-form-label">每日目标</div>
           <div class="input-box">
-            <input auto-focus v-model="formValues.target" placeholder="希望坚持多少分钟" @keydown.enter="handleSubmit" />
+            <input
+              auto-focus
+              v-model="formValues.target"
+              placeholder="希望坚持多少分钟"
+              @keydown.enter="handleSubmit"
+            />
           </div>
         </div>
         <div class="add-form-row">
@@ -131,14 +192,14 @@ export default {
   provide() {
     return {
       setCurrentDateStr: this.setCurrentDateStr,
-    }
+    };
   },
   methods: {
     getLevelClass,
     setCurrentDateStr(date) {
       // 组织跳转到未来的日子
-      const today = manipulateDate(new Date())
-      const dayTimestamp = new Date(manipulateDate(date)).getTime()
+      const today = manipulateDate(new Date());
+      const dayTimestamp = new Date(manipulateDate(date)).getTime();
       const todayTimestamp = new Date(today).getTime();
 
       if (dayTimestamp > todayTimestamp) {
@@ -196,14 +257,15 @@ export default {
       }
 
       if (len === 1) {
-        await recordApi
-          .update({
+        await recordApi.update(
+          {
             name: currTask.name,
             date: currentDateStr,
           },
-            {
-              value: currTask.value,
-            });
+          {
+            value: currTask.value,
+          },
+        );
       }
 
       if (len > 1) {
@@ -230,7 +292,8 @@ export default {
       const tasks = taskRes.result.data;
       // 使用tasks查询当前日期属于当前用户的数据
       const res = await recordApi.get({
-        date, name: uniCloud.database().command.in(tasks.map((item) => item.name))
+        date,
+        name: uniCloud.database().command.in(tasks.map((item) => item.name)),
       });
 
       const dates = res.result.data;
@@ -273,7 +336,8 @@ export default {
       const currTask = tasks.find((item) => item._id === currTaskId);
 
       const res = await recordApi.get({
-        date: currentDateStr, name: currTask.name
+        date: currentDateStr,
+        name: currTask.name,
       });
 
       try {
@@ -304,7 +368,7 @@ export default {
         this.forceValue = undefined;
         // 刷新任务数据
         this.loadTask(currentDateStr);
-      } catch (err) { }
+      } catch (err) {}
     },
     async onSubmit() {
       const { currentDateStr, formValues } = this;
@@ -326,7 +390,7 @@ export default {
     },
   },
   watch: {
-    'currentDateStr': {
+    currentDateStr: {
       handler(value) {
         this.loadTask(value);
       },

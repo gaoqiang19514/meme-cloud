@@ -131,7 +131,6 @@ export default {
 .month {
   display: flex;
   flex-wrap: wrap;
-  width: 1000px;
 }
 
 .disabled {
