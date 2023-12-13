@@ -24,7 +24,7 @@
             </div>
           </div>
         </div>
-        <ul class="items">
+        <ul>
           <li :class="['item', getLevelClass(task.value, task.target)]" v-for="task in tasks" :key="task._id" @click="onClick(task._id)">
             <span>{{ task.name }}</span>
             <span class="cell">
