@@ -150,9 +150,12 @@ export const getMonthAndDay = (dateString) => {
   return dateArray.join('-');
 };
 
-export const getLevelClass = (value, target) => {
+export const getLevelClass = (value, target, allFinished) => {
   const ratio = value / target;
 
+  if (!allFinished) {
+    return '';
+  }
   if (!target) {
     return '';
   }

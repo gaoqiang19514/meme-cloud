@@ -2,12 +2,9 @@
   <div>
     <div class="title">本月合计: {{ totalAmount }} 分钟</div>
     <div class="month">
-      <div
-        v-for="item in items"
-        :key="item.date"
-        :class="['day', getLevelClass(item.value, item.target), { ['disabled']: isDisabled(item.date) }]"
-        @click="onClickSetDate(item)"
-      >
+      <div v-for="item in items" :key="item.date"
+        :class="['day', getLevelClass(item.value, item.target, item.allFinished), { ['disabled']: isDisabled(item.date) }]"
+        @click="onClickSetDate(item)">
         <div>
           {{ getMonthAndDay(item.date) }}
         </div>
@@ -94,15 +91,22 @@ export default {
       const dates = res.result.data;
 
       const taskRes = await taskApi.get();
-      const targetTotalAmount = taskRes.result.data.reduce((acc, curr) => (acc += curr.target), 0);
+      const tasksData = taskRes.result.data;
+      const targetTotalAmount = tasksData.reduce((acc, curr) => (acc += curr.target), 0);
 
       this.items = month.map((item) => {
         const dateData = dates.filter((date) => date.date === item.date);
         const value = dateData.reduce((acc, curr) => (acc += curr.value), 0);
+        const allFinished = tasksData.every((task) => {
+          const target = task.target;
+          const record = dateData.find(item => item.name === task.name);
+          return record?.value >= target
+        })
 
         return {
           ...item,
           value,
+          allFinished,
           target: targetTotalAmount,
         };
       });

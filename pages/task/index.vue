@@ -36,7 +36,7 @@
         </div>
         <ul class="items">
           <li
-            :class="['item', getLevelClass(task.value, task.target)]"
+            :class="['item', getLevelClass(task.value, task.target, true)]"
             v-for="task in tasks"
             :key="task._id"
             @click="onClick(task._id)"
