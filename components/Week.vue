@@ -101,6 +101,7 @@ export default {
 
 .weeks {
   display: flex;
+  flex-wrap: wrap;
 }
 
 .week {

@@ -1,11 +1,7 @@
 <template>
   <ul class="nav">
-    <li
-      v-for="item in items"
-      :key="item.path"
-      :class="['nav-item', { active: item.path === currentPath }]"
-      @click="onClick(item)"
-    >
+    <li v-for="item in items" :key="item.path" :class="['nav-item', { active: item.path === currentPath }]"
+      @click="onClick(item)">
       {{ item.name }}
     </li>
   </ul>
@@ -59,10 +55,12 @@ export default {
 }
 
 .nav-item {
+  flex-shrink: 0;
   cursor: pointer;
   padding: 10px 20px;
   background: #ccc;
-  margin: 0 5px;
+  margin-right: 10px;
+  margin-bottom: 10px;
   border-radius: 3px;
 }
 
