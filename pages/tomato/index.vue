@@ -149,7 +149,7 @@ export default {
     const currentTime = localStorage.getItem('currentTime');
     if (endTime && selectTaskId && currentTime) {
       this.selectTaskId = selectTaskId;
-      this.currentTime = currentTime;
+      this.currentTime = Number(currentTime);
 
       this.startCountdown(Number(endTime));
     }
