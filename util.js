@@ -75,6 +75,23 @@ export function generateThisWeek(dateStr) {
   });
 }
 
+
+export function getYearDatesUntilToday(date) {
+  const today = date ? new Date(date) : new Date();
+  const firstDayOfMonth = new Date(today.getFullYear(), 0, 1);
+  const now = new Date();
+
+  const monthDates = [];
+  const currentDay = new Date(firstDayOfMonth);
+
+  while (currentDay.getFullYear() === today.getFullYear() && currentDay <= now) {
+    monthDates.push(formatDate(currentDay));
+    currentDay.setDate(currentDay.getDate() + 1);
+  }
+
+  return monthDates.map((date) => ({ date }));
+}
+
 /**
  * 获取指定日期获取其所在星期中的星期一
  * @param {DateFormat} date

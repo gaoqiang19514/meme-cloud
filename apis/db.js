@@ -1,4 +1,4 @@
-const isProduction = window.location.href.includes('static-mp-5fa4a496-0aa2-45a9-b89c-4054536ad7e7');
+const isProduction = true || window.location.href.includes('static-mp-5fa4a496-0aa2-45a9-b89c-4054536ad7e7');
 
 // 本地返回测试环境的数据库 线上返回生产环境的数据库
 const db = isProduction

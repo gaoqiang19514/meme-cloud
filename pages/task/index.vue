@@ -49,12 +49,17 @@
         </ul>
       </div>
       <Week
+        class="mb-1"
         ref="week"
         :date="currentDateStr"
-        class="mb-1"
       />
       <Month
+        class="mb-1"
         ref="month"
+        :date="currentDateStr"
+      />
+      <Year
+        ref="year"
         :date="currentDateStr"
       />
     </div>
@@ -172,6 +177,7 @@ import * as taskApi from '@/apis/task';
 import Header from '@/components/Header.vue';
 import Week from '@/components/Week.vue';
 import Month from '@/components/Month.vue';
+import Year from '@/components/Year.vue';
 
 export default {
   data() {
@@ -410,6 +416,7 @@ export default {
     Header,
     Week,
     Month,
+    Year,
   },
 };
 </script>
