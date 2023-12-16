@@ -49,10 +49,14 @@
         </ul>
       </div>
       <Week
+        ref="week"
         :date="currentDateStr"
         class="mb-1"
       />
-      <Month :date="currentDateStr" />
+      <Month
+        ref="month"
+        :date="currentDateStr"
+      />
     </div>
     <uni-popup
       ref="popup"
@@ -324,6 +328,11 @@ export default {
       });
 
       await this.update();
+
+      // 更新日历数据
+      this.$refs.week.loadData()
+      this.$refs.month.loadData()
+
       uni.hideLoading();
       this.$refs.popup.close();
     },
