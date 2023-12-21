@@ -70,6 +70,7 @@
       />
       <Year
         v-if="currentViewType === 'year'"
+        class="mb-1"
         ref="year"
         :date="currentDateStr"
       />

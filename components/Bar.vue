@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="title">距离1万小时</div>
+    <div class="title">1万小时定律（{{ parseInt(value / 60) }}/10000）</div>
     <div class="bar-container">
       <div
         class="bar"
