@@ -48,7 +48,10 @@
           </li>
         </ul>
       </div>
-      <select class="mb-1 select" v-model="currentViewType">
+      <select
+        class="mb-1 select"
+        v-model="currentViewType"
+      >
         <option value="week">周</option>
         <option value="month">月</option>
         <option value="year">年</option>
@@ -346,14 +349,15 @@ export default {
       });
 
       await this.update();
-
-      // 更新日历数据
-      this.$refs.week.loadData();
-      this.$refs.month.loadData();
-      this.$refs.year.loadData();
+      this.updateCalendarView();
 
       uni.hideLoading();
       this.$refs.popup.close();
+    },
+    updateCalendarView() {
+      const { currentViewType } = this;
+
+      this.$refs[currentViewType].loadData();
     },
     onClickForceUpdate() {
       this.$refs['popup'].close();
@@ -396,6 +400,7 @@ export default {
         this.forceValue = undefined;
         // 刷新任务数据
         this.loadTask(currentDateStr);
+        this.updateCalendarView();
       } catch (err) {}
     },
     async onSubmit() {
