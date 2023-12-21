@@ -70,7 +70,9 @@
         ref="year"
         :date="currentDateStr"
       />
+      <Bar />
     </div>
+
     <uni-popup
       ref="popup"
       :mask-click="false"
@@ -186,6 +188,7 @@ import Header from '@/components/Header.vue';
 import Week from '@/components/Week.vue';
 import Month from '@/components/Month.vue';
 import Year from '@/components/Year.vue';
+import Bar from '@/components/Bar.vue';
 
 export default {
   data() {
@@ -345,9 +348,9 @@ export default {
       await this.update();
 
       // 更新日历数据
-      this.$refs.week.loadData()
-      this.$refs.month.loadData()
-      this.$refs.year.loadData()
+      this.$refs.week.loadData();
+      this.$refs.month.loadData();
+      this.$refs.year.loadData();
 
       uni.hideLoading();
       this.$refs.popup.close();
@@ -427,6 +430,7 @@ export default {
     Week,
     Month,
     Year,
+    Bar,
   },
 };
 </script>
