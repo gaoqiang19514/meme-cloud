@@ -6,7 +6,6 @@ const db = uniCloud.database({
 
 const userTable = db.collection('user');
 
-
 // get返回的结构
 // {
 //   "affectedDocs": 1,
@@ -20,25 +19,73 @@ const userTable = db.collection('user');
 module.exports = {
   list(params) {
     const query = Object.keys(params).length ? params : {};
-    return userTable.where(query).get()
+    return userTable.where(query).get();
+  },
+  async updatePassword() {
+    const httpInfo = this.getHttpInfo();
+    const body = JSON.parse(httpInfo.body);
+
+    const { username, password, newPassword } = body;
+
+    // 检查username和password
+    const res = await userTable
+      .where({
+        username,
+        password,
+      })
+      .get();
+
+    if (res.data.length) {
+      const res = await userTable
+        .where({
+          username,
+          password,
+        })
+        .update({
+          password: newPassword,
+        });
+
+      return res;
+    }
+
+    return {
+      data: '原始密码错误',
+    };
+  },
+  async forgetPassword() {
+    const httpInfo = this.getHttpInfo();
+    const body = JSON.parse(httpInfo.body);
+    const { username } = body;
+
+    // 获取账户信息
+    const res = await userTable
+      .where({
+        username,
+      })
+      .get();
+
+    // 读取用户的邮箱，发送重置密码的连接给该邮箱
+
+    return {
+      data: '让用户重置密码',
+    };
   },
   add() {
-    const httpInfo = this.getHttpInfo()
+    const httpInfo = this.getHttpInfo();
     const body = JSON.parse(httpInfo.body);
     return userTable.add(body);
   },
   login() {
-    const httpInfo = this.getHttpInfo()
+    const httpInfo = this.getHttpInfo();
     const body = JSON.parse(httpInfo.body);
-    const {
-      username,
-      password
-    } = body;
+    const { username, password } = body;
 
     // 检查username和password
-    return userTable.where({
-      username,
-      password
-    }).get();
+    return userTable
+      .where({
+        username,
+        password,
+      })
+      .get();
   },
-}
+};
