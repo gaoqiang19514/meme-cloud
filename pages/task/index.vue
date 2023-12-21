@@ -48,17 +48,25 @@
           </li>
         </ul>
       </div>
+      <select v-model="currentViewType">
+        <option value="week">周</option>
+        <option value="month">月</option>
+        <option value="year">年</option>
+      </select>
       <Week
+        v-if="currentViewType === 'week'"
         class="mb-1"
         ref="week"
         :date="currentDateStr"
       />
       <Month
+        v-if="currentViewType === 'month'"
         class="mb-1"
         ref="month"
         :date="currentDateStr"
       />
       <Year
+        v-if="currentViewType === 'year'"
         ref="year"
         :date="currentDateStr"
       />
@@ -182,6 +190,7 @@ import Year from '@/components/Year.vue';
 export default {
   data() {
     return {
+      currentViewType: 'week',
       currentDateStr: manipulateDate(new Date()),
       currTaskId: '',
       tasks: [],
