@@ -21,7 +21,8 @@ export default {
   data() {
     return {
       value: 0,
-      target: 10000,
+      // 将一万小时换算为分钟
+      target: 10000 * 60,
     };
   },
   computed: {
@@ -34,7 +35,7 @@ export default {
     async loadData() {
       const res = await recordApi.totalValue();
 
-      this.value = res.data / 60;
+      this.value = res.data;
     },
   },
   mounted() {
