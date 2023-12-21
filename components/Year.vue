@@ -2,10 +2,17 @@
   <div>
     <div class="title">本年合计: {{ totalAmount }} 分钟</div>
     <div class="year">
-      <div v-for="item in items" :key="item.date"
-        :class="['day', getLevelClass(item.value, item.target, item.allFinished), { ['disabled']: isDisabled(item.date) }]"
-        @click="onClickSetDate(item.date)">
-      </div>
+      <div
+        v-for="item in items"
+        :key="item.date"
+        :title="`${item.date} ${item.value}`"
+        :class="[
+          'day',
+          getLevelClass(item.value, item.target, item.allFinished),
+          { ['disabled']: isDisabled(item.date) },
+        ]"
+        @click="onClickSetDate(item.date)"
+      ></div>
     </div>
   </div>
 </template>
@@ -64,9 +71,9 @@ export default {
 
         const allFinished = tasksData.every((task) => {
           const target = task.target;
-          const record = dateData.find(item => item.name === task.name);
-          return record?.value >= target
-        })
+          const record = dateData.find((item) => item.name === task.name);
+          return record?.value >= target;
+        });
 
         return {
           ...item,
