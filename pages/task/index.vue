@@ -201,7 +201,7 @@ export default {
       currentDateStr: manipulateDate(new Date()),
       currTaskId: '',
       tasks: [],
-      options: [0.1, 5, 10, 15, 25],
+      options: [5, 10, 15, 25],
       formValues: {
         name: '',
         target: 5,
