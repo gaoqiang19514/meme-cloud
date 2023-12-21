@@ -363,7 +363,7 @@ export default {
           await recordApi.add({
             date: currentDateStr,
             name: currTask.name,
-            time: forceValue,
+            time: Number(forceValue),
             target: currTask.target,
           });
         }
