@@ -48,7 +48,7 @@
           </li>
         </ul>
       </div>
-      <select v-model="currentViewType">
+      <select class="mb-1 select" v-model="currentViewType">
         <option value="week">周</option>
         <option value="month">月</option>
         <option value="year">年</option>
