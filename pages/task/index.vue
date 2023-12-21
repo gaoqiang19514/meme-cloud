@@ -338,6 +338,7 @@ export default {
       // 更新日历数据
       this.$refs.week.loadData()
       this.$refs.month.loadData()
+      this.$refs.year.loadData()
 
       uni.hideLoading();
       this.$refs.popup.close();

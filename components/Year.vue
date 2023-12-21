@@ -51,7 +51,6 @@ export default {
       const res = await recordApi.get({
         // date: uniCloud.database().command.in(year.map((week) => week.date)),
       });
-      
 
       const dates = res.result.data;
 
