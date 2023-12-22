@@ -97,11 +97,13 @@ async function login() {
 
   if (res.data.length) {
     return {
+      code: 0,
       data: tools.generateToken(res.data[0]),
     };
   }
 
   return {
+    code: -1,
     data: '账户或密码错误',
   };
 }
