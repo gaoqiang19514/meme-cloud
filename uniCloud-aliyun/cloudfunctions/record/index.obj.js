@@ -1,8 +1,4 @@
-const db = uniCloud.database({
-  provider: 'aliyun',
-  spaceId: 'mp-5fa4a496-0aa2-45a9-b89c-4054536ad7e7',
-  clientSecret: '7Qw9CiyBuXiyK8fxmNVwzA==',
-});
+const db = require('db');
 const recordTable = db.collection('record');
 
 // 如果要在这里计算，就需要使用async和await

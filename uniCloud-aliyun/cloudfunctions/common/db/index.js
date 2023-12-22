@@ -4,4 +4,10 @@ const db = uniCloud.database({
   clientSecret: '7Qw9CiyBuXiyK8fxmNVwzA==',
 });
 
-export default db;
+module.exports = db;
+
+
+// 导出
+// module.exports = db;
+// 导入
+// const db = require('db');

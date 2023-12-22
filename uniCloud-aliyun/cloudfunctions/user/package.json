@@ -1,6 +1,8 @@
 {
   "name": "user",
-  "dependencies": {},
+  "dependencies": {
+    "db": "file:../common/db"
+  },
   "extensions": {
     "uni-cloud-jql": {}
   }
