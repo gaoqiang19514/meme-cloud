@@ -13,8 +13,7 @@ const userTable = db.collection('user');
 // }
 
 function list(params) {
-  const query = Object.keys(params).length ? params : {};
-  return userTable.where(query).get();
+  return userTable.where(params).get();
 }
 
 async function updatePassword() {
