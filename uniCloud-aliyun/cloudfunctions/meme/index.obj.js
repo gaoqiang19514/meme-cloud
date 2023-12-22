@@ -1,23 +1,56 @@
 const db = require('db');
 const memeTable = db.collection('meme');
 
-// 如果要在这里计算，就需要使用async和await
+/**
+ * @typedef {Object} Meme
+ * @property {string} _id
+ * @property {string} username
+ * @property {string} url
+ */
 
 /**
- * add方法描述
- * @param {string} params 参数1描述
- * @returns {object} 返回值描述
+ * @typedef {Object} ApiResponse
+ * @property {number} code
+ * @property {any} data
+ */
+
+/**
+ * @typedef {Object} MemeApiResponse
+ * @extends {ApiResponse}
+ * @property {Meme[]} data
+ */
+
+/**
+ * 新增表情
+ * @param {Object} params
+ * @param {string} params.username
+ * @param {string} params.url
+ * @returns {ApiResponse}
  */
 function add() {
-  const httpInfo = this.getHttpInfo();
-  const body = JSON.parse(httpInfo.body);
+  const body = JSON.parse(this.getHttpInfo());
+
   return memeTable.add(body);
 }
 
+/**
+ * 删除表情
+ * @param {Object} params
+ * @param {string} [params.username]
+ * @param {string} [params.url]
+ * @returns {ApiResponse}
+ */
 function del(query) {
   return memeTable.where(query).remove();
 }
 
+/**
+ * 表情列表
+ * @param {Object} params
+ * @param {string} [params.username]
+ * @param {string} [params.url]
+ * @returns {MemeApiResponse}
+ */
 function list(query) {
   return memeTable.where(query).get();
 }

@@ -1,23 +1,64 @@
 const db = require('db');
 const bookmarkTable = db.collection('bookmark');
 
-// 如果要在这里计算，就需要使用async和await
+/**
+ * @typedef {Object} Bookmark
+ * @property {string} _id
+ * @property {string} username
+ * @property {string} name
+ * @property {string} url
+ * @property {string} img
+ */
 
 /**
- * add方法描述
- * @param {string} params 参数1描述
- * @returns {object} 返回值描述
+ * @typedef {Object} ApiResponse
+ * @property {number} code
+ * @property {any} data
+ */
+
+/**
+ * @typedef {Object} BookmarkApiResponse
+ * @extends {ApiResponse}
+ * @property {Bookmark[]} data
+ */
+
+
+/**
+ * 新增书签
+ * @param {Object} params
+ * @param {string} params.username
+ * @param {string} params.name
+ * @param {string} params.url
+ * @param {string} params.img
+ * @returns {ApiResponse}
  */
 function add() {
-  const httpInfo = this.getHttpInfo();
-  const body = JSON.parse(httpInfo.body);
+  const body = JSON.parse(this.getHttpInfo());
   return bookmarkTable.add(body);
 }
 
+/**
+ * 删除书签
+ * @param {Object} params
+ * @param {string} [params.username]
+ * @param {string} [params.name]
+ * @param {string} [params.url]
+ * @param {string} [params.img]
+ * @returns {ApiResponse}
+ */
 function del(query) {
   return bookmarkTable.where(query).remove();
 }
 
+/**
+ * 书签列表
+ * @param {Object} params
+ * @param {string} [params.username]
+ * @param {string} [params.name]
+ * @param {string} [params.url]
+ * @param {string} [params.img]
+ * @returns {BookmarkApiResponse}
+ */
 function list(query) {
   return bookmarkTable.where(query).get();
 }
