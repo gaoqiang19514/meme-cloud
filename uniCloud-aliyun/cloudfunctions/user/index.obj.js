@@ -1,4 +1,5 @@
 const db = require('db');
+const tools = require('tools');
 const userTable = db.collection('user');
 
 // get返回的结构
@@ -81,18 +82,28 @@ function add() {
   return userTable.add(body);
 }
 
-function login() {
+async function login() {
   const httpInfo = this.getHttpInfo();
   const body = JSON.parse(httpInfo.body);
   const { username, password } = body;
 
   // 检查username和password
-  return userTable
+  const res = await userTable
     .where({
       username,
       password,
     })
     .get();
+
+  if (res.data.length) {
+    return {
+      data: tools.generateToken(res.data[0]),
+    };
+  }
+
+  return {
+    data: '账户或密码错误',
+  };
 }
 
 module.exports = {
