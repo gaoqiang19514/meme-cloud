@@ -1,0 +1,7 @@
+{
+  "name": "meme",
+  "dependencies": {},
+  "extensions": {
+    "uni-cloud-jql": {}
+  }
+}

@@ -5,25 +5,38 @@ const db = uniCloud.database({
 });
 const taskTable = db.collection('task');
 
-module.exports = {
-  /**
-   * get方法描述
-   * @param {string} query 参数1描述
-   * @returns {object} 返回值描述
-   */
-  async list(query) {
-    const {
-      username
-    } = query;
+function add() {
+  const httpInfo = this.getHttpInfo();
+  const body = JSON.parse(httpInfo.body);
 
-    const res = await taskTable
-      .where({
-        username,
-      })
-      .get();
-
-    return {
-      data: res.data,
-    };
-  },
+  return taskTable.add(body);
 }
+
+function update() {
+  const httpInfo = this.getHttpInfo();
+  const body = JSON.parse(httpInfo.body);
+  const { date, name, username, payload } = body;
+
+  return taskTable
+    .where({
+      date,
+      name,
+      username,
+    })
+    .update(payload);
+}
+
+/**
+ * get方法描述
+ * @param {string} query 参数1描述
+ * @returns {object} 返回值描述
+ */
+async function list(query) {
+  return taskTable.where(query).get();
+}
+
+module.exports = {
+  add,
+  update,
+  list,
+};
