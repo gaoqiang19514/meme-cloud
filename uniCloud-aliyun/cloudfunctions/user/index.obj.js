@@ -2,16 +2,6 @@ const db = require('db');
 const tools = require('tools');
 const userTable = db.collection('user');
 
-// get返回的结构
-// {
-//   "affectedDocs": 1,
-//   "data": [{
-//     "_id": "6583db5d6e5d2d7187ef6e6a",
-//     "username": "tomcat123",
-//     "password": "123@qq"
-//   }]
-// }
-
 /**
  * @typedef {Object} User
  * @property {string} _id
@@ -29,6 +19,12 @@ const userTable = db.collection('user');
  */
 
 /**
+ * @typedef {Object} UserApiResponse
+ * @extends {ApiResponse} - Indicates that Dog extends Animal.
+ * @property {User[]} data - The breed of the dog.
+ */
+
+/**
  * 查询用户列表
  * @param {Object} params
  * @param {string} [params._id]
@@ -36,7 +32,7 @@ const userTable = db.collection('user');
  * @param {string} [params.password]
  * @param {string} [params.phone]
  * @param {string} [params.email]
- * @returns {ApiResponse}
+ * @returns {UserApiResponse}
  */
 function list(params) {
   return userTable.where(params).get();
