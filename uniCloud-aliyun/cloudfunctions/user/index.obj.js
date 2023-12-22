@@ -197,7 +197,7 @@ async function login() {
     };
   }
 
-  // TODO: 检查密码
+  // TODO: 检查密码强度
 
   const res = await userTable.where(body).get();
 
