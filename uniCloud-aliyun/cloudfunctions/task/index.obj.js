@@ -45,15 +45,10 @@ function add() {
  */
 function update() {
   const body = JSON.parse(this.getHttpInfo());
-  const { date, name, username, payload } = body;
-  // TODO: 改成query和payload会不会更好点？
+  const { query, payload } = body;
 
   return taskTable
-    .where({
-      date,
-      name,
-      username,
-    })
+    .where(query)
     .update(payload);
 }
 
