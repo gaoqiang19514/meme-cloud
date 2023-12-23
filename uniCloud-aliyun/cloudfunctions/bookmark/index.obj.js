@@ -25,11 +25,11 @@ const bookmarkTable = db.collection('bookmark');
 
 /**
  * 新增书签
- * @param {Object} params
- * @param {string} params.username
- * @param {string} params.name
- * @param {string} params.url
- * @param {string} params.img
+ * @param {Object} body
+ * @param {string} body.username
+ * @param {string} body.name
+ * @param {string} body.url
+ * @param {string} body.img
  * @returns {ApiResponse}
  */
 function add() {
@@ -39,11 +39,11 @@ function add() {
 
 /**
  * 删除书签
- * @param {Object} params
- * @param {string} [params.username]
- * @param {string} [params.name]
- * @param {string} [params.url]
- * @param {string} [params.img]
+ * @param {Object} query
+ * @param {string} [query.username]
+ * @param {string} [query.name]
+ * @param {string} [query.url]
+ * @param {string} [query.img]
  * @returns {ApiResponse}
  */
 function del(query) {
@@ -52,11 +52,11 @@ function del(query) {
 
 /**
  * 书签列表
- * @param {Object} params
- * @param {string} [params.username]
- * @param {string} [params.name]
- * @param {string} [params.url]
- * @param {string} [params.img]
+ * @param {Object} query
+ * @param {string} [query.username]
+ * @param {string} [query.name]
+ * @param {string} [query.url]
+ * @param {string} [query.img]
  * @returns {BookmarkApiResponse}
  */
 function list(query) {

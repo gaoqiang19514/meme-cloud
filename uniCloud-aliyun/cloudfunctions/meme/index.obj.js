@@ -22,9 +22,9 @@ const memeTable = db.collection('meme');
 
 /**
  * 新增表情
- * @param {Object} params
- * @param {string} params.username
- * @param {string} params.url
+ * @param {Object} body
+ * @param {string} body.username
+ * @param {string} body.url
  * @returns {ApiResponse}
  */
 function add() {
@@ -35,9 +35,9 @@ function add() {
 
 /**
  * 删除表情
- * @param {Object} params
- * @param {string} [params.username]
- * @param {string} [params.url]
+ * @param {Object} query
+ * @param {string} [query.username]
+ * @param {string} [query.url]
  * @returns {ApiResponse}
  */
 function del(query) {
@@ -46,9 +46,9 @@ function del(query) {
 
 /**
  * 表情列表
- * @param {Object} params
- * @param {string} [params.username]
- * @param {string} [params.url]
+ * @param {Object} query
+ * @param {string} [query.username]
+ * @param {string} [query.url]
  * @returns {MemeApiResponse}
  */
 function list(query) {

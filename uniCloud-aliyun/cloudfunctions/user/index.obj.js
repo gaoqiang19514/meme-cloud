@@ -20,30 +20,30 @@ const userTable = db.collection('user');
 
 /**
  * @typedef {Object} UserApiResponse
- * @extends {ApiResponse} - Indicates that Dog extends Animal.
- * @property {User[]} data - The breed of the dog.
+ * @extends {ApiResponse}
+ * @property {User[]} data
  */
 
 /**
  * 查询用户列表
- * @param {Object} params
- * @param {string} [params._id]
- * @param {string} [params.username]
- * @param {string} [params.password]
- * @param {string} [params.phone]
- * @param {string} [params.email]
+ * @param {Object} query
+ * @param {string} [query._id]
+ * @param {string} [query.username]
+ * @param {string} [query.password]
+ * @param {string} [query.phone]
+ * @param {string} [query.email]
  * @returns {UserApiResponse}
  */
-function list(params) {
-  return userTable.where(params).get();
+function list(query) {
+  return userTable.where(query).get();
 }
 
 /**
  * 修改密码
- * @param {Object} params
- * @param {string} params.username
- * @param {string} params.password
- * @param {string} params.newPassword
+ * @param {Object} body
+ * @param {string} body.username
+ * @param {string} body.password
+ * @param {string} body.newPassword
  * @returns {ApiResponse}
  */
 async function updatePassword() {
@@ -108,8 +108,8 @@ async function updatePassword() {
 
 /**
  * 找回密码
- * @param {Object} params
- * @param {string} params.username
+ * @param {Object} body
+ * @param {string} body.username
  * @returns {ApiResponse}
  */
 async function forgetPassword() {
@@ -142,9 +142,9 @@ async function forgetPassword() {
 
 /**
  * 新增用户
- * @param {Object} params
- * @param {string} params.username
- * @param {string} params.password
+ * @param {Object} body
+ * @param {string} body.username
+ * @param {string} body.password
  * @returns {ApiResponse}
  */
 function add() {
@@ -171,9 +171,9 @@ function add() {
 
 /**
  * 登录
- * @param {Object} params
- * @param {string} params.username
- * @param {string} params.password
+ * @param {Object} body
+ * @param {string} body.username
+ * @param {string} body.password
  * @returns {ApiResponse}
  */
 async function login() {

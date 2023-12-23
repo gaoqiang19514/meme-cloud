@@ -23,10 +23,10 @@ const taskTable = db.collection('task');
 
 /**
  * 新增任务
- * @param {Object} params
- * @param {string} params.name
- * @param {string} params.username
- * @param {string} params.target
+ * @param {Object} body
+ * @param {string} body.name
+ * @param {string} body.username
+ * @param {string} body.target
  * @returns {ApiResponse}
  */
 function add() {
@@ -37,10 +37,10 @@ function add() {
 
 /**
  * 更新任务
- * @param {Object} params
- * @param {string} [params.name]
- * @param {string} [params.username]
- * @param {string} [params.target]
+ * @param {Object} body
+ * @param {string} [body.name]
+ * @param {string} [body.username]
+ * @param {string} [body.target]
  * @returns {ApiResponse}
  */
 function update() {
@@ -54,10 +54,10 @@ function update() {
 
 /**
  * 任务列表
- * @param {Object} params
- * @param {string} [params.name]
- * @param {string} [params.username]
- * @param {string} [params.target]
+ * @param {Object} query
+ * @param {string} [query.name]
+ * @param {string} [query.username]
+ * @param {string} [query.target]
  * @returns {TaskApiResponse}
  */
 function list(query) {

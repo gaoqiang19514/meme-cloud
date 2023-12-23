@@ -25,12 +25,12 @@ const recordTable = db.collection('record');
 
 /**
  * 新增记录
- * @param {Object} params
- * @param {string} params.username
- * @param {string} params.date
- * @param {string} params.name
- * @param {string} params.value
- * @param {string} params.target
+ * @param {Object} body
+ * @param {string} body.username
+ * @param {string} body.date
+ * @param {string} body.name
+ * @param {string} body.value
+ * @param {string} body.target
  * @returns {ApiResponse}
  */
 function add() {
@@ -41,28 +41,28 @@ function add() {
 
 /**
  * 更新记录
- * @param {Object} params
- * @param {string} [params.username]
- * @param {string} [params.date]
- * @param {string} [params.name]
- * @param {string} [params.value]
- * @param {string} [params.target]
+ * @param {Object} body
+ * @param {string} [body.username]
+ * @param {string} [body.date]
+ * @param {string} [body.name]
+ * @param {string} [body.value]
+ * @param {string} [body.target]
  * @returns {ApiResponse}
  */
 function update() {
-  const { query, payload } = JSON.parse(this.getHttpInfo());
+  const body = JSON.parse(this.getHttpInfo());
 
-  return recordTable.where(query).update(payload);
+  return recordTable.where(body.query).update(body.payload);
 }
 
 /**
  * 记录列表
- * @param {Object} params
- * @param {string} [params.username]
- * @param {string} [params.date]
- * @param {string} [params.name]
- * @param {string} [params.value]
- * @param {string} [params.target]
+ * @param {Object} query
+ * @param {string} [query.username]
+ * @param {string} [query.date]
+ * @param {string} [query.name]
+ * @param {string} [query.value]
+ * @param {string} [query.target]
  * @returns {RecordApiResponse}
  */
 function list(query) {
@@ -71,12 +71,12 @@ function list(query) {
 
 /**
  * 获取用户任务完成总时间
- * @param {object} params
- * @param {string} [params.username]
- * @param {string} [params.date]
- * @param {string} [params.name]
- * @param {string} [params.value]
- * @param {string} [params.target]
+ * @param {object} query
+ * @param {string} [query.username]
+ * @param {string} [query.date]
+ * @param {string} [query.name]
+ * @param {string} [query.value]
+ * @param {string} [query.target]
  * @returns {ApiResponse}
  */
 async function totalValue(query) {
