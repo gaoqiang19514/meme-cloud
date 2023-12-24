@@ -1,9 +1,30 @@
 const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
 
-function generateToken(payload) {
-  return crypto.createHash('sha256').update(JSON.stringify(payload)).digest('hex');
+// 密钥，可以是任意字符串，用于签名和验证JWT
+const secretKey = 'yourSecretKey';
+
+// 创建JWT
+function createToken(payload) {
+  const token = jwt.sign(payload, secretKey, {
+    algorithm: 'HS256'
+  });
+  return token;
+}
+
+// 解析JWT
+function parseToken(token) {
+  try {
+    const decoded = jwt.verify(token, secretKey);
+    return decoded;
+  } catch (err) {
+    // 验证失败，可能是因为过期或无效的签名
+    console.error('Token verification failed:', err.message);
+    return null;
+  }
 }
 
 module.exports = {
-  generateToken,
+  createToken,
+  parseToken
 };

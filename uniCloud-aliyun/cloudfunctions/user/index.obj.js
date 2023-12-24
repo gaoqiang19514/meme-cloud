@@ -35,7 +35,12 @@ const userTable = db.collection('user');
  * @returns {UserApiResponse}
  */
 function list(query) {
-  return userTable.where(query).get();
+  const userInfo = tools.parseToken(this.getHttpInfo().headers.token)
+
+  return userTable.where({
+    username: userInfo.username,
+    ...query
+  }).get();
 }
 
 /**
@@ -48,7 +53,11 @@ function list(query) {
  */
 async function updatePassword() {
   const body = JSON.parse(this.getHttpInfo());
-  const { username, password, newPassword } = body;
+  const {
+    username,
+    password,
+    newPassword
+  } = body;
 
   if (!username) {
     return {
@@ -114,7 +123,9 @@ async function updatePassword() {
  */
 async function forgetPassword() {
   const body = JSON.parse(this.getHttpInfo());
-  const { username } = body;
+  const {
+    username
+  } = body;
 
   // 获取账户信息
   const res = await userTable
@@ -177,7 +188,7 @@ function add() {
  * @returns {ApiResponse}
  */
 async function login() {
-  const body = JSON.parse(this.getHttpInfo());
+  const body = JSON.parse(this.getHttpInfo().body);
 
   if (!body.username) {
     return {
@@ -186,21 +197,20 @@ async function login() {
     };
   }
 
-  if (!body.password) {
-    return {
-      code: -1,
-      data: '缺少密码',
-    };
-  }
+  // if (!body.password) {
+  //   return {
+  //     code: -1,
+  //     data: '缺少密码',
+  //   };
+  // }
 
   // TODO: 检查密码强度
-
+  
   const res = await userTable.where(body).get();
-
   if (res.data.length) {
     return {
       code: 0,
-      data: tools.generateToken(res.data[0]),
+      data: tools.createToken(res.data[0]),
     };
   }
 
