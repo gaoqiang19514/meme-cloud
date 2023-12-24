@@ -1,7 +1,8 @@
 {
   "name": "task",
   "dependencies": {
-    "db": "file:../common/db"
+    "db": "file:../common/db",
+    "tools": "file:../common/tools"
   },
   "extensions": {
     "uni-cloud-jql": {}

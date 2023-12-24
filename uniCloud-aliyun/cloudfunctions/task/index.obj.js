@@ -1,4 +1,5 @@
 const db = require('db');
+const tools = require('tools');
 const taskTable = db.collection('task');
 
 /**
@@ -71,8 +72,9 @@ function update() {
  * @returns {TaskApiResponse}
  */
 function list(query) {
-  const userInfo = tools.parseToken(this.getHttpInfo().headers.token)
-
+  const httpInfo = this.getHttpInfo()
+  const userInfo = tools.parseToken(httpInfo.headers.token)
+  
   return taskTable.where({
     ...query,
     username: userInfo.username
