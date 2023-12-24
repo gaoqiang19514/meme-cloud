@@ -1,4 +1,5 @@
 const db = require('db');
+const tools = require('tools');
 const memeTable = db.collection('meme');
 
 /**
@@ -28,31 +29,46 @@ const memeTable = db.collection('meme');
  * @returns {ApiResponse}
  */
 function add() {
-  const body = JSON.parse(this.getHttpInfo());
+  const httpInfo = this.getHttpInfo()
+  const body = JSON.parse(httpInfo.body);
+  const userInfo = tools.parseToken(httpInfo.headers.token)
 
-  return memeTable.add(body);
+  return memeTable.add({
+    ...body,
+    username: userInfo.username
+  });
 }
 
 /**
  * 删除表情
  * @param {Object} query
- * @param {string} [query.username]
  * @param {string} [query.url]
  * @returns {ApiResponse}
  */
 function del(query) {
-  return memeTable.where(query).remove();
+  const httpInfo = this.getHttpInfo()
+  const userInfo = tools.parseToken(httpInfo.headers.token)
+
+  return memeTable.where({
+    ...query,
+    username: userInfo.username
+  }).remove();
 }
 
 /**
  * 表情列表
  * @param {Object} query
- * @param {string} [query.username]
  * @param {string} [query.url]
  * @returns {MemeApiResponse}
  */
 function list(query) {
-  return memeTable.where(query).get();
+  const httpInfo = this.getHttpInfo()
+  const userInfo = tools.parseToken(httpInfo.headers.token)
+
+  return memeTable.where({
+    ...query,
+    username: userInfo.username
+  }).get();
 }
 
 module.exports = {

@@ -25,30 +25,41 @@ const taskTable = db.collection('task');
  * 新增任务
  * @param {Object} body
  * @param {string} body.name
- * @param {string} body.username
  * @param {string} body.target
  * @returns {ApiResponse}
  */
 function add() {
-  const body = JSON.parse(this.getHttpInfo());
+  const httpInfo = this.getHttpInfo()
+  const body = JSON.parse(httpInfo.body);
+  const userInfo = tools.parseToken(httpInfo.headers.token)
 
-  return taskTable.add(body);
+  return taskTable.add({
+    ...body,
+    username: userInfo.username
+  });
 }
 
 /**
  * 更新任务
  * @param {Object} body
  * @param {string} [body.name]
- * @param {string} [body.username]
  * @param {string} [body.target]
  * @returns {ApiResponse}
  */
 function update() {
-  const body = JSON.parse(this.getHttpInfo());
-  const { query, payload } = body;
+  const httpInfo = this.getHttpInfo()
+  const body = JSON.parse(httpInfo.body);
+  const userInfo = tools.parseToken(httpInfo.headers.token)
+  const {
+    query,
+    payload
+  } = body;
 
   return taskTable
-    .where(query)
+    .where({
+      ...query,
+      username: userInfo.username
+    })
     .update(payload);
 }
 
@@ -56,12 +67,16 @@ function update() {
  * 任务列表
  * @param {Object} query
  * @param {string} [query.name]
- * @param {string} [query.username]
  * @param {string} [query.target]
  * @returns {TaskApiResponse}
  */
 function list(query) {
-  return taskTable.where(query).get();
+  const userInfo = tools.parseToken(this.getHttpInfo().headers.token)
+
+  return taskTable.where({
+    ...query,
+    username: userInfo.username
+  }).get();
 }
 
 module.exports = {

@@ -52,7 +52,7 @@ function list(query) {
  * @returns {ApiResponse}
  */
 async function updatePassword() {
-  const body = JSON.parse(this.getHttpInfo());
+  const body = JSON.parse(this.getHttpInfo().body);
   const {
     username,
     password,
@@ -122,7 +122,7 @@ async function updatePassword() {
  * @returns {ApiResponse}
  */
 async function forgetPassword() {
-  const body = JSON.parse(this.getHttpInfo());
+  const body = JSON.parse(this.getHttpInfo().body);
   const {
     username
   } = body;

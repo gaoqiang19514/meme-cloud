@@ -1,4 +1,5 @@
 const db = require('db');
+const tools = require('tools');
 const recordTable = db.collection('record');
 
 /**
@@ -26,7 +27,6 @@ const recordTable = db.collection('record');
 /**
  * 新增记录
  * @param {Object} body
- * @param {string} body.username
  * @param {string} body.date
  * @param {string} body.name
  * @param {string} body.value
@@ -34,15 +34,19 @@ const recordTable = db.collection('record');
  * @returns {ApiResponse}
  */
 function add() {
-  const body = JSON.parse(this.getHttpInfo());
+  const httpInfo = this.getHttpInfo()
+  const body = JSON.parse(httpInfo.body);
+  const userInfo = tools.parseToken(httpInfo.headers.token)
 
-  return recordTable.add(body);
+  return recordTable.add({
+    ...body,
+    username: userInfo.username
+  });
 }
 
 /**
  * 更新记录
  * @param {Object} body
- * @param {string} [body.username]
  * @param {string} [body.date]
  * @param {string} [body.name]
  * @param {string} [body.value]
@@ -50,15 +54,19 @@ function add() {
  * @returns {ApiResponse}
  */
 function update() {
-  const body = JSON.parse(this.getHttpInfo());
+  const httpInfo = this.getHttpInfo()
+  const body = JSON.parse(httpInfo.body);
+  const userInfo = tools.parseToken(httpInfo.headers.token)
 
-  return recordTable.where(body.query).update(body.payload);
+  return recordTable.where({
+    ...body.query,
+    username: userInfo.username
+  }).update(body.payload);
 }
 
 /**
  * 记录列表
  * @param {Object} query
- * @param {string} [query.username]
  * @param {string} [query.date]
  * @param {string} [query.name]
  * @param {string} [query.value]
@@ -66,13 +74,18 @@ function update() {
  * @returns {RecordApiResponse}
  */
 function list(query) {
-  return recordTable.where(query).get();
+  const httpInfo = this.getHttpInfo()
+  const userInfo = tools.parseToken(httpInfo.headers.token)
+
+  return recordTable.where({
+    ...query,
+    username: userInfo.username
+  }).get();
 }
 
 /**
  * 获取用户任务完成总时间
  * @param {object} query
- * @param {string} [query.username]
  * @param {string} [query.date]
  * @param {string} [query.name]
  * @param {string} [query.value]
@@ -80,7 +93,13 @@ function list(query) {
  * @returns {ApiResponse}
  */
 async function totalValue(query) {
-  const res = await recordTable.where(query).get();
+  const httpInfo = this.getHttpInfo()
+  const userInfo = tools.parseToken(httpInfo.headers.token)
+
+  const res = await recordTable.where({
+    ...query,
+    username: userInfo.username
+  }).get();
 
   return res.data.reduce((acc, curr) => acc + curr.value, 0);
 }
