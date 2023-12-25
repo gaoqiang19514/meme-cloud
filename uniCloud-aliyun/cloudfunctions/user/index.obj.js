@@ -205,7 +205,7 @@ async function login() {
   // }
 
   // TODO: 检查密码强度
-  
+
   const res = await userTable.where(body).get();
   if (res.data.length) {
     return {
@@ -221,6 +221,15 @@ async function login() {
 }
 
 module.exports = {
+  _before() {
+    const httpInfo = this.getHttpInfo()
+    const methodName = this.getMethodName()
+
+    const whiteList = ['/login', '/add']
+    if (!whiteList.includes(methodName) && !httpInfo.headers.token) {
+      throw new Error('token不存在')
+    }
+  },
   list,
   updatePassword,
   forgetPassword,
