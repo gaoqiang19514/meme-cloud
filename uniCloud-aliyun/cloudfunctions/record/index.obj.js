@@ -105,9 +105,6 @@ async function totalValue(query) {
 }
 
 module.exports = {
-  _before() {
-    tools.requestChecker(this)
-  },
   add,
   update,
   list,

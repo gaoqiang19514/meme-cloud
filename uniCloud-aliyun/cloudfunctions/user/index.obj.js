@@ -28,15 +28,18 @@ const userTable = db.collection('user');
  * 查询用户列表
  * @param {Object} query
  * @param {string} [query._id]
- * @param {string} [query.username]
  * @param {string} [query.password]
  * @param {string} [query.phone]
  * @param {string} [query.email]
  * @returns {UserApiResponse}
  */
-function list(query) {
+async function list(query) {
+  const httpInfo = this.getHttpInfo()
+  const methodName = this.getMethodName();
+  const userInfo = tools.parseToken(httpInfo.headers.token)
 
-  const userInfo = tools.parseToken(this.getHttpInfo().headers.token)
+  // 检查token是否过期
+  await tools.checkToken(httpInfo.headers.token, methodName);
 
   return userTable.where({
     username: userInfo.username,
@@ -53,7 +56,8 @@ function list(query) {
  * @returns {ApiResponse}
  */
 async function updatePassword() {
-  const body = JSON.parse(this.getHttpInfo().body);
+  const httpInfo = this.getHttpInfo()
+  const body = JSON.parse(httpInfo.body);
   const {
     username,
     password,
@@ -123,7 +127,8 @@ async function updatePassword() {
  * @returns {ApiResponse}
  */
 async function forgetPassword() {
-  const body = JSON.parse(this.getHttpInfo().body);
+  const httpInfo = this.getHttpInfo()
+  const body = JSON.parse(httpInfo.body);
   const {
     username
   } = body;
@@ -190,7 +195,8 @@ function add() {
  * @returns {ApiResponse}
  */
 async function login() {
-  const body = JSON.parse(this.getHttpInfo().body);
+  const httpInfo = this.getHttpInfo()
+  const body = JSON.parse(httpInfo.body);
 
   if (!body.username) {
     return {
@@ -223,9 +229,6 @@ async function login() {
 }
 
 module.exports = {
-  _before() {
-    tools.requestChecker(this)
-  },
   list,
   updatePassword,
   forgetPassword,

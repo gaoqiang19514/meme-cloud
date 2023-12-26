@@ -3,11 +3,14 @@ const jwt = require('jsonwebtoken');
 
 // 密钥，可以是任意字符串，用于签名和验证JWT
 const secretKey = 'yourSecretKey';
+// 设置过期时间为1小时
+const expirationTimeInSeconds = 3600 * 24 * 30;
 
 // 创建JWT
 function createToken(payload) {
   const token = jwt.sign(payload, secretKey, {
     algorithm: 'HS256',
+    expiresIn: expirationTimeInSeconds,
   });
   return token;
 }
@@ -24,18 +27,39 @@ function parseToken(token) {
   }
 }
 
-function requestChecker(context) {
-  const httpInfo = context.getHttpInfo();
-  const methodName = context.getMethodName();
+function jwtVerify(token) {
+  return new Promise((resolve) => {
+    jwt.verify(token, secretKey, (err) => {
+      resolve(!!err)
+    });
+  })
+}
 
-  const whiteList = ['login', 'add'];
-  if (!whiteList.includes(methodName) && !httpInfo.headers.token) {
-    throw new Error('token不存在');
+async function checkToken(token, methodName) {
+  const whiteList = ['login', 'add', 'forgetPassword', 'updatePassword'];
+
+  if (whiteList.includes(methodName)) {
+    return;
+  }
+
+  if (!token) {
+    return {
+      mpserverlessComposedResponse: true,
+      statusCode: 401,
+    };
+  }
+
+  const res = await jwtVerify(token)
+  if (res) {
+    return {
+      mpserverlessComposedResponse: true,
+      statusCode: 401,
+    };
   }
 }
 
 module.exports = {
   createToken,
   parseToken,
-  requestChecker,
+  checkToken,
 };
