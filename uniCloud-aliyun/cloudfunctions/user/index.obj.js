@@ -159,7 +159,8 @@ async function forgetPassword() {
  * @returns {ApiResponse}
  */
 function add() {
-  const body = JSON.parse(this.getHttpInfo());
+  const httpInfo = this.getHttpInfo()
+  const body = JSON.parse(httpInfo.body);
 
   if (!body.username) {
     return {
@@ -222,13 +223,7 @@ async function login() {
 
 module.exports = {
   _before() {
-    const httpInfo = this.getHttpInfo()
-    const methodName = this.getMethodName()
-
-    const whiteList = ['/login', '/add']
-    if (!whiteList.includes(methodName) && !httpInfo.headers.token) {
-      throw new Error('token不存在')
-    }
+    tools.requestChecker(this)
   },
   list,
   updatePassword,

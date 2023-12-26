@@ -24,7 +24,18 @@ function parseToken(token) {
   }
 }
 
+function requestChecker(context) {
+  const httpInfo = context.getHttpInfo()
+  const methodName = context.getMethodName()
+
+  const whiteList = ['login', 'add']
+  if (!whiteList.includes(methodName) && !httpInfo.headers.token) {
+    throw new Error('token不存在')
+  }
+}
+
 module.exports = {
   createToken,
-  parseToken
+  parseToken,
+  requestChecker
 };

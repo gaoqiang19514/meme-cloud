@@ -81,6 +81,9 @@ function list(query) {
 }
 
 module.exports = {
+  _before() {
+    tools.requestChecker(this)
+  },
   add,
   del,
   list,

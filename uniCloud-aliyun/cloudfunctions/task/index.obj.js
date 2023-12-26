@@ -74,7 +74,7 @@ function update() {
 function list(query) {
   const httpInfo = this.getHttpInfo()
   const userInfo = tools.parseToken(httpInfo.headers.token)
-  
+
   return taskTable.where({
     ...query,
     username: userInfo.username
@@ -82,6 +82,9 @@ function list(query) {
 }
 
 module.exports = {
+  _before() {
+    tools.requestChecker(this)
+  },
   add,
   update,
   list,
