@@ -35,6 +35,7 @@ const userTable = db.collection('user');
  * @returns {UserApiResponse}
  */
 function list(query) {
+
   const userInfo = tools.parseToken(this.getHttpInfo().headers.token)
 
   return userTable.where({

@@ -7,7 +7,7 @@ const secretKey = 'yourSecretKey';
 // 创建JWT
 function createToken(payload) {
   const token = jwt.sign(payload, secretKey, {
-    algorithm: 'HS256'
+    algorithm: 'HS256',
   });
   return token;
 }
@@ -25,17 +25,17 @@ function parseToken(token) {
 }
 
 function requestChecker(context) {
-  const httpInfo = context.getHttpInfo()
-  const methodName = context.getMethodName()
+  const httpInfo = context.getHttpInfo();
+  const methodName = context.getMethodName();
 
-  const whiteList = ['login', 'add']
+  const whiteList = ['login', 'add'];
   if (!whiteList.includes(methodName) && !httpInfo.headers.token) {
-    throw new Error('token不存在')
+    throw new Error('token不存在');
   }
 }
 
 module.exports = {
   createToken,
   parseToken,
-  requestChecker
+  requestChecker,
 };
