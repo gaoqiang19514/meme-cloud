@@ -35,7 +35,7 @@ export default {
     async loadData() {
       const res = await recordApi.totalValue();
 
-      this.value = res.data;
+      this.value = res;
     },
   },
   mounted() {

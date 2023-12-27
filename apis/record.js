@@ -17,13 +17,16 @@ export const add = ({ date, name, time, target }) => {
   recordTable.add(data);
 };
 
-export const totalValue = () => {
+export const totalValue = async () => {
   const username = accountStorage.get();
 
-  return uni.request({
-    method: 'GET',
-    url: `https://fc-mp-5fa4a496-0aa2-45a9-b89c-4054536ad7e7.next.bspapp.com/record/totalValue?username=${username}`,
-  });
+  const res = await recordTable
+    .where({
+      username,
+    })
+    .get();
+
+  return res.result.data.reduce((acc, curr) => acc + curr.value, 0);
 };
 
 export const update = (query, payload) => {
