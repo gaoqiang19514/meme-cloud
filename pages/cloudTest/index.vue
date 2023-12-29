@@ -7,6 +7,10 @@
 <script>
 // 引入所有的云对象
 const userObject = uniCloud.importObject('user')
+const taskObject = uniCloud.importObject('task')
+const recordObject = uniCloud.importObject('record')
+const memeObject = uniCloud.importObject('meme')
+const bookmarkObject = uniCloud.importObject('bookmark')
 
 export default {
   mounted() {
@@ -20,4 +24,3 @@ export default {
 };
 </script>
 
-<style lang="less" src="./style.less"></style>
