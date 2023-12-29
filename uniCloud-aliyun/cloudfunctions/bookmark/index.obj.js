@@ -19,7 +19,7 @@ const bookmarkTable = db.collection('bookmark');
 
 /**
  * @typedef {Object} BookmarkApiResponse
- * @extends {ApiResponse}
+ * @property {number} code
  * @property {Bookmark[]} data
  */
 
@@ -33,13 +33,14 @@ const bookmarkTable = db.collection('bookmark');
  * @returns {ApiResponse}
  */
 function add(params) {
-  const token = params.token;
-  delete params.token;
-  const userInfo = tools.parseToken(token)
+  const { token, name, url, img } = params;
+  const { username } = tools.parseToken(token);
 
   return bookmarkTable.add({
-    ...params,
-    username: userInfo.username
+    name,
+    url,
+    img,
+    username
   });
 }
 
@@ -52,13 +53,15 @@ function add(params) {
  * @returns {ApiResponse}
  */
 function del(params) {
-  const token = params.token;
-  delete params.token;
-  const userInfo = tools.parseToken(token)
+  const { token, name, url, img } = params;
+  const { username } = tools.parseToken(token);
 
+  // TODO: 改成doc
   return bookmarkTable.where({
-    ...params,
-    username: userInfo.username
+    name,
+    url,
+    img,
+    username
   }).remove();
 }
 
@@ -71,13 +74,14 @@ function del(params) {
  * @returns {BookmarkApiResponse}
  */
 function list(params) {
-  const token = params.token;
-  delete params.token;
-  const userInfo = tools.parseToken(token)
+  const { token, name, url, img } = params;
+  const { username } = tools.parseToken(token);
 
   return bookmarkTable.where({
-    ...params,
-    username: userInfo.username
+    name,
+    url,
+    img,
+    username
   }).get();
 }
 

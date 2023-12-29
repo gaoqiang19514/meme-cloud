@@ -20,31 +20,26 @@ const userTable = db.collection('user');
 
 /**
  * @typedef {Object} UserApiResponse
- * @extends {ApiResponse}
+ * @property {number} code
  * @property {User[]} data
  */
 
 /**
- * 查询用户列表
+ * 查询当前用户信息
  * @param {Object} params
- * @param {string} [params._id]
- * @param {string} [params.password]
- * @param {string} [params.phone]
- * @param {string} [params.email]
+ * @param {string} params.token
  * @returns {UserApiResponse}
  */
 async function list(params) {
-  const token = params.token;
-  delete params.token;
+  const { token } = params;
+  const { username } = tools.parseToken(token)
 
-  const userInfo = tools.parseToken(token);
   // 检查token是否过期
   await tools.checkToken(token, this.getMethodName());
 
   return userTable
     .where({
-      username: userInfo.username,
-      ...params,
+      username,
     })
     .get();
 }
@@ -58,7 +53,6 @@ async function list(params) {
  * @returns {ApiResponse}
  */
 async function updatePassword(params) {
-  delete params.token;
   const { username, password, newPassword } = params;
 
   if (!username) {
@@ -97,10 +91,9 @@ async function updatePassword(params) {
     .get();
 
   if (res.data.length) {
+    // TODO: 需要验证一下doc是否生效了
     await userTable
-      .where({
-        _id: res.data[0]._id,
-      })
+      .doc(res.data[0]._id)
       .update({
         password: newPassword,
       });
@@ -124,8 +117,14 @@ async function updatePassword(params) {
  * @returns {ApiResponse}
  */
 async function forgetPassword(params) {
-  delete params.token;
   const { username } = params;
+
+  if (!username) {
+    return {
+      code: -1,
+      data: '读取用户名失败',
+    };
+  }
 
   // 获取账户信息
   const res = await userTable
@@ -159,16 +158,16 @@ async function forgetPassword(params) {
  * @returns {ApiResponse}
  */
 function add(params) {
-  delete params.token;
+  const { username, password } = params;
 
-  if (!params.username) {
+  if (!username) {
     return {
       code: -1,
       data: '缺少用户名',
     };
   }
 
-  if (!params.password) {
+  if (!password) {
     return {
       code: -1,
       data: '缺少密码',
@@ -177,7 +176,9 @@ function add(params) {
 
   // TODO: 检查密码强度
 
-  return userTable.add(params);
+  return userTable.add({
+    username, password
+  });
 }
 
 /**
@@ -188,16 +189,16 @@ function add(params) {
  * @returns {ApiResponse}
  */
 async function login(params) {
-  delete params.token;
+  const { username, password } = params
 
-  if (!params.username) {
+  if (!username) {
     return {
       code: -1,
       data: '缺少用户名',
     };
   }
 
-  // if (!params.password) {
+  // if (!password) {
   //   return {
   //     code: -1,
   //     data: '缺少密码',
@@ -206,7 +207,10 @@ async function login(params) {
 
   // TODO: 检查密码强度
 
-  const res = await userTable.where(params).get();
+  const res = await userTable.where({
+    username, password
+  }).get();
+
   if (res.data.length) {
     return {
       code: 0,

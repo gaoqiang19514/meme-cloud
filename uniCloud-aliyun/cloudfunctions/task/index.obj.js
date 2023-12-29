@@ -25,45 +25,42 @@ const taskTable = db.collection('task');
 /**
  * 新增任务
  * @param {Object} params
+ * @param {string} params.token
  * @param {string} params.name
  * @param {string} params.target
  * @returns {ApiResponse}
  */
 function add(params) {
-  const token = params.token
-  delete params.token
-  const userInfo = tools.parseToken(token)
+  const { token, name, target } = params;
+  const { username } = tools.parseToken(token)
 
   return taskTable.add({
-    ...params,
-    username: userInfo.username
+    name,
+    target,
+    username
   });
 }
 
-// TODO: query和payload参数需要补全
 /**
  * 更新任务
  * @param {Object} params
+ * @param {string} params.token
  * @param {Object} params.query
- * @param {string} params.query.xxx
+ * @param {string} params.query.name
+ * @param {string} params.query.target
  * @param {Object} params.payload
- * @param {string} params.payload.xxx
+ * @param {string} params.payload.name
+ * @param {string} params.payload.target
  * @returns {ApiResponse}
  */
 function update(params) {
-  const token = params.token
-  delete params.token;
-  const userInfo = tools.parseToken(token)
-
-  const {
-    query,
-    payload
-  } = params;
+  const { token, query, payload } = params;
+  const { username } = tools.parseToken(token)
 
   return taskTable
     .where({
       ...query,
-      username: userInfo.username
+      username
     })
     .update(payload);
 }
@@ -71,18 +68,19 @@ function update(params) {
 /**
  * 任务列表
  * @param {Object} params
+ * @param {string} [params.token]
  * @param {string} [params.name]
  * @param {string} [params.target]
  * @returns {TaskApiResponse}
  */
 function list(params) {
-  const token = params.token
-  delete params.token;
-  const userInfo = tools.parseToken(token)
+  const { token, name, target } = params;
+  const { username } = tools.parseToken(token)
 
   return taskTable.where({
-    ...params,
-    username: userInfo.username
+    name,
+    target,
+    username
   }).get();
 }
 

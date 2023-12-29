@@ -34,13 +34,15 @@ const recordTable = db.collection('record');
  * @returns {ApiResponse}
  */
 function add(params) {
-  const token = params.token;
-  delete params.token;
-  const userInfo = tools.parseToken(token)
+  const { token, date, name, value, target } = params;
+  const { username } = tools.parseToken(token)
 
   return recordTable.add({
-    ...params,
-    username: userInfo.username
+    date,
+    name,
+    value,
+    target,
+    username
   });
 }
 
@@ -58,14 +60,13 @@ function add(params) {
  * @returns {ApiResponse}
  */
 function update(params) {
-  const token = params.token;
-  delete params.token;
-  const userInfo = tools.parseToken(token)
+  const { token, query, payload } = params;
+  const { username } = tools.parseToken(token)
 
   return recordTable.where({
-    ...params.query,
-    username: userInfo.username
-  }).update(params.payload);
+    ...query,
+    username
+  }).update(payload);
 }
 
 /**
@@ -78,13 +79,15 @@ function update(params) {
  * @returns {RecordApiResponse}
  */
 function list(params) {
-  const token = params.token;
-  delete params.token;
-  const userInfo = tools.parseToken(token)
+  const { token, date, name, value, target } = params;
+  const { username } = tools.parseToken(token)
 
   return recordTable.where({
-    ...params,
-    username: userInfo.username
+    date,
+    name,
+    value,
+    target,
+    username
   }).get();
 }
 
@@ -98,13 +101,15 @@ function list(params) {
  * @returns {ApiResponse}
  */
 async function totalValue(params) {
-  const token = params.token;
-  delete params.token;
-  const userInfo = tools.parseToken(token)
+  const { token, date, name, value, target } = params;
+  const { username } = tools.parseToken(token)
 
   const res = await recordTable.where({
-    ...params,
-    username: userInfo.username
+    date,
+    name,
+    value,
+    target,
+    username
   }).get();
 
   return res.data.reduce((acc, curr) => acc + curr.value, 0);

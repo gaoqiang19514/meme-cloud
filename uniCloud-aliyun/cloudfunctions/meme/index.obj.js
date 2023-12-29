@@ -24,52 +24,47 @@ const memeTable = db.collection('meme');
 /**
  * 新增表情
  * @param {Object} params
- * @param {string} params.username
  * @param {string} params.url
  * @returns {ApiResponse}
  */
 function add(params) {
-  const token = params.token;
-  delete params.token;
-  const userInfo = tools.parseToken(token)
+  const { token, url } = params;
+  const { username } = tools.parseToken(token)
 
   return memeTable.add({
-    ...params,
-    username: userInfo.username
+    url,
+    username
   });
 }
 
 /**
  * 删除表情
  * @param {Object} params
- * @param {string} [params.url]
+ * @param {string} params.url
  * @returns {ApiResponse}
  */
 function del(params) {
-  const token = params.token;
-  delete params.token;
-  const userInfo = tools.parseToken(token)
+  const { token, url } = params;
+  const { username } = tools.parseToken(token)
 
   return memeTable.where({
-    ...params,
-    username: userInfo.username
+    url,
+    username
   }).remove();
 }
 
 /**
  * 表情列表
  * @param {Object} params
- * @param {string} [params.url]
+ * @param {string} params.token
  * @returns {MemeApiResponse}
  */
-function list(params) {
-  const token = params.token;
-  delete params.token;
-  const userInfo = tools.parseToken(token)
+function list() {
+  const { token } = params;
+  const { username } = tools.parseToken(token)
 
   return memeTable.where({
-    ...params,
-    username: userInfo.username
+    username
   }).get();
 }
 
