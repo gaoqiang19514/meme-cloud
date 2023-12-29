@@ -24,37 +24,41 @@ const taskTable = db.collection('task');
 
 /**
  * 新增任务
- * @param {Object} body
- * @param {string} body.name
- * @param {string} body.target
+ * @param {Object} params
+ * @param {string} params.name
+ * @param {string} params.target
  * @returns {ApiResponse}
  */
-function add() {
-  const httpInfo = this.getHttpInfo()
-  const body = JSON.parse(httpInfo.body);
-  const userInfo = tools.parseToken(httpInfo.headers.token)
+function add(params) {
+  const token = params.token
+  delete params.token
+  const userInfo = tools.parseToken(token)
 
   return taskTable.add({
-    ...body,
+    ...params,
     username: userInfo.username
   });
 }
 
+// TODO: query和payload参数需要补全
 /**
  * 更新任务
- * @param {Object} body
- * @param {string} [body.name]
- * @param {string} [body.target]
+ * @param {Object} params
+ * @param {Object} params.query
+ * @param {string} params.query.xxx
+ * @param {Object} params.payload
+ * @param {string} params.payload.xxx
  * @returns {ApiResponse}
  */
-function update() {
-  const httpInfo = this.getHttpInfo()
-  const body = JSON.parse(httpInfo.body);
-  const userInfo = tools.parseToken(httpInfo.headers.token)
+function update(params) {
+  const token = params.token
+  delete params.token;
+  const userInfo = tools.parseToken(token)
+
   const {
     query,
     payload
-  } = body;
+  } = params;
 
   return taskTable
     .where({
@@ -66,17 +70,18 @@ function update() {
 
 /**
  * 任务列表
- * @param {Object} query
- * @param {string} [query.name]
- * @param {string} [query.target]
+ * @param {Object} params
+ * @param {string} [params.name]
+ * @param {string} [params.target]
  * @returns {TaskApiResponse}
  */
-function list(query) {
-  const httpInfo = this.getHttpInfo()
-  const userInfo = tools.parseToken(httpInfo.headers.token)
+function list(params) {
+  const token = params.token
+  delete params.token;
+  const userInfo = tools.parseToken(token)
 
   return taskTable.where({
-    ...query,
+    ...params,
     username: userInfo.username
   }).get();
 }

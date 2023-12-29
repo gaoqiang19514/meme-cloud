@@ -26,78 +26,84 @@ const recordTable = db.collection('record');
 
 /**
  * 新增记录
- * @param {Object} body
- * @param {string} body.date
- * @param {string} body.name
- * @param {string} body.value
- * @param {string} body.target
+ * @param {Object} params
+ * @param {string} params.date
+ * @param {string} params.name
+ * @param {string} params.value
+ * @param {string} params.target
  * @returns {ApiResponse}
  */
-function add() {
-  const httpInfo = this.getHttpInfo()
-  const body = JSON.parse(httpInfo.body);
-  const userInfo = tools.parseToken(httpInfo.headers.token)
+function add(params) {
+  const token = params.token;
+  delete params.token;
+  const userInfo = tools.parseToken(token)
 
   return recordTable.add({
-    ...body,
+    ...params,
     username: userInfo.username
   });
 }
 
 /**
  * 更新记录
- * @param {Object} body
- * @param {string} [body.date]
- * @param {string} [body.name]
- * @param {string} [body.value]
- * @param {string} [body.target]
+ * @param {Object} params
+ * @param {string} [params.query.date]
+ * @param {string} [params.query.name]
+ * @param {string} [params.query.value]
+ * @param {string} [params.query.target]
+ * @param {string} [params.payload.date]
+ * @param {string} [params.payload.name]
+ * @param {string} [params.payload.value]
+ * @param {string} [params.payload.target]
  * @returns {ApiResponse}
  */
-function update() {
-  const httpInfo = this.getHttpInfo()
-  const body = JSON.parse(httpInfo.body);
-  const userInfo = tools.parseToken(httpInfo.headers.token)
+function update(params) {
+  const token = params.token;
+  delete params.token;
+  const userInfo = tools.parseToken(token)
 
   return recordTable.where({
-    ...body.query,
+    ...params.query,
     username: userInfo.username
-  }).update(body.payload);
+  }).update(params.payload);
 }
 
 /**
  * 记录列表
- * @param {Object} query
- * @param {string} [query.date]
- * @param {string} [query.name]
- * @param {string} [query.value]
- * @param {string} [query.target]
+ * @param {Object} params
+ * @param {string} [params.date]
+ * @param {string} [params.name]
+ * @param {string} [params.value]
+ * @param {string} [params.target]
  * @returns {RecordApiResponse}
  */
-function list(query) {
-  const httpInfo = this.getHttpInfo()
-  const userInfo = tools.parseToken(httpInfo.headers.token)
+function list(params) {
+  const token = params.token;
+  delete params.token;
+  const userInfo = tools.parseToken(token)
 
   return recordTable.where({
-    ...query,
+    ...params,
     username: userInfo.username
   }).get();
 }
 
 /**
  * 获取用户任务完成总时间
- * @param {object} query
- * @param {string} [query.date]
- * @param {string} [query.name]
- * @param {string} [query.value]
- * @param {string} [query.target]
+ * @param {object} params
+ * @param {string} [params.date]
+ * @param {string} [params.name]
+ * @param {string} [params.value]
+ * @param {string} [params.target]
  * @returns {ApiResponse}
  */
-async function totalValue(query) {
-  const httpInfo = this.getHttpInfo()
-  const userInfo = tools.parseToken(httpInfo.headers.token)
+async function totalValue(params) {
+  const token = params.token;
+  delete params.token;
+  const userInfo = tools.parseToken(token)
 
   const res = await recordTable.where({
-    ...query,
+    ...params,
     username: userInfo.username
   }).get();
 

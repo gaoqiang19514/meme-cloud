@@ -30,6 +30,12 @@
       "style": {
         "navigationBarTitleText": "书签"
       }
+    },
+    {
+      "path": "pages/cloudTest/index",
+      "style": {
+        "navigationBarTitleText": "云对象测试"
+      }
     }
   ],
   "globalStyle": {

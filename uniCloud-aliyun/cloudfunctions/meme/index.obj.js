@@ -23,50 +23,52 @@ const memeTable = db.collection('meme');
 
 /**
  * 新增表情
- * @param {Object} body
- * @param {string} body.username
- * @param {string} body.url
+ * @param {Object} params
+ * @param {string} params.username
+ * @param {string} params.url
  * @returns {ApiResponse}
  */
-function add() {
-  const httpInfo = this.getHttpInfo()
-  const body = JSON.parse(httpInfo.body);
-  const userInfo = tools.parseToken(httpInfo.headers.token)
+function add(params) {
+  const token = params.token;
+  delete params.token;
+  const userInfo = tools.parseToken(token)
 
   return memeTable.add({
-    ...body,
+    ...params,
     username: userInfo.username
   });
 }
 
 /**
  * 删除表情
- * @param {Object} query
- * @param {string} [query.url]
+ * @param {Object} params
+ * @param {string} [params.url]
  * @returns {ApiResponse}
  */
-function del(query) {
-  const httpInfo = this.getHttpInfo()
-  const userInfo = tools.parseToken(httpInfo.headers.token)
+function del(params) {
+  const token = params.token;
+  delete params.token;
+  const userInfo = tools.parseToken(token)
 
   return memeTable.where({
-    ...query,
+    ...params,
     username: userInfo.username
   }).remove();
 }
 
 /**
  * 表情列表
- * @param {Object} query
- * @param {string} [query.url]
+ * @param {Object} params
+ * @param {string} [params.url]
  * @returns {MemeApiResponse}
  */
-function list(query) {
-  const httpInfo = this.getHttpInfo()
-  const userInfo = tools.parseToken(httpInfo.headers.token)
+function list(params) {
+  const token = params.token;
+  delete params.token;
+  const userInfo = tools.parseToken(token)
 
   return memeTable.where({
-    ...query,
+    ...params,
     username: userInfo.username
   }).get();
 }

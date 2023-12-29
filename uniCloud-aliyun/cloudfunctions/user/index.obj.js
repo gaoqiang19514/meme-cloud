@@ -26,43 +26,40 @@ const userTable = db.collection('user');
 
 /**
  * 查询用户列表
- * @param {Object} query
- * @param {string} [query._id]
- * @param {string} [query.password]
- * @param {string} [query.phone]
- * @param {string} [query.email]
+ * @param {Object} params
+ * @param {string} [params._id]
+ * @param {string} [params.password]
+ * @param {string} [params.phone]
+ * @param {string} [params.email]
  * @returns {UserApiResponse}
  */
-async function list(query) {
-  const httpInfo = this.getHttpInfo()
-  const methodName = this.getMethodName();
-  const userInfo = tools.parseToken(httpInfo.headers.token)
+async function list(params) {
+  const token = params.token;
+  delete params.token;
 
+  const userInfo = tools.parseToken(token);
   // 检查token是否过期
-  await tools.checkToken(httpInfo.headers.token, methodName);
+  await tools.checkToken(token, this.getMethodName());
 
-  return userTable.where({
-    username: userInfo.username,
-    ...query
-  }).get();
+  return userTable
+    .where({
+      username: userInfo.username,
+      ...params,
+    })
+    .get();
 }
 
 /**
  * 修改密码
- * @param {Object} body
- * @param {string} body.username
- * @param {string} body.password
- * @param {string} body.newPassword
+ * @param {Object} params
+ * @param {string} params.username
+ * @param {string} params.password
+ * @param {string} params.newPassword
  * @returns {ApiResponse}
  */
-async function updatePassword() {
-  const httpInfo = this.getHttpInfo()
-  const body = JSON.parse(httpInfo.body);
-  const {
-    username,
-    password,
-    newPassword
-  } = body;
+async function updatePassword(params) {
+  delete params.token;
+  const { username, password, newPassword } = params;
 
   if (!username) {
     return {
@@ -122,16 +119,13 @@ async function updatePassword() {
 
 /**
  * 找回密码
- * @param {Object} body
- * @param {string} body.username
+ * @param {Object} params
+ * @param {string} params.username
  * @returns {ApiResponse}
  */
-async function forgetPassword() {
-  const httpInfo = this.getHttpInfo()
-  const body = JSON.parse(httpInfo.body);
-  const {
-    username
-  } = body;
+async function forgetPassword(params) {
+  delete params.token;
+  const { username } = params;
 
   // 获取账户信息
   const res = await userTable
@@ -159,23 +153,22 @@ async function forgetPassword() {
 
 /**
  * 新增用户
- * @param {Object} body
- * @param {string} body.username
- * @param {string} body.password
+ * @param {Object} params
+ * @param {string} params.username
+ * @param {string} params.password
  * @returns {ApiResponse}
  */
-function add() {
-  const httpInfo = this.getHttpInfo()
-  const body = JSON.parse(httpInfo.body);
+function add(params) {
+  delete params.token;
 
-  if (!body.username) {
+  if (!params.username) {
     return {
       code: -1,
       data: '缺少用户名',
     };
   }
 
-  if (!body.password) {
+  if (!params.password) {
     return {
       code: -1,
       data: '缺少密码',
@@ -184,28 +177,27 @@ function add() {
 
   // TODO: 检查密码强度
 
-  return userTable.add(body);
+  return userTable.add(params);
 }
 
 /**
  * 登录
- * @param {Object} body
- * @param {string} body.username
- * @param {string} body.password
+ * @param {Object} params
+ * @param {string} params.username
+ * @param {string} params.password
  * @returns {ApiResponse}
  */
-async function login() {
-  const httpInfo = this.getHttpInfo()
-  const body = JSON.parse(httpInfo.body);
+async function login(params) {
+  delete params.token;
 
-  if (!body.username) {
+  if (!params.username) {
     return {
       code: -1,
       data: '缺少用户名',
     };
   }
 
-  // if (!body.password) {
+  // if (!params.password) {
   //   return {
   //     code: -1,
   //     data: '缺少密码',
@@ -214,7 +206,7 @@ async function login() {
 
   // TODO: 检查密码强度
 
-  const res = await userTable.where(body).get();
+  const res = await userTable.where(params).get();
   if (res.data.length) {
     return {
       code: 0,

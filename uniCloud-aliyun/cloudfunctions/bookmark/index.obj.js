@@ -23,59 +23,60 @@ const bookmarkTable = db.collection('bookmark');
  * @property {Bookmark[]} data
  */
 
-
 /**
  * 新增书签
- * @param {Object} body
- * @param {string} body.username
- * @param {string} body.name
- * @param {string} body.url
- * @param {string} body.img
+ * @param {Object} params
+ * @param {string} params.username
+ * @param {string} params.name
+ * @param {string} params.url
+ * @param {string} params.img
  * @returns {ApiResponse}
  */
-function add() {
-  const httpInfo = this.getHttpInfo()
-  const body = JSON.parse(httpInfo.body);
-  const userInfo = tools.parseToken(httpInfo.headers.token)
+function add(params) {
+  const token = params.token;
+  delete params.token;
+  const userInfo = tools.parseToken(token)
 
   return bookmarkTable.add({
-    ...body,
+    ...params,
     username: userInfo.username
   });
 }
 
 /**
  * 删除书签
- * @param {Object} query
- * @param {string} [query.name]
- * @param {string} [query.url]
- * @param {string} [query.img]
+ * @param {Object} params
+ * @param {string} [params.name]
+ * @param {string} [params.url]
+ * @param {string} [params.img]
  * @returns {ApiResponse}
  */
-function del(query) {
-  const httpInfo = this.getHttpInfo()
-  const userInfo = tools.parseToken(httpInfo.headers.token)
+function del(params) {
+  const token = params.token;
+  delete params.token;
+  const userInfo = tools.parseToken(token)
 
   return bookmarkTable.where({
-    ...query,
+    ...params,
     username: userInfo.username
   }).remove();
 }
 
 /**
  * 书签列表
- * @param {Object} query
- * @param {string} [query.name]
- * @param {string} [query.url]
- * @param {string} [query.img]
+ * @param {Object} params
+ * @param {string} [params.name]
+ * @param {string} [params.url]
+ * @param {string} [params.img]
  * @returns {BookmarkApiResponse}
  */
-function list(query) {
-  const httpInfo = this.getHttpInfo()
-  const userInfo = tools.parseToken(httpInfo.headers.token)
+function list(params) {
+  const token = params.token;
+  delete params.token;
+  const userInfo = tools.parseToken(token)
 
   return bookmarkTable.where({
-    ...query,
+    ...params,
     username: userInfo.username
   }).get();
 }
