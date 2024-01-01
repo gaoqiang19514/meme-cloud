@@ -116,6 +116,13 @@ async function totalValue(params) {
 }
 
 module.exports = {
+  _before() {
+    const [param] = this.getParams()
+    
+    if(!param.token) {
+      throw new Error('token不存在')
+    }
+  },
   add,
   update,
   list,

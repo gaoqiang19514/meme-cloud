@@ -47,17 +47,17 @@ function add(params) {
 /**
  * 删除书签
  * @param {Object} params
+ * @param {string} params.id
  * @param {string} [params.name]
  * @param {string} [params.url]
  * @param {string} [params.img]
  * @returns {ApiResponse}
  */
 function del(params) {
-  const { token, name, url, img } = params;
+  const { token, id, name, url, img } = params;
   const { username } = tools.parseToken(token);
 
-  // TODO: 改成doc
-  return bookmarkTable.where({
+  return bookmarkTable.doc(id).where({
     name,
     url,
     img,

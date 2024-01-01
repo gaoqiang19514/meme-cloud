@@ -31,16 +31,18 @@ const userTable = db.collection('user');
  * @returns {UserApiResponse}
  */
 async function list(params) {
-  const { token } = params;
-  const { username } = tools.parseToken(token)
+  const {
+    token
+  } = params;
+  const {
+    _id
+  } = tools.parseToken(token)
 
   // 检查token是否过期
   await tools.checkToken(token, this.getMethodName());
 
   return userTable
-    .where({
-      username,
-    })
+    .doc(_id)
     .get();
 }
 
@@ -53,7 +55,11 @@ async function list(params) {
  * @returns {ApiResponse}
  */
 async function updatePassword(params) {
-  const { username, password, newPassword } = params;
+  const {
+    username,
+    password,
+    newPassword
+  } = params;
 
   if (!username) {
     return {
@@ -79,7 +85,7 @@ async function updatePassword(params) {
   if (password === newPassword) {
     return {
       code: -1,
-      data: '新密码与原始密码一致',
+      data: '新密码不能与原始密码相同',
     };
   }
 
@@ -91,16 +97,21 @@ async function updatePassword(params) {
     .get();
 
   if (res.data.length) {
-    // TODO: 需要验证一下doc是否生效了
-    await userTable
+    const updateRes = await userTable
       .doc(res.data[0]._id)
       .update({
         password: newPassword,
       });
 
+    if (updateRes.updated > 0) {
+      return {
+        code: 0,
+        data: '修改成功',
+      };
+    }
     return {
-      code: 0,
-      data: '修改成功',
+      code: -1,
+      data: '修改失败',
     };
   }
 
@@ -117,7 +128,9 @@ async function updatePassword(params) {
  * @returns {ApiResponse}
  */
 async function forgetPassword(params) {
-  const { username } = params;
+  const {
+    username
+  } = params;
 
   if (!username) {
     return {
@@ -157,8 +170,11 @@ async function forgetPassword(params) {
  * @param {string} params.password
  * @returns {ApiResponse}
  */
-function add(params) {
-  const { username, password } = params;
+async function add(params) {
+  const {
+    username,
+    password
+  } = params;
 
   if (!username) {
     return {
@@ -176,9 +192,27 @@ function add(params) {
 
   // TODO: 检查密码强度
 
-  return userTable.add({
-    username, password
-  });
+  // 检查重名
+
+  const res = await userTable.where({
+    username
+  }).count()
+
+  if (res.total === 0) {
+    const userRes = await userTable.add({
+      username,
+      password
+    });
+    return {
+      code: 0,
+      data: userRes.id,
+    };
+  }
+
+  return {
+    code: -1,
+    data: '用户名已被占用',
+  };
 }
 
 /**
@@ -189,7 +223,10 @@ function add(params) {
  * @returns {ApiResponse}
  */
 async function login(params) {
-  const { username, password } = params
+  const {
+    username,
+    password
+  } = params
 
   if (!username) {
     return {
@@ -208,7 +245,8 @@ async function login(params) {
   // TODO: 检查密码强度
 
   const res = await userTable.where({
-    username, password
+    username,
+    password
   }).get();
 
   if (res.data.length) {
@@ -226,8 +264,8 @@ async function login(params) {
 
 module.exports = {
   list,
-  updatePassword,
-  forgetPassword,
   add,
   login,
+  updatePassword,
+  forgetPassword,
 };

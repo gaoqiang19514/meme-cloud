@@ -27,53 +27,96 @@ const taskTable = db.collection('task');
  * @param {Object} params
  * @param {string} params.token
  * @param {string} params.name
- * @param {string} params.target
+ * @param {number} params.target
  * @returns {ApiResponse}
  */
-function add(params) {
+async function add(params) {
   const { token, name, target } = params;
   const { username } = tools.parseToken(token)
+  
+  if (!name) {
+    return {
+      code: -1,
+      data: '缺少任务名',
+    };
+  }
 
-  return taskTable.add({
+  if (!target) {
+    return {
+      code: -1,
+      data: '缺少目标时长',
+    };
+  }
+  
+  const res = await taskTable.where({
     name,
-    target,
     username
-  });
+  }).count()
+  
+  if (res.total === 0) {
+    const taskRes = await taskTable.add({
+      name,
+      target,
+      username
+    });
+    return {
+      code: 0,
+      data: taskRes.id,
+    };
+  }
+
+  return {
+    code: -1,
+    data: '任务名已被占用',
+  };
 }
 
 /**
  * 更新任务
  * @param {Object} params
  * @param {string} params.token
- * @param {Object} params.query
- * @param {string} params.query.name
- * @param {string} params.query.target
+ * @param {Object} params.id
  * @param {Object} params.payload
  * @param {string} params.payload.name
  * @param {string} params.payload.target
  * @returns {ApiResponse}
  */
-function update(params) {
-  const { token, query, payload } = params;
+async function update(params) {
+  const { token, id, payload } = params;
   const { username } = tools.parseToken(token)
+  
+  if (!id) {
+    return {
+      code: -1,
+      data: '缺少任务id',
+    };
+  }
 
-  return taskTable
-    .where({
-      ...query,
-      username
-    })
+  const res = await taskTable
+    .doc(id)
     .update(payload);
+
+  if (res.updated > 0) {
+    return {
+      code: -1,
+      data: '更新成功',
+    };
+  }
+  return {
+    code: 0,
+    data: '更新失败',
+  };
 }
 
 /**
  * 任务列表
  * @param {Object} params
- * @param {string} [params.token]
+ * @param {string} params.token
  * @param {string} [params.name]
  * @param {string} [params.target]
  * @returns {TaskApiResponse}
  */
-function list(params) {
+async function list(params) {
   const { token, name, target } = params;
   const { username } = tools.parseToken(token)
 
@@ -85,6 +128,13 @@ function list(params) {
 }
 
 module.exports = {
+  _before() {
+    const [param] = this.getParams()
+    
+    if(!param.token) {
+      throw new Error('token不存在')
+    }
+  },
   add,
   update,
   list,
