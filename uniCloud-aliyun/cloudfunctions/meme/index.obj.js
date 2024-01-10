@@ -40,17 +40,21 @@ function add(params) {
 /**
  * 删除表情
  * @param {Object} params
- * @param {string} params.url
+ * @param {string} params.id
  * @returns {ApiResponse}
  */
 function del(params) {
-  const { token, url } = params;
+  const { token, id } = params;
   const { username } = tools.parseToken(token)
+  
+  if (!id) {
+    return {
+      code: -1,
+      data: '缺少id'
+    }
+  }
 
-  return memeTable.where({
-    url,
-    username
-  }).remove();
+  return memeTable.doc(id).remove();
 }
 
 /**
@@ -59,7 +63,7 @@ function del(params) {
  * @param {string} params.token
  * @returns {MemeApiResponse}
  */
-function list() {
+function list(params) {
   const { token } = params;
   const { username } = tools.parseToken(token)
 

@@ -136,6 +136,7 @@ export default {
             const fileExtension = getFileExtension(item.file.name);
             const fileName = nanoid();
             const cloudPath = `/images/${fileName}.${fileExtension}`;
+            debugger;
             return uniCloud.uploadFile({
               filePath,
               cloudPath,

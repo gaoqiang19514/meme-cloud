@@ -26,15 +26,22 @@ const bookmarkTable = db.collection('bookmark');
 /**
  * 新增书签
  * @param {Object} params
- * @param {string} params.username
+ * @param {string} params.token
  * @param {string} params.name
- * @param {string} params.url
- * @param {string} params.img
+ * @param {string} [params.url]
+ * @param {string} [params.img]
  * @returns {ApiResponse}
  */
 function add(params) {
   const { token, name, url, img } = params;
   const { username } = tools.parseToken(token);
+  
+  if (!name) {
+    return {
+      code: -1,
+      data: '缺少name'
+    }
+  }
 
   return bookmarkTable.add({
     name,
@@ -48,21 +55,20 @@ function add(params) {
  * 删除书签
  * @param {Object} params
  * @param {string} params.id
- * @param {string} [params.name]
- * @param {string} [params.url]
- * @param {string} [params.img]
  * @returns {ApiResponse}
  */
 function del(params) {
-  const { token, id, name, url, img } = params;
+  const { token, id } = params;
   const { username } = tools.parseToken(token);
+  
+  if (!id) {
+    return {
+      code: -1,
+      data: '缺少id'
+    }
+  }
 
-  return bookmarkTable.doc(id).where({
-    name,
-    url,
-    img,
-    username
-  }).remove();
+  return bookmarkTable.doc(id).remove();
 }
 
 /**

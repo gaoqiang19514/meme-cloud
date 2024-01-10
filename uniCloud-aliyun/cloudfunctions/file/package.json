@@ -1,5 +1,5 @@
 {
-  "name": "action",
+  "name": "file",
   "dependencies": {},
   "extensions": {
     "uni-cloud-jql": {}
