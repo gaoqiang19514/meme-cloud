@@ -88,7 +88,7 @@ function list(params) {
     value,
     target,
     username
-  }).get();
+  }).limit(1000).get();
 }
 
 /**
