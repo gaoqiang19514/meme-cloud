@@ -1,6 +1,9 @@
 {
   "name": "daily",
-  "dependencies": {},
+  "dependencies": {
+    "db": "file:../common/db",
+    "tools": "file:../common/tools"
+  },
   "extensions": {
     "uni-cloud-jql": {}
   }
