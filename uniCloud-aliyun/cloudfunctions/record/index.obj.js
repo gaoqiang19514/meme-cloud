@@ -40,8 +40,8 @@ function add(params) {
   return recordTable.add({
     date,
     name,
-    value,
-    target,
+    value: Number(value),
+    target: Number(target),
     username
   });
 }
@@ -60,9 +60,10 @@ function add(params) {
  * @returns {ApiResponse}
  */
 function update(params) {
-  const { token, query, payload } = params;
-  const { username } = tools.parseToken(token)
-
+  const httpInfo = this.getHttpInfo()
+  const { query, payload } = JSON.parse(httpInfo.body);
+  const { username } = tools.parseToken(httpInfo.headers.token)
+  
   return recordTable.where({
     ...query,
     username
@@ -116,13 +117,6 @@ async function totalValue(params) {
 }
 
 module.exports = {
-  _before() {
-    const [param] = this.getParams()
-    
-    if(!param.token) {
-      throw new Error('token不存在')
-    }
-  },
   add,
   update,
   list,

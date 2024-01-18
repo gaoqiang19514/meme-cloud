@@ -108,6 +108,19 @@ export default {
     // }).then(res => {
     //   console.log('res', res)
     // })
+    
+    recordObject.update({
+      token,
+      query: {
+        date: "2024-01-18",
+        name: "前端",
+      },
+      payload: {
+        value: 100
+      },
+    }).then(res => {
+      console.log('res', res)
+    })
 
     // -------------------------------meme----------------------------
     // memeObject
