@@ -24,20 +24,48 @@ const dailyDateTable = db.collection('dailyDate');
 
 /**
  * 新增
- * @param {Object} params
- * @param {string} params.date
- * @param {string} params.name
+ * @param {Object} body
+ * @param {string} body.date
+ * @param {string} body.name
  * @returns {ApiResponse}
  */
-function add(params) {
-  const { token, date, name } = params;
-  const { username } = tools.parseToken(token)
+function add() {
+  const httpInfo = this.getHttpInfo();
+  const { date, name } = JSON.parse(httpInfo.body)
+  const { username } = tools.parseToken(httpInfo.headers.token)
 
   return dailyDateTable.add({
     date,
     name,
     username
   });
+}
+
+/**
+ * 新增
+ * @param {Object} params
+ * @param {string} params.id
+ * @returns {ApiResponse}
+ */
+function del(params) {
+  const { token, id } = params;
+  const { username } = tools.parseToken(token)
+  
+  if (!id) {
+    return {
+      code: -1,
+      data: '缺少id'
+    }
+  }
+  
+  const data = dailyDateTable.doc(id)
+  if (data.username === username) {
+    return dailyDateTable.doc(id).remove();
+  }
+  return {
+    code: -1,
+    data: '非法删除'
+  }
 }
 
 /**

@@ -23,16 +23,16 @@ const dailyTaskTable = db.collection('dailyTask');
 
 /**
  * 新增
- * @param {Object} params
- * @param {string} params.name
+ * @param {Object} body
+ * @param {string} body.name
  * @returns {ApiResponse}
  */
-function add(params) {
-  const { token, name } = params;
-  const { username } = tools.parseToken(token)
+function add() {
+  const httpInfo = this.getHttpInfo();
+  const { name } = JSON.parse(httpInfo.body)
+  const { username } = tools.parseToken(httpInfo.headers.token)
 
   return dailyTaskTable.add({
-    date,
     name,
     username
   });
