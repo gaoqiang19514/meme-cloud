@@ -1,11 +1,10 @@
 const db = require('db');
 const tools = require('tools');
-const dailyTable = db.collection('daily');
+const dailyTaskTable = db.collection('dailyTask');
 
 /**
- * @typedef {Object} Daily
+ * @typedef {Object} DailyTask
  * @property {string} _id
- * @property {string} date
  * @property {string} name
  * @property {string} username
  */
@@ -17,22 +16,22 @@ const dailyTable = db.collection('daily');
  */
 
 /**
- * @typedef {Object} DailyApiResponse
+ * @typedef {Object} DailyTaskApiResponse
  * @extends {ApiResponse}
- * @property {Daily[]} data
+ * @property {DailyTask[]} data
  */
 
 /**
  * 新增
  * @param {Object} params
- * @param {string} params.url
+ * @param {string} params.name
  * @returns {ApiResponse}
  */
 function add(params) {
-  const { token, date, name } = params;
+  const { token, name } = params;
   const { username } = tools.parseToken(token)
 
-  return dailyTable.add({
+  return dailyTaskTable.add({
     date,
     name,
     username
@@ -44,13 +43,13 @@ function add(params) {
  * 列表
  * @param {Object} params
  * @param {string} params.token
- * @returns {DailyApiResponse}
+ * @returns {DailyTaskApiResponse}
  */
 function list(params) {
   const { token } = params;
   const { username } = tools.parseToken(token)
 
-  return dailyTable.where({
+  return dailyTaskTable.where({
     username
   }).get();
 }

@@ -1,5 +1,5 @@
 {
-  "name": "daily",
+  "name": "dailyDate",
   "dependencies": {
     "db": "file:../common/db",
     "tools": "file:../common/tools"
