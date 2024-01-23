@@ -33,6 +33,8 @@ function add() {
   const httpInfo = this.getHttpInfo();
   const { date, name } = JSON.parse(httpInfo.body)
   const { username } = tools.parseToken(httpInfo.headers.token)
+  
+  // TODO: 避免重名
 
   return dailyDateTable.add({
     date,
@@ -42,30 +44,31 @@ function add() {
 }
 
 /**
- * 新增
+ * 删除
  * @param {Object} params
- * @param {string} params.id
+ * @param {string} params.date
+ * @param {string} params.name
  * @returns {ApiResponse}
  */
-function del(params) {
-  const { token, id } = params;
+async function del(params) {
+  const { token, date, name } = params;
   const { username } = tools.parseToken(token)
   
-  if (!id) {
+  if (!username) {
     return {
       code: -1,
-      data: '缺少id'
+      data: '缺少参数用户名'
     }
   }
   
-  const data = dailyDateTable.doc(id)
-  if (data.username === username) {
-    return dailyDateTable.doc(id).remove();
+  if (!name) {
+    return {
+      code: -1,
+      data: '缺少参数'
+    }
   }
-  return {
-    code: -1,
-    data: '非法删除'
-  }
+
+  return dailyDateTable.where({ date, name, username }).remove();
 }
 
 /**
@@ -85,5 +88,6 @@ function list(params) {
 
 module.exports = {
   add,
+  del,
   list,
 };
