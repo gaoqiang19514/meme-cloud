@@ -109,16 +109,23 @@ export default {
     //   console.log('res', res)
     // })
     
-    recordObject.update({
+    // recordObject.update({
+    //   token,
+    //   query: {
+    //     date: "2024-01-18",
+    //     name: "前端",
+    //   },
+    //   payload: {
+    //     value: 100
+    //   },
+    // }).then(res => {
+    //   console.log('res', res)
+    // })
+    
+    recordObject.totalValue({
       token,
-      query: {
-        date: "2024-01-18",
-        name: "前端",
-      },
-      payload: {
-        value: 100
-      },
     }).then(res => {
+      debugger
       console.log('res', res)
     })
 
@@ -137,11 +144,11 @@ export default {
     // })
     
     // -------------------------------bookmark-------------------------------
-    bookmarkObject.list({
-      token
-    }).then(res => {
-      console.log('res', res);
-    })
+    // bookmarkObject.list({
+    //   token
+    // }).then(res => {
+    //   console.log('res', res);
+    // })
   },
   methods: {
     handleSelectFile() {

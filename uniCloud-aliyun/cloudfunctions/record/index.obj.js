@@ -102,16 +102,12 @@ function list(params) {
  * @returns {ApiResponse}
  */
 async function totalValue(params) {
-  const { token, date, name, value, target } = params;
+  const { token } = params;
   const { username } = tools.parseToken(token)
 
   const res = await recordTable.where({
-    date,
-    name,
-    value,
-    target,
     username
-  }).get();
+  }).limit(1000).get();
 
   return res.data.reduce((acc, curr) => acc + curr.value, 0);
 }
