@@ -38,6 +38,24 @@ function add() {
   });
 }
 
+/**
+ * 新增
+ * @param {Object} body
+ * @param {string} body.id
+ * @returns {ApiResponse}
+ */
+function del() {
+  const httpInfo = this.getHttpInfo();
+  const { id } = JSON.parse(httpInfo.body)
+  const { username } = tools.parseToken(httpInfo.headers.token)
+  
+  // 确认数据属于自己，才允许删除
+  
+  // 查出当前任务关联的记录并将其删除
+
+  return dailyTaskTable.doc(id).remove();
+}
+
 
 /**
  * 列表
@@ -56,5 +74,6 @@ function list(params) {
 
 module.exports = {
   add,
+  del,
   list,
 };
