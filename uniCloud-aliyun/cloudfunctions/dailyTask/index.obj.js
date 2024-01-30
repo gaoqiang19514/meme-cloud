@@ -1,6 +1,8 @@
 const db = require('db');
 const tools = require('tools');
 const dailyTaskTable = db.collection('dailyTask');
+const dailyDateTable = db.collection('dailyDate');
+
 
 /**
  * @typedef {Object} DailyTask
@@ -44,7 +46,7 @@ function add() {
  * @param {string} body.id
  * @returns {ApiResponse}
  */
-function del() {
+async function del() {
   const httpInfo = this.getHttpInfo();
   const { id } = JSON.parse(httpInfo.body)
   const { username } = tools.parseToken(httpInfo.headers.token)
@@ -52,10 +54,12 @@ function del() {
   // 确认数据属于自己，才允许删除
   
   // 查出当前任务关联的记录并将其删除
+  const res = await dailyTaskTable.doc(id).get();
+  // 需要更换为云对象方法调用
+  await dailyDateTable.where({ name: res.data[0].name }).remove();
 
   return dailyTaskTable.doc(id).remove();
 }
-
 
 /**
  * 列表
