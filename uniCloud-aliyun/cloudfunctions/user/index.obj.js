@@ -222,11 +222,9 @@ async function add(params) {
  * @param {string} params.password
  * @returns {ApiResponse}
  */
-async function login(params) {
-  const {
-    username,
-    password
-  } = params
+async function login() {
+  const httpInfo = this.getHttpInfo();
+  const { username, password } = JSON.parse(httpInfo.body)
 
   if (!username) {
     return {
