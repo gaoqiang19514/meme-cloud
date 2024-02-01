@@ -75,14 +75,16 @@ async function del(params) {
  * 列表
  * @param {Object} params
  * @param {string} params.token
+ * @param {string} params.date
  * @returns {DailyApiResponse}
  */
 function list(params) {
-  const { token } = params;
+  const { token, date } = params;
   const { username } = tools.parseToken(token)
 
   return dailyDateTable.where({
-    username
+    username,
+    date,
   }).get();
 }
 
