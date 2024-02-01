@@ -244,7 +244,6 @@ async function login() {
 
   const res = await userTable.where({
     username,
-    password
   }).get();
 
   if (res.data.length) {
