@@ -76,8 +76,10 @@ function update() {
   return recordTable.where({
     ...query,
     username,
-    updateTime,
-  }).update(payload);
+  }).update({
+    ...payload,
+    updateTime
+  });
 }
 
 /**
