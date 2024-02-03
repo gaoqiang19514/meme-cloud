@@ -75,7 +75,7 @@ async function del(params) {
  * 列表
  * @param {Object} params
  * @param {string} params.token
- * @param {string} params.date
+ * @param {string} [params.date]
  * @returns {DailyApiResponse}
  */
 function list(params) {

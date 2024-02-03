@@ -31,9 +31,11 @@ const taskTable = db.collection('task');
  * @returns {ApiResponse}
  */
 async function add(params) {
-  const { token, name, target } = params;
-  const { username } = tools.parseToken(token)
+  const httpInfo = this.getHttpInfo();
+  const { name, target } = JSON.parse(httpInfo.body)
+  const { username } = tools.parseToken(httpInfo.headers.token)
   
+
   if (!name) {
     return {
       code: -1,
@@ -70,6 +72,24 @@ async function add(params) {
     data: '任务名已被占用',
   };
 }
+
+/**
+ * 删除任务
+ * @param {Object} data
+ * @param {string} data.token
+ * @param {string} data.id
+ * @returns {ApiResponse}
+ */
+async function remove(data) {
+  const httpInfo = this.getHttpInfo();
+  const { id } = JSON.parse(httpInfo.body)
+  const { username } = tools.parseToken(httpInfo.headers.token)
+  
+  // 检查一下user和id是否匹配
+
+  return  await taskTable.doc(id).remove()
+}
+
 
 /**
  * 更新任务
@@ -136,6 +156,7 @@ module.exports = {
     }
   },
   add,
+  remove,
   update,
   list,
 };
