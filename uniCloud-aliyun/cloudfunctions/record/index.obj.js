@@ -35,7 +35,7 @@ const recordTable = db.collection('record');
  */
 function add() {
   const httpInfo = this.getHttpInfo()
-  const { date, name, vlaue, target } = JSON.parse(httpInfo.body);
+  const { date, name, value, target } = JSON.parse(httpInfo.body);
   const { username } = tools.parseToken(httpInfo.headers.token)
 
   const now = new Date();
