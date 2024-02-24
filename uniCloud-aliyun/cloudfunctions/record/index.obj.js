@@ -70,9 +70,9 @@ function update() {
   const httpInfo = this.getHttpInfo()
   const { query, payload } = JSON.parse(httpInfo.body);
   const { username } = tools.parseToken(httpInfo.headers.token)
-  
+
   const updateTime = new Date();
-  
+
   return recordTable.where({
     ...query,
     username,
