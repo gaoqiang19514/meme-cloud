@@ -50,13 +50,13 @@ async function del() {
   const httpInfo = this.getHttpInfo();
   const { id } = JSON.parse(httpInfo.body)
   const { username } = tools.parseToken(httpInfo.headers.token)
-  
+
   // 确认数据属于自己，才允许删除
-  
+
   // 查出当前任务关联的记录并将其删除
   const res = await dailyTaskTable.doc(id).get();
   // 需要更换为云对象方法调用
-  await dailyDateTable.where({ name: res.data[0].name }).remove();
+  await dailyDateTable.where({ username, name: res.data[0].name }).remove();
 
   return dailyTaskTable.doc(id).remove();
 }
@@ -76,8 +76,32 @@ function list(params) {
   }).get();
 }
 
+/**
+ * 更新
+ * @param {Object} body
+ * @param {string} body.id
+ * @param {string} body.name
+ * @returns {ApiResponse}
+ */
+async function update() {
+  const httpInfo = this.getHttpInfo();
+  const { id, name } = JSON.parse(httpInfo.body)
+  const { username } = tools.parseToken(httpInfo.headers.token)
+
+  const updateData = { name };
+  const pro = dailyTaskTable.doc(id);
+
+  const res = await pro.get();
+  const oldName = res.data[0].name;
+
+  // 同步修改date中的名称
+  await dailyDateTable.where({ username, name: oldName }).update(updateData)
+  return pro.update(updateData)
+}
+
 module.exports = {
   add,
   del,
+  update,
   list,
 };
