@@ -25,25 +25,16 @@ const userTable = db.collection('user');
  */
 
 /**
- * 查询当前用户信息
- * @param {Object} params
- * @param {string} params.token
+ * 查询用户列表
+ * @param {Object} httpInfo
+ * @param {string} httpInfo.headers.token
  * @returns {UserApiResponse}
  */
-async function list(params) {
-  const {
-    token
-  } = params;
-  const {
-    _id
-  } = tools.parseToken(token)
+async function list() {
+  const httpInfo = this.getHttpInfo();
+  await tools.checkToken(httpInfo.headers.token, this.getMethodName());
 
-  // 检查token是否过期
-  await tools.checkToken(token, this.getMethodName());
-
-  return userTable
-    .doc(_id)
-    .get();
+  return userTable.get();
 }
 
 /**
