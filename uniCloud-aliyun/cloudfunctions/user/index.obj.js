@@ -32,9 +32,10 @@ const userTable = db.collection('user');
  */
 async function list() {
   const httpInfo = this.getHttpInfo();
+  const { username } = JSON.parse(httpInfo.body)
   await tools.checkToken(httpInfo.headers.token, this.getMethodName());
 
-  return userTable.get();
+  return userTable.where({ username }).get();
 }
 
 /**
@@ -162,10 +163,8 @@ async function forgetPassword(params) {
  * @returns {ApiResponse}
  */
 async function add(params) {
-  const {
-    username,
-    password
-  } = params;
+  const httpInfo = this.getHttpInfo();
+  const { username, password } = JSON.parse(httpInfo.body)
 
   if (!username) {
     return {
