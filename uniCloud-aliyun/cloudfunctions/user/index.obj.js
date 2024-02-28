@@ -25,6 +25,12 @@ const userTable = db.collection('user');
  */
 
 /**
+ * @typedef {Object} DocGetRes doc(id).get()的响应体
+ * @property {number} DocGetRes.affectedDocs
+ * @property {array} DocGetRes.data
+ */
+
+/**
  * 查询用户列表
  * @param {Object} httpInfo
  * @param {string} httpInfo.headers.token
@@ -223,30 +229,45 @@ async function login() {
     };
   }
 
-  // if (!password) {
-  //   return {
-  //     code: -1,
-  //     data: '缺少密码',
-  //   };
-  // }
-
-  // TODO: 检查密码强度
-
-  const res = await userTable.where({
-    username,
-  }).get();
-
-  if (res.data.length) {
+  if (!password) {
     return {
-      code: 0,
-      data: tools.createToken(res.data[0]),
+      code: -1,
+      data: '缺少密码',
+    };
+  }
+
+  const res = await userTable.where({ username }).get();
+
+  if (res.data.length !== 1) {
+    return {
+      code: -1,
+      data: '账户或密码错误',
+    };
+  }
+
+  /** @type {User}  */
+  const user = res.data[0];
+  if (user.password !== password) {
+    return {
+      code: -1,
+      data: '账户或密码错误',
     };
   }
 
   return {
-    code: -1,
-    data: '账户或密码错误',
+    code: 0,
+    data: tools.createToken(res.data[0]),
   };
+}
+
+function test() {
+  const httpInfo = this.getHttpInfo();
+  // 需要在登录状态下才能获取到token
+  const { _id } = tools.parseToken(httpInfo.headers.token);
+
+  return {
+    name: 'test'
+  }
 }
 
 module.exports = {
@@ -255,4 +276,5 @@ module.exports = {
   login,
   updatePassword,
   forgetPassword,
+  test,
 };
