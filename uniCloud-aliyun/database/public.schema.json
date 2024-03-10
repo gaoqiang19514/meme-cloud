@@ -1,0 +1,33 @@
+{
+  "bsonType": "object",
+  "required": [],
+  "permission": {
+    "read": true,
+    "create": true,
+    "update": true,
+    "delete": true
+  },
+  "properties": {
+    "_id": {
+      "description": "ID，系统自动生成"
+    },
+    "createTime": {
+      "description": "创建时间"
+    },
+    "createUser": {
+      "description": "创建人"
+    },
+    "updateTime": {
+      "description": "更新时间"
+    },
+    "updateUser": {
+      "description": "更新人"
+    },
+    "name": {
+      "description": "字段名"
+    },
+    "content": {
+      "description": "内容"
+    }
+  }
+}

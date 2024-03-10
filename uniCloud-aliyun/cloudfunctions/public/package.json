@@ -1,0 +1,12 @@
+{
+  "name": "public",
+  "dependencies": {
+    "tools": "file:../common/tools",
+    "db": "file:../common/db"
+  },
+  "extensions": {
+    "uni-cloud-jql": {},
+    "uni-cloud-sms": {},
+    "uni-cloud-verify": {}
+  }
+}
