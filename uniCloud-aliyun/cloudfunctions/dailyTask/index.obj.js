@@ -8,6 +8,7 @@ const dailyDateTable = db.collection('dailyDate');
  * @typedef {Object} DailyTask
  * @property {string} _id
  * @property {string} name
+ * @property {string} link
  * @property {string} username
  */
 
@@ -27,21 +28,23 @@ const dailyDateTable = db.collection('dailyDate');
  * 新增
  * @param {Object} body
  * @param {string} body.name
+ * @param {string} body.link
  * @returns {ApiResponse}
  */
 function add() {
   const httpInfo = this.getHttpInfo();
-  const { name } = JSON.parse(httpInfo.body)
+  const { name, link } = JSON.parse(httpInfo.body)
   const { username } = tools.parseToken(httpInfo.headers.token)
 
   return dailyTaskTable.add({
     name,
+    link,
     username
   });
 }
 
 /**
- * 新增
+ * 删除
  * @param {Object} body
  * @param {string} body.id
  * @returns {ApiResponse}
@@ -81,14 +84,15 @@ function list(params) {
  * @param {Object} body
  * @param {string} body.id
  * @param {string} body.name
+ * @param {string} body.link
  * @returns {ApiResponse}
  */
 async function update() {
   const httpInfo = this.getHttpInfo();
-  const { id, name } = JSON.parse(httpInfo.body)
+  const { id, name, link } = JSON.parse(httpInfo.body)
   const { username } = tools.parseToken(httpInfo.headers.token)
 
-  const updateData = { name };
+  const updateData = { name, link };
   const pro = dailyTaskTable.doc(id);
 
   const res = await pro.get();

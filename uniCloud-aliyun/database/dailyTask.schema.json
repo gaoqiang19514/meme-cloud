@@ -1,1 +1,24 @@
-{"bsonType":"object","required":[],"permission":{"read":true,"create":true,"update":true,"delete":true},"properties":{"_id":{"description":"ID，系统自动生成"},"name":{"description":"任务名称"},"username":{"description":"用户名"}}}
+{
+  "bsonType": "object",
+  "required": [],
+  "permission": {
+    "read": true,
+    "create": true,
+    "update": true,
+    "delete": true
+  },
+  "properties": {
+    "_id": {
+      "description": "ID，系统自动生成"
+    },
+    "name": {
+      "description": "任务名称"
+    },
+    "link": {
+      "description": "任务连接"
+    },
+    "username": {
+      "description": "用户名"
+    }
+  }
+}
