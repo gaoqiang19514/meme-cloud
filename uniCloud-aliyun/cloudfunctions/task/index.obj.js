@@ -1,6 +1,7 @@
 const db = require("db");
 const tools = require("tools");
 const taskTable = db.collection("task");
+const recordTable = db.collection("record");
 
 /**
  * @typedef {Object} Task
@@ -88,9 +89,26 @@ async function remove() {
 
   // 检查一下user和id是否匹配
 
-  // 需要同步删除record
+  /** @type {import('../user/index.obj.js').DocGetRes} */
+  const res = await taskTable.doc(id).get();
+  if (!res.data.length) {
+    return {
+      code: -1,
+      data: "未找到目标数据",
+    };
+  }
 
-  return await taskTable.doc(id).remove();
+  // 需要定义一下响应体
+  const taskRes = await taskTable.doc(id).remove();
+
+  const task = res.data[0];
+  // 需要同步删除record
+  await recordTable.where({
+    name: task.name,
+    username: task.username
+  }).remove();
+
+  return taskRes;
 }
 
 /**
