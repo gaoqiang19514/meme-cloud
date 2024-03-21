@@ -1,6 +1,6 @@
-const db = require('db');
-const tools = require('tools');
-const taskTable = db.collection('task');
+const db = require("db");
+const tools = require("tools");
+const taskTable = db.collection("task");
 
 /**
  * @typedef {Object} Task
@@ -30,36 +30,37 @@ const taskTable = db.collection('task');
  * @param {number} params.target
  * @returns {ApiResponse}
  */
-async function add(params) {
+async function add() {
   const httpInfo = this.getHttpInfo();
-  const { name, target } = JSON.parse(httpInfo.body)
-  const { username } = tools.parseToken(httpInfo.headers.token)
-  
+  const { name, target } = JSON.parse(httpInfo.body);
+  const { username } = tools.parseToken(httpInfo.headers.token);
 
   if (!name) {
     return {
       code: -1,
-      data: '缺少任务名',
+      data: "缺少任务名",
     };
   }
 
   if (!target) {
     return {
       code: -1,
-      data: '缺少目标时长',
+      data: "缺少目标时长",
     };
   }
-  
-  const res = await taskTable.where({
-    name,
-    username
-  }).count()
-  
+
+  const res = await taskTable
+    .where({
+      name,
+      username,
+    })
+    .count();
+
   if (res.total === 0) {
     const taskRes = await taskTable.add({
       name,
       target,
-      username
+      username,
     });
     return {
       code: 0,
@@ -69,7 +70,7 @@ async function add(params) {
 
   return {
     code: -1,
-    data: '任务名已被占用',
+    data: "任务名已被占用",
   };
 }
 
@@ -80,16 +81,17 @@ async function add(params) {
  * @param {string} data.id
  * @returns {ApiResponse}
  */
-async function remove(data) {
+async function remove() {
   const httpInfo = this.getHttpInfo();
-  const { id } = JSON.parse(httpInfo.body)
-  const { username } = tools.parseToken(httpInfo.headers.token)
-  
+  const { id } = JSON.parse(httpInfo.body);
+  const { username } = tools.parseToken(httpInfo.headers.token);
+
   // 检查一下user和id是否匹配
 
-  return  await taskTable.doc(id).remove()
-}
+  // 需要同步删除record
 
+  return await taskTable.doc(id).remove();
+}
 
 /**
  * 更新任务
@@ -103,28 +105,26 @@ async function remove(data) {
  */
 async function update(params) {
   const { token, id, payload } = params;
-  const { username } = tools.parseToken(token)
-  
+  const { username } = tools.parseToken(token);
+
   if (!id) {
     return {
       code: -1,
-      data: '缺少任务id',
+      data: "缺少任务id",
     };
   }
 
-  const res = await taskTable
-    .doc(id)
-    .update(payload);
+  const res = await taskTable.doc(id).update(payload);
 
   if (res.updated > 0) {
     return {
       code: -1,
-      data: '更新成功',
+      data: "更新成功",
     };
   }
   return {
     code: 0,
-    data: '更新失败',
+    data: "更新失败",
   };
 }
 
@@ -138,21 +138,23 @@ async function update(params) {
  */
 async function list(params) {
   const { token, name, target } = params;
-  const { username } = tools.parseToken(token)
+  const { username } = tools.parseToken(token);
 
-  return taskTable.where({
-    name,
-    target,
-    username
-  }).get();
+  return taskTable
+    .where({
+      name,
+      target,
+      username,
+    })
+    .get();
 }
 
 module.exports = {
   _before() {
-    const [param] = this.getParams()
-    
-    if(!param.token) {
-      throw new Error('token不存在')
+    const [param] = this.getParams();
+
+    if (!param.token) {
+      throw new Error("token不存在");
     }
   },
   add,
