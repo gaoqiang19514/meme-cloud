@@ -1,38 +1,7 @@
 {
   "pages": [
-    //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
     {
-      "path": "pages/task/index",
-      "style": {
-        "navigationBarTitleText": "微习惯"
-      }
-    },
-    {
-      "path": "pages/meme/index",
-      "style": {
-        "navigationBarTitleText": "表情包"
-      }
-    },
-    {
-      "path": "pages/tomato/index",
-      "style": {
-        "navigationBarTitleText": "番茄"
-      }
-    },
-    {
-      "path": "pages/login/index",
-      "style": {
-        "navigationBarTitleText": "登录"
-      }
-    },
-    {
-      "path": "pages/bookmark/index",
-      "style": {
-        "navigationBarTitleText": "书签"
-      }
-    },
-    {
-      "path": "pages/cloudTest/index",
+      "path": "pages/index/index",
       "style": {
         "navigationBarTitleText": "云对象测试"
       }

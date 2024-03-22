@@ -218,9 +218,9 @@ async function add(params) {
  * @param {string} params.password
  * @returns {ApiResponse}
  */
-async function login() {
+async function login(body) {
   const httpInfo = this.getHttpInfo();
-  const { username, password } = JSON.parse(httpInfo.body)
+  const { username, password } = httpInfo ? JSON.parse(httpInfo.body) : body
 
   if (!username) {
     return {

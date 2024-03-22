@@ -82,26 +82,32 @@ async function add() {
  * @param {string} data.id
  * @returns {ApiResponse}
  */
-async function remove() {
+async function remove(uniBody) {
   const httpInfo = this.getHttpInfo();
-  const { id } = JSON.parse(httpInfo.body);
-  const { username } = tools.parseToken(httpInfo.headers.token);
-
-  // 检查一下user和id是否匹配
+  const { id, token } = httpInfo ? JSON.parse(httpInfo.body) : uniBody;
+  const { username } = tools.parseToken(token) || {};
 
   /** @type {import('../user/index.obj.js').DocGetRes} */
   const res = await taskTable.doc(id).get();
   if (!res.data.length) {
     return {
       code: -1,
-      data: "未找到目标数据",
+      data: "/remove 未找到目标数据",
+    };
+  }
+
+  // 检查一下user和id是否匹配
+  if (res.data[0].username !== username) {
+    return {
+      code: -1,
+      data: "/remove 当前用户无删除权限",
     };
   }
 
   // 需要定义一下响应体
   const taskRes = await taskTable.doc(id).remove();
-
   const task = res.data[0];
+
   // 需要同步删除record
   await recordTable.where({
     name: task.name,
@@ -148,15 +154,23 @@ async function update(params) {
 
 /**
  * 任务列表
- * @param {Object} params
- * @param {string} params.token
- * @param {string} [params.name]
- * @param {string} [params.target]
+ * @param {Object} data
+ * @param {string} data.token
+ * @param {string} [data.name]
+ * @param {string} [data.target]
  * @returns {TaskApiResponse}
  */
-async function list(params) {
-  const { token, name, target } = params;
-  const { username } = tools.parseToken(token);
+async function list(uniBody) {
+  const httpInfo = this.getHttpInfo();
+  const { token, name, target } = httpInfo ? JSON.parse(httpInfo.body) : uniBody;
+  const { username } = tools.parseToken(token) || {};
+  
+  if (!username) {
+    return {
+      code: 404,
+      data: "登录过期",
+    };
+  }
 
   return taskTable
     .where({
