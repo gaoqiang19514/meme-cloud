@@ -2,6 +2,9 @@ const db = require("db");
 const tools = require("tools");
 const publicTable = db.collection("public");
 
+// 云函数通过传统方式操作数据库
+// https://doc.dcloud.net.cn/uniCloud/cf-database.html#get-collection
+
 /**
  * @typedef {Object} Record
  * @property {string} _id
@@ -45,11 +48,12 @@ exports.add = async function() {
   const {
     username
   } = tools.parseToken(httpInfo.headers.token)
-
-  const now = new Date();
+  
+  // timestamp
+  const now = new Date().getTime();
   const createTime = now;
   const updateTime = now;
-  
+
   const payload = {
     name,
     content,
@@ -84,9 +88,10 @@ exports.update = function() {
     username
   } = tools.parseToken(httpInfo.headers.token)
 
-  const now = new Date();
+  // timestamp
+  const now = new Date().getTime();
   const updateTime = now;
-  
+
   return publicTable.where({
     name,
   }).update({
@@ -109,7 +114,7 @@ exports.list = function() {
     name
   } = JSON.parse(httpInfo.body);
 
-  return publicTable.get({
+  return publicTable.orderBy('updateTime', 'desc').get({
     name
   });
 };
