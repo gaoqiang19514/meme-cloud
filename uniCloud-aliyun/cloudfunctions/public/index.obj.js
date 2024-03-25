@@ -25,13 +25,18 @@ const publicTable = db.collection("public");
  */
 
 /**
+ * @typedef {Object} AddRes
+ * @property {string} AddRes.id
+ */
+
+/**
  * 新增
  * @param {Object} data
  * @param {string} data.name
  * @param {string} data.content
  * @returns {ApiResponse}
  */
-exports.add = function() {
+exports.add = async function() {
   const httpInfo = this.getHttpInfo()
   const {
     name,
@@ -44,15 +49,23 @@ exports.add = function() {
   const now = new Date();
   const createTime = now;
   const updateTime = now;
-
-  return publicTable.add({
+  
+  const payload = {
     name,
     content,
     createTime,
     createUser: username,
     updateTime,
     updateUser: username,
-  });
+  }
+
+  /** @type AddRes */
+  const res = await publicTable.add(payload);
+
+  return {
+    ...payload,
+    _id: res.id
+  }
 };
 
 /**
