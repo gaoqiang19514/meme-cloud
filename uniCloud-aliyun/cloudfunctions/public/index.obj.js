@@ -2,6 +2,9 @@ const db = require("db");
 const tools = require("tools");
 const publicTable = db.collection("public");
 
+// 云函数通过传统方式操作数据库
+// https://doc.dcloud.net.cn/uniCloud/cf-database.html#get-collection
+
 /**
  * @typedef {Object} Record
  * @property {string} _id
@@ -25,13 +28,18 @@ const publicTable = db.collection("public");
  */
 
 /**
+ * @typedef {Object} AddRes
+ * @property {string} AddRes.id
+ */
+
+/**
  * 新增
  * @param {Object} data
  * @param {string} data.name
  * @param {string} data.content
  * @returns {ApiResponse}
  */
-exports.add = function() {
+exports.add = async function() {
   const httpInfo = this.getHttpInfo()
   const {
     name,
@@ -40,19 +48,28 @@ exports.add = function() {
   const {
     username
   } = tools.parseToken(httpInfo.headers.token)
-
-  const now = new Date();
+  
+  // timestamp
+  const now = new Date().getTime();
   const createTime = now;
   const updateTime = now;
 
-  return publicTable.add({
+  const payload = {
     name,
     content,
     createTime,
     createUser: username,
     updateTime,
     updateUser: username,
-  });
+  }
+
+  /** @type AddRes */
+  const res = await publicTable.add(payload);
+
+  return {
+    ...payload,
+    _id: res.id
+  }
 };
 
 /**
@@ -71,9 +88,10 @@ exports.update = function() {
     username
   } = tools.parseToken(httpInfo.headers.token)
 
-  const now = new Date();
+  // timestamp
+  const now = new Date().getTime();
   const updateTime = now;
-  
+
   return publicTable.where({
     name,
   }).update({
@@ -96,7 +114,7 @@ exports.list = function() {
     name
   } = JSON.parse(httpInfo.body);
 
-  return publicTable.get({
+  return publicTable.orderBy('updateTime', 'desc').get({
     name
   });
 };
