@@ -17,6 +17,9 @@
     "link": {
       "description": "任务连接"
     },
+    "period": {
+      "description": "任务周期"
+    },
     "username": {
       "description": "用户名"
     }

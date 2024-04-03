@@ -33,12 +33,13 @@ const dailyDateTable = db.collection('dailyDate');
  */
 function add() {
   const httpInfo = this.getHttpInfo();
-  const { name, link } = JSON.parse(httpInfo.body)
+  const { name, link, period } = JSON.parse(httpInfo.body)
   const { username } = tools.parseToken(httpInfo.headers.token)
 
   return dailyTaskTable.add({
     name,
     link,
+    period,
     username
   });
 }
