@@ -73,18 +73,23 @@ async function del(params) {
 
 /**
  * 列表
- * @param {Object} params
- * @param {string} params.token
- * @param {string} [params.date]
+ * @param {Object} data
+ * @param {string} data.token
+ * @param {string} [data._id]
+ * @param {string} [data.name]
+ * @param {string} [data.dates]
  * @returns {DailyApiResponse}
  */
 function list(params) {
-  const { token, date } = params;
-  const { username } = tools.parseToken(token)
-
+  const httpInfo = this.getHttpInfo();
+  const { _id, name, dates } = JSON.parse(httpInfo.body)
+  const { username } = tools.parseToken(httpInfo.headers.token)
+  
   return dailyDateTable.where({
+    _id,
+    name,
     username,
-    date,
+    date: db.command.in(dates),
   }).get();
 }
 
