@@ -45,8 +45,7 @@ function add(params) {
  */
 function del(params) {
   const { token, id } = params;
-  const { username } = tools.parseToken(token)
-  
+
   if (!id) {
     return {
       code: -1,
@@ -73,6 +72,9 @@ function list(params) {
 }
 
 module.exports = {
+  _before() {
+    tools.checkLoginStatus(this)
+  },
   add,
   del,
   list,

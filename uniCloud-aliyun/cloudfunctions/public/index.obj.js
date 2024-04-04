@@ -48,7 +48,7 @@ exports.add = async function() {
   const {
     username
   } = tools.parseToken(httpInfo.headers.token)
-  
+
   // timestamp
   const now = new Date().getTime();
   const createTime = now;
@@ -117,4 +117,8 @@ exports.list = function() {
   return publicTable.orderBy('updateTime', 'desc').get({
     name
   });
+};
+
+exports._before = function() {
+  tools.checkLoginStatus(this)
 };

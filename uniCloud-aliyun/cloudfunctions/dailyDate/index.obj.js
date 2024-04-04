@@ -45,14 +45,15 @@ function add() {
 
 /**
  * 删除
- * @param {Object} params
- * @param {string} params.date
- * @param {string} params.name
+ * @param {Object} data
+ * @param {string} data.date
+ * @param {string} data.name
  * @returns {ApiResponse}
  */
-async function del(params) {
-  const { token, date, name } = params;
-  const { username } = tools.parseToken(token)
+async function del() {
+  const httpInfo = this.getHttpInfo();
+  const { date, name } = JSON.parse(httpInfo.body)
+  const { username } = tools.parseToken(httpInfo.headers.token)
   
   if (!username) {
     return {
@@ -94,6 +95,9 @@ function list(params) {
 }
 
 module.exports = {
+  _before() {
+    tools.checkLoginStatus(this)
+  },
   add,
   del,
   list,

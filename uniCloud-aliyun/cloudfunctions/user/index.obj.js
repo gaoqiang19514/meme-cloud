@@ -271,6 +271,9 @@ function test() {
 }
 
 module.exports = {
+  _before() {
+    tools.checkLoginStatus(this)
+  },
   list,
   add,
   login,

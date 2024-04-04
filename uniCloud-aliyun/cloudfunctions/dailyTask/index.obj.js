@@ -67,13 +67,13 @@ async function del() {
 
 /**
  * 列表
- * @param {Object} params
- * @param {string} params.token
+ * @param {Object} data
+ * @param {string} data.token
  * @returns {DailyTaskApiResponse}
  */
-function list(params) {
-  const { token } = params;
-  const { username } = tools.parseToken(token)
+function list() {
+  const httpInfo = this.getHttpInfo();
+  const { username } = tools.parseToken(httpInfo.headers.token)
 
   return dailyTaskTable.where({
     username
@@ -105,6 +105,9 @@ async function update() {
 }
 
 module.exports = {
+  _before() {
+    tools.checkLoginStatus(this)
+  },
   add,
   del,
   update,

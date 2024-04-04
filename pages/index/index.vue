@@ -11,6 +11,7 @@
 <script>
 const userObject = uniCloud.importObject('user');
 const taskObject = uniCloud.importObject('task');
+const dailyTaskObject = uniCloud.importObject('dailyTask');
 const recordObject = uniCloud.importObject('record');
 const memeObject = uniCloud.importObject('meme');
 const bookmarkObject = uniCloud.importObject('bookmark');
@@ -26,7 +27,7 @@ export default {
   },
   async mounted() {
     // TODO: 需要补充token过期的重新登录逻辑
-    
+
     if (!token) {
       await userObject.login({
         username: 'refanbanzhang',
@@ -79,11 +80,12 @@ export default {
 
     // -------------------------------task----------------------------
     // 获取任务列表
-    taskObject.list({
-      token
-    }).then(res => {
-      this.items = res.data;
-    })
+    // taskObject.list({
+    //   token,
+    //   name: 'test',
+    // }).then(res => {
+    //   this.items = res.data;
+    // })
 
     // 新增任务
     // taskObject.add({
@@ -95,12 +97,12 @@ export default {
     // })
 
     // 删除任务
-    taskObject.remove({
-      token,
-      id: '65f62e63fe975f744057b576',
-    }).then(res => {
-      console.log('res', res)
-    })
+    // taskObject.remove({
+    //   token,
+    //   id: '65f62e63fe975f744057b576',
+    // }).then(res => {
+    //   console.log('res', res)
+    // })
 
     // 更新任务
     // taskObject.update({
@@ -159,6 +161,10 @@ export default {
     // }).then(res => {
     //   console.log('res', res);
     // })
+    
+    // -------------------------------dailyTask-------------------------------
+    dailyTaskObject.list().then(res => {
+    })
   },
 };
 </script>

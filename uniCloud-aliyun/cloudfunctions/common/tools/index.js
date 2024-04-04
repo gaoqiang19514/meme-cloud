@@ -58,8 +58,20 @@ async function checkToken(token, methodName) {
   }
 }
 
+function checkLoginStatus(context) {
+  const data = context.getParams()[0] || {};
+  const httpInfo = context.getHttpInfo();
+  const { token } = httpInfo ? JSON.parse(httpInfo.body) : data;
+  const { username } = parseToken(token) || {};
+
+  if (!username) {
+    throw new Error('登录过期')
+  }
+}
+
 module.exports = {
   createToken,
   parseToken,
   checkToken,
+  checkLoginStatus,
 };

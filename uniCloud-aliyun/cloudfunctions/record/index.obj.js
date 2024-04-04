@@ -91,9 +91,10 @@ function update() {
  * @param {string} [params.target]
  * @returns {RecordApiResponse}
  */
-function list(params) {
-  const { token, date, name, value, target } = params;
-  const { username } = tools.parseToken(token)
+function list() {
+  const httpInfo = this.getHttpInfo()
+  const { token, date, name, value, target } = JSON.parse(httpInfo.body);
+  const { username } = tools.parseToken(httpInfo.headers.token)
 
   return recordTable.where({
     date,
@@ -111,8 +112,9 @@ function list(params) {
  * @returns {ApiResponse}
  */
 async function totalValue(params) {
-  const { token, name } = params;
-  const { username } = tools.parseToken(token)
+  const httpInfo = this.getHttpInfo()
+  const { token, name } = JSON.parse(httpInfo.body);
+  const { username } = tools.parseToken(httpInfo.headers.token)
 
   const res = await recordTable.where({
     username,
@@ -123,6 +125,9 @@ async function totalValue(params) {
 }
 
 module.exports = {
+  _before() {
+    tools.checkLoginStatus(this)
+  },
   add,
   update,
   list,

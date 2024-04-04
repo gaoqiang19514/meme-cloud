@@ -119,17 +119,17 @@ async function remove(uniBody) {
 
 /**
  * 更新任务
- * @param {Object} params
- * @param {string} params.token
- * @param {Object} params.id
- * @param {Object} params.payload
- * @param {string} params.payload.name
- * @param {string} params.payload.target
+ * @param {Object} data
+ * @param {string} data.token
+ * @param {Object} data.id
+ * @param {Object} data.payload
+ * @param {string} data.payload.name
+ * @param {string} data.payload.target
  * @returns {ApiResponse}
  */
-async function update(params) {
-  const { token, id, payload } = params;
-  const { username } = tools.parseToken(token);
+async function update() {
+  const httpInfo = this.getHttpInfo();
+  const { id, payload } = httpInfo ? JSON.parse(httpInfo.body) : uniBody;
 
   if (!id) {
     return {
@@ -164,13 +164,6 @@ async function list(uniBody) {
   const httpInfo = this.getHttpInfo();
   const { token, name, target } = httpInfo ? JSON.parse(httpInfo.body) : uniBody;
   const { username } = tools.parseToken(token) || {};
-  
-  if (!username) {
-    return {
-      code: 404,
-      data: "登录过期",
-    };
-  }
 
   return taskTable
     .where({
@@ -183,11 +176,7 @@ async function list(uniBody) {
 
 module.exports = {
   _before() {
-    const [param] = this.getParams();
-
-    if (!param.token) {
-      throw new Error("token不存在");
-    }
+    tools.checkLoginStatus(this)
   },
   add,
   remove,
