@@ -20,6 +20,9 @@
     "period": {
       "description": "任务周期"
     },
+    "position": {
+      "description": "任务位置"
+    },
     "username": {
       "description": "用户名"
     }

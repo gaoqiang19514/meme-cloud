@@ -163,7 +163,13 @@ export default {
     // })
     
     // -------------------------------dailyTask-------------------------------
-    dailyTaskObject.list().then(res => {
+    // dailyTaskObject.list({ token })
+    dailyTaskObject.updatePosition({
+      token,
+      sourceIndex: 0,
+      destinationIndex: 1,
+    }).then(res => {
+      debugger
     })
   },
 };

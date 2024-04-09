@@ -272,7 +272,8 @@ function test() {
 
 module.exports = {
   _before() {
-    tools.checkLoginStatus(this)
+    // TODO: login 不需要校验登陆态
+    // tools.checkLoginStatus(this)
   },
   list,
   add,
