@@ -33,17 +33,19 @@ const dailyDateTable = db.collection('dailyDate');
  * @param {string} body.position
  * @returns {ApiResponse}
  */
-function add() {
+async function add() {
   const httpInfo = this.getHttpInfo();
   const {
     name,
     link,
     period,
-    position
   } = JSON.parse(httpInfo.body)
   const {
     username
   } = tools.parseToken(httpInfo.headers.token)
+
+  const res = await dailyTaskTable.where({ username }).orderBy('position', 'desc').limit(1).get();
+  const position = res.data[0].position = res.data[0].position * 2;
 
   return dailyTaskTable.add({
     name,
@@ -88,7 +90,7 @@ async function del() {
  * @param {string} data.token
  * @returns {DailyTaskApiResponse}
  */
-function list(uniBody) {
+async function list(uniBody) {
   const httpInfo = this.getHttpInfo();
   const {
     token
@@ -96,6 +98,21 @@ function list(uniBody) {
   const {
     username
   } = tools.parseToken(token)
+
+  const res = await dailyTaskTable.where({
+    username
+  }).get();
+
+  // const updatedData = res.data.map((item, index) => ({
+  //   ...item,
+  //   position: (index + 1) * 10
+  // }));
+
+  // for (const item of updatedData) {
+  //   await dailyTaskTable.doc(item._id).update({
+  //     position: item.position
+  //   });
+  // }
 
   return dailyTaskTable.where({
     username
@@ -176,20 +193,31 @@ async function updatePosition(uniBody) {
   const httpInfo = this.getHttpInfo();
   const {
     token,
-    items,
+    startIndex,
+    endIndex,
   } = httpInfo ? JSON.parse(httpInfo.body) : uniBody
   const {
     username
   } = tools.parseToken(token)
 
-  for (const item of items) {
-    await dailyTaskTable
-      .doc(item._id)
-      .update({
-        position: item.position
-      })
+  const res = await dailyTaskTable.where({ username }).get();
+  const tasks = res.data;
+
+  let nextPosition;
+  if (endIndex === 0) {
+    nextPosition = tasks[0].position / 2;
+  } else if (endIndex === tasks.length - 1) {
+    nextPosition = tasks[endIndex].position + 10;
+  } else {
+    nextPosition = (tasks[endIndex - 1].position + tasks[endIndex].position) / 2;
   }
-  return {}
+
+  // TODO: 小数出了问题吗？断点调试一下
+
+  const movedTask = tasks[startIndex]
+  return dailyTaskTable.doc(movedTask._id).update({
+    position: nextPosition
+  })
 }
 
 module.exports = {
