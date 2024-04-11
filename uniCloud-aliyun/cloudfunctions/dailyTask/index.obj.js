@@ -185,38 +185,20 @@ const updateOrder = (sourceIndex, destinationIndex, items) => {
 /**
  * 更新排序
  * @param {Object} data
- * @param {number} data.sourceIndex
- * @param {number} data.destinationIndex
+ * @param {number} data.sourceId
+ * @param {number} data.order
  * @returns {ApiResponse}
  */
 async function updatePosition(uniBody) {
   const httpInfo = this.getHttpInfo();
   const {
     token,
-    startIndex,
-    endIndex,
+    sourceId,
+    order,
   } = httpInfo ? JSON.parse(httpInfo.body) : uniBody
-  const {
-    username
-  } = tools.parseToken(token)
 
-  const res = await dailyTaskTable.where({ username }).get();
-  const tasks = res.data;
-
-  let nextPosition;
-  if (endIndex === 0) {
-    nextPosition = tasks[0].position / 2;
-  } else if (endIndex === tasks.length - 1) {
-    nextPosition = tasks[endIndex].position + 10;
-  } else {
-    nextPosition = (tasks[endIndex - 1].position + tasks[endIndex].position) / 2;
-  }
-
-  // TODO: 小数出了问题吗？断点调试一下
-
-  const movedTask = tasks[startIndex]
-  return dailyTaskTable.doc(movedTask._id).update({
-    position: nextPosition
+  return dailyTaskTable.doc(sourceId).update({
+    position: order,
   })
 }
 

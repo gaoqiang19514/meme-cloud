@@ -166,8 +166,8 @@ export default {
     // dailyTaskObject.list({ token })
     dailyTaskObject.updatePosition({
       token,
-      sourceIndex: 0,
-      destinationIndex: 1,
+      startIndex: 0,
+      endIndex: 1,
     }).then(res => {
       debugger
     })
